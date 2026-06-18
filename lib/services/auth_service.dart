@@ -1,5 +1,3 @@
-import '../config/api_config.dart';
-import 'api_service.dart';
 
 class AuthService {
   /// Hàm đăng nhập
