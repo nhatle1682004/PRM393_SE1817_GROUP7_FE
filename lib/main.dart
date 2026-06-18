@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:waste_collection_management_system/screens/home/home_screen.dart';
 
-import 'screens/login_screen.dart';
+import 'screens/login/login_screen.dart';
 
 void main() {
   runApp(const EcoCollectApp());
@@ -15,10 +16,10 @@ class EcoCollectApp extends StatelessWidget {
       title: 'EcoCollect',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        useMaterial3: true,
+        primarySwatch: Colors.green,
+        fontFamily: 'Arial',
       ),
-      home: const LoginScreen(),
+      home: const HomeScreen(),
     );
   }
 }
