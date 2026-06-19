@@ -1,0 +1,100 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: waste_collection_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "12345"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  identity-service:
+    build:
+      context: .
+      dockerfile: src/Services/IdentityService/IdentityService.Api/Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=waste_collection_platform;Username=postgres;Password=12345;Include Error Detail=true
+      ServiceUrls__IdentityService: http://identity-service:8080
+      ServiceUrls__WasteReportService: http://waste-report-service:8080
+      ServiceUrls__CollectionService: http://collection-service:8080
+      ServiceUrls__EngagementService: http://engagement-service:8080
+    ports:
+      - "5001:8080"
+    depends_on:
+      - postgres
+
+  waste-report-service:
+    build:
+      context: .
+      dockerfile: src/Services/WasteReportService/WasteReportService.Api/Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=waste_collection_platform;Username=postgres;Password=12345;Include Error Detail=true
+      ServiceUrls__IdentityService: http://identity-service:8080
+      ServiceUrls__WasteReportService: http://waste-report-service:8080
+      ServiceUrls__CollectionService: http://collection-service:8080
+      ServiceUrls__EngagementService: http://engagement-service:8080
+    ports:
+      - "5002:8080"
+    depends_on:
+      - identity-service
+      - postgres
+
+  collection-service:
+    build:
+      context: .
+      dockerfile: src/Services/CollectionService/CollectionService.Api/Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=waste_collection_platform;Username=postgres;Password=12345;Include Error Detail=true
+      ServiceUrls__IdentityService: http://identity-service:8080
+      ServiceUrls__WasteReportService: http://waste-report-service:8080
+      ServiceUrls__CollectionService: http://collection-service:8080
+      ServiceUrls__EngagementService: http://engagement-service:8080
+    ports:
+      - "5003:8080"
+    depends_on:
+      - identity-service
+      - waste-report-service
+      - postgres
+
+  engagement-service:
+    build:
+      context: .
+      dockerfile: src/Services/EngagementService/EngagementService.Api/Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=waste_collection_platform;Username=postgres;Password=12345;Include Error Detail=true
+      ServiceUrls__IdentityService: http://identity-service:8080
+      ServiceUrls__WasteReportService: http://waste-report-service:8080
+      ServiceUrls__CollectionService: http://collection-service:8080
+      ServiceUrls__EngagementService: http://engagement-service:8080
+    ports:
+      - "5004:8080"
+    depends_on:
+      - identity-service
+      - postgres
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: src/ApiGateway/Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ReverseProxy__Clusters__identity__Destinations__identity-1__Address: http://identity-service:8080/
+      ReverseProxy__Clusters__waste__Destinations__waste-1__Address: http://waste-report-service:8080/
+      ReverseProxy__Clusters__collection__Destinations__collection-1__Address: http://collection-service:8080/
+      ReverseProxy__Clusters__engagement__Destinations__engagement-1__Address: http://engagement-service:8080/
+    ports:
+      - "5000:8080"
+    depends_on:
+      - identity-service
+      - waste-report-service
+      - collection-service
+      - engagement-service
+
+volumes:
+  postgres-data:
