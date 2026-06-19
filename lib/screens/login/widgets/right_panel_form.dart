@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:waste_collection_management_system/config/locale_scope.dart';
 import 'package:waste_collection_management_system/screens/home/home_screen.dart';
+import 'package:waste_collection_management_system/screens/home/widgets/language_toggle.dart';
 import 'package:waste_collection_management_system/screens/register/register_screen.dart';
 import 'package:waste_collection_management_system/services/api_service.dart';
-import 'package:waste_collection_management_system/widgets/language_toggle.dart';
 
 class RightPanelForm extends StatefulWidget {
   const RightPanelForm({super.key});
