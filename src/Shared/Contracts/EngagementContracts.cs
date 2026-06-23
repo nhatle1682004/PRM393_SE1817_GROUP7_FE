@@ -26,6 +26,8 @@ public sealed class CreateRewardTransactionRequest
     public bool AdjustUserPoints { get; set; } = true;
     public bool CreateNotification { get; set; } = true;
     public string? NotificationContent { get; set; }
+    public string? SourceType { get; set; }
+    public string? ReferenceId { get; set; }
 }
 
 public sealed class RewardTransactionDto
@@ -38,4 +40,9 @@ public sealed class RewardTransactionDto
     public string Type { get; set; } = string.Empty;
     public string? Description { get; set; }
     public DateTime? CreatedAt { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public string? SourceType { get; set; }
+    public string? ReferenceId { get; set; }
+    public string? FailureReason { get; set; }
+    public DateTime? CompletedAt { get; set; }
 }

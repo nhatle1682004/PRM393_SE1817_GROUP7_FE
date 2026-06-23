@@ -3,6 +3,7 @@ using EngagementService.Application.Clients;
 using EngagementService.Application.DTOs.Feedback;
 using EngagementService.Application.Repositories;
 using EngagementService.Domain.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace EngagementService.Application.Services;
 
@@ -18,6 +19,7 @@ public sealed class FeedbackService : IFeedbackService
     private readonly ICollectionClient _collectionClient;
     private readonly INotificationService _notificationService;
     private readonly IRewardService _rewardService;
+    private readonly ILogger<FeedbackService> _logger;
 
     public FeedbackService(
         IEngagementUnitOfWork uow,
@@ -25,7 +27,8 @@ public sealed class FeedbackService : IFeedbackService
         IWasteReportClient wasteClient,
         ICollectionClient collectionClient,
         INotificationService notificationService,
-        IRewardService rewardService)
+        IRewardService rewardService,
+        ILogger<FeedbackService> logger)
     {
         _uow = uow;
         _identityClient = identityClient;
@@ -33,6 +36,7 @@ public sealed class FeedbackService : IFeedbackService
         _collectionClient = collectionClient;
         _notificationService = notificationService;
         _rewardService = rewardService;
+        _logger = logger;
     }
 
     public async Task<FeedbackResponseDto> CreateFeedbackAsync(int userId, CreateFeedbackDto dto)
@@ -96,7 +100,10 @@ public sealed class FeedbackService : IFeedbackService
             Content = feedback.Content,
             Status = feedback.Status,
             FeedbackImageUrl = feedback.ImageUrl,
-            CreatedAt = feedback.CreatedAt
+            ResolutionNote = feedback.ResolutionNote,
+            ResolveFailureReason = feedback.ResolveFailureReason,
+            CreatedAt = feedback.CreatedAt,
+            ResolvedAt = feedback.ResolvedAt
         };
 
         if (report != null)
@@ -144,73 +151,107 @@ public sealed class FeedbackService : IFeedbackService
     public async Task<FeedbackResponseDto> ResolveFeedbackAsync(int feedbackId, ResolveFeedbackDto dto)
     {
         var feedback = _uow.Feedbacks.FirstOrDefault(f => f.FeedbackId == feedbackId) ?? throw new InvalidOperationException("Feedback not found");
-        var now = DateTime.UtcNow;
+        if (!string.Equals(feedback.Status, "Pending", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(feedback.Status, "ResolveFailed", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Only Pending or ResolveFailed feedback can be resolved");
+
         var citizenId = feedback.UserId;
         var reportId = feedback.ReportId ?? 0;
         var action = dto.Action?.ToLowerInvariant() ?? "warn";
+        if (action != "warn" && action != "reassign")
+            throw new ArgumentException("Action must be 'warn' or 'reassign'");
+
         var report = reportId > 0 ? await _wasteClient.GetReportAsync(reportId) : null;
         var context = reportId > 0 ? await _collectionClient.GetFeedbackContextByReportAsync(reportId) : null;
 
-        if (action == "reassign" && report != null && context?.AssignmentId != null && context.RequestId != null)
+        await _uow.ExecuteInTransactionAsync(async () =>
         {
-            if (report.Status == "Collected")
-                await _wasteClient.UpdateReportStatusAsync(report.ReportId, "Accepted");
-
-            await _collectionClient.CancelAssignmentForComplaintAsync(new CancelAssignmentForComplaintRequest
-            {
-                AssignmentId = context.AssignmentId.Value,
-                RequestId = context.RequestId.Value,
-                RequestStatus = "Pending"
-            });
-
-            await ReverseEarnedPointsAsync(report.ReportId, report.SubmittedBy, now);
-        }
-
-        if (context?.CollectorId.HasValue == true)
-        {
-            var points = action == "reassign" ? ReassignPoints : WarnPoints;
-            var collector = await _identityClient.AddCollectorWarningAsync(context.CollectorId.Value, points, dto.AdminNote);
-            var autoDeactivated = (collector?.WarningCount ?? 0) >= WarningThreshold;
-            var collectorMsg = action == "reassign"
-                ? $"You received a warning (+{points} pts, total: {collector?.WarningCount}/{WarningThreshold}) for report #{reportId}. Your assignment has been cancelled due to a valid citizen complaint."
-                : $"You received a warning (+{points} pt, total: {collector?.WarningCount}/{WarningThreshold}) for report #{reportId}. Reason: {dto.AdminNote}";
-            if (autoDeactivated)
-                collectorMsg += " Your account has been DEACTIVATED due to reaching the warning threshold.";
-            await _notificationService.CreateAsync(new CreateNotificationRequest { UserId = context.CollectorId.Value, Content = collectorMsg });
-        }
-
-        if (action == "reassign" && context?.EnterpriseId.HasValue == true)
-        {
-            await _notificationService.CreateAsync(new CreateNotificationRequest
-            {
-                UserId = context.EnterpriseId.Value,
-                Content = $"Report #{reportId} needs to be reassigned to a new collector. The previous assignment was cancelled due to a valid citizen complaint."
-            });
-        }
-
-        await _notificationService.CreateAsync(new CreateNotificationRequest
-        {
-            UserId = citizenId,
-            Content = action == "reassign"
-                ? $"Your complaint about report #{reportId} has been resolved. The report will be reassigned to a new collector. You earned +10 reward points!"
-                : $"Your complaint about report #{reportId} has been resolved. The collector has been warned. You earned +10 reward points!"
+            feedback.Status = "Resolving";
+            feedback.ResolveFailureReason = null;
+            feedback.ResolutionNote = dto.AdminNote;
+            _uow.UpdateFeedback(feedback);
+            await _uow.SaveChangesAsync();
         });
 
-        await _rewardService.CreateTransactionAsync(new CreateRewardTransactionRequest
+        try
         {
-            UserId = citizenId,
-            ReportId = reportId > 0 ? reportId : null,
-            Points = ComplaintRewardPoints,
-            Type = "Earned",
-            Description = $"Reward for valid complaint on report #{reportId}",
-            AdjustUserPoints = true,
-            CreateNotification = false
-        });
+            if (action == "reassign" && report != null && context?.AssignmentId != null && context.RequestId != null)
+            {
+                if (report.Status == "Collected")
+                    await _wasteClient.UpdateReportStatusAsync(report.ReportId, "Accepted");
 
-        feedback.Status = "Resolved";
-        feedback.ResolutionNote = dto.AdminNote;
-        _uow.UpdateFeedback(feedback);
-        await _uow.SaveChangesAsync();
+                await _collectionClient.CancelAssignmentForComplaintAsync(new CancelAssignmentForComplaintRequest
+                {
+                    AssignmentId = context.AssignmentId.Value,
+                    RequestId = context.RequestId.Value,
+                    RequestStatus = "Pending"
+                });
+
+                await ReverseEarnedPointsAsync(report.ReportId, report.SubmittedBy);
+            }
+
+            if (context?.CollectorId.HasValue == true)
+            {
+                var points = action == "reassign" ? ReassignPoints : WarnPoints;
+                var collector = await _identityClient.AddCollectorWarningAsync(context.CollectorId.Value, points, dto.AdminNote);
+                var autoDeactivated = (collector?.WarningCount ?? 0) >= WarningThreshold;
+                var collectorMsg = action == "reassign"
+                    ? $"You received a warning (+{points} pts, total: {collector?.WarningCount}/{WarningThreshold}) for report #{reportId}. Your assignment has been cancelled due to a valid citizen complaint."
+                    : $"You received a warning (+{points} pt, total: {collector?.WarningCount}/{WarningThreshold}) for report #{reportId}. Reason: {dto.AdminNote}";
+                if (autoDeactivated)
+                    collectorMsg += " Your account has been DEACTIVATED due to reaching the warning threshold.";
+                await CreateNotificationBestEffortAsync(context.CollectorId.Value, collectorMsg);
+            }
+
+            if (action == "reassign" && context?.EnterpriseId.HasValue == true)
+            {
+                await CreateNotificationBestEffortAsync(
+                    context.EnterpriseId.Value,
+                    $"Report #{reportId} needs to be reassigned to a new collector. The previous assignment was cancelled due to a valid citizen complaint.");
+            }
+
+            await CreateNotificationBestEffortAsync(
+                citizenId,
+                action == "reassign"
+                    ? $"Your complaint about report #{reportId} has been resolved. The report will be reassigned to a new collector. You earned +10 reward points!"
+                    : $"Your complaint about report #{reportId} has been resolved. The collector has been warned. You earned +10 reward points!");
+
+            await _rewardService.CreateTransactionAsync(new CreateRewardTransactionRequest
+            {
+                UserId = citizenId,
+                ReportId = reportId > 0 ? reportId : null,
+                Points = ComplaintRewardPoints,
+                Type = "Earned",
+                Description = $"Reward for valid complaint on report #{reportId}",
+                AdjustUserPoints = true,
+                CreateNotification = false,
+                SourceType = "ComplaintReward",
+                ReferenceId = feedbackId.ToString()
+            });
+
+            await _uow.ExecuteInTransactionAsync(async () =>
+            {
+                feedback.Status = "Resolved";
+                feedback.ResolutionNote = dto.AdminNote;
+                feedback.ResolveFailureReason = null;
+                feedback.ResolvedAt = DateTime.UtcNow;
+                _uow.UpdateFeedback(feedback);
+                await _uow.SaveChangesAsync();
+            });
+        }
+        catch (Exception ex)
+        {
+            await _uow.ExecuteInTransactionAsync(async () =>
+            {
+                feedback.Status = "ResolveFailed";
+                feedback.ResolveFailureReason = ex.Message;
+                feedback.ResolutionNote = dto.AdminNote;
+                _uow.UpdateFeedback(feedback);
+                await _uow.SaveChangesAsync();
+            });
+            _logger.LogError(ex, "Failed to resolve feedback {FeedbackId}", feedbackId);
+            throw;
+        }
 
         var user = await _identityClient.GetUserAsync(feedback.UserId);
         return MapToResponse(feedback, user?.FullName ?? "Unknown");
@@ -232,9 +273,13 @@ public sealed class FeedbackService : IFeedbackService
         return MapToResponse(feedback, user?.FullName ?? "Unknown");
     }
 
-    private async Task ReverseEarnedPointsAsync(int reportId, int citizenId, DateTime now)
+    private async Task ReverseEarnedPointsAsync(int reportId, int citizenId)
     {
-        var earnedTx = _uow.RewardTransactions.Where(t => t.ReportId == reportId && t.Type == "Earned").ToList();
+        var earnedTx = _uow.RewardTransactions
+            .Where(t => t.ReportId == reportId
+                && t.Type == "Earned"
+                && (t.SourceType == "Collection" || t.SourceType == null))
+            .ToList();
         if (!earnedTx.Any())
             return;
 
@@ -251,8 +296,22 @@ public sealed class FeedbackService : IFeedbackService
             Description = $"Points reversed due to complaint on report #{reportId}",
             AdjustUserPoints = true,
             CreateNotification = true,
-            NotificationContent = $"Your {totalEarned} reward points for report #{reportId} have been reversed due to a valid complaint. The report will be reassigned."
+            NotificationContent = $"Your {totalEarned} reward points for report #{reportId} have been reversed due to a valid complaint. The report will be reassigned.",
+            SourceType = "ComplaintReversal",
+            ReferenceId = reportId.ToString()
         });
+    }
+
+    private async Task CreateNotificationBestEffortAsync(int userId, string content)
+    {
+        try
+        {
+            await _notificationService.CreateAsync(new CreateNotificationRequest { UserId = userId, Content = content });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create feedback notification for user {UserId}", userId);
+        }
     }
 
     private static FeedbackResponseDto MapToResponse(Feedback f, string userName) => new()
@@ -265,6 +324,8 @@ public sealed class FeedbackService : IFeedbackService
         Status = f.Status,
         ImageUrl = f.ImageUrl,
         ResolutionNote = f.ResolutionNote,
-        CreatedAt = f.CreatedAt
+        ResolveFailureReason = f.ResolveFailureReason,
+        CreatedAt = f.CreatedAt,
+        ResolvedAt = f.ResolvedAt
     };
 }

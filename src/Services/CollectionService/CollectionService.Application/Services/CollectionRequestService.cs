@@ -65,7 +65,7 @@ public sealed class CollectionRequestService : ICollectionRequestService
     {
         var existing = await _uow.CollectionRequests.GetByReportIdAsync(request.ReportId);
         if (existing != null)
-            throw new InvalidOperationException("Collection request already exists for this report");
+            return ToContract(existing);
 
         var entity = new CollectionRequest
         {

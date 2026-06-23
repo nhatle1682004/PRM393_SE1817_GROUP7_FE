@@ -1,4 +1,5 @@
 using Contracts;
+using System.Net;
 using System.Net.Http.Json;
 
 namespace EngagementService.Application.Clients;
@@ -12,7 +13,7 @@ public sealed class IdentityClient : IIdentityClient
         _httpClient = httpClient;
     }
 
-    public Task<UserDto?> GetUserAsync(int userId) => _httpClient.GetFromJsonAsync<UserDto>($"/internal/identity/users/{userId}");
+    public Task<UserDto?> GetUserAsync(int userId) => GetOrNullAsync<UserDto>($"/internal/identity/users/{userId}");
 
     public async Task<int> AddPointsAsync(int userId, int points, string reason)
     {
@@ -35,7 +36,17 @@ public sealed class IdentityClient : IIdentityClient
         return await response.Content.ReadFromJsonAsync<CollectorProfileDto>();
     }
 
-    public Task<IdentityDashboardStatsDto?> GetDashboardStatsAsync(int year) => _httpClient.GetFromJsonAsync<IdentityDashboardStatsDto>($"/internal/identity/dashboard/{year}");
+    public Task<IdentityDashboardStatsDto?> GetDashboardStatsAsync(int year) => GetOrNullAsync<IdentityDashboardStatsDto>($"/internal/identity/dashboard/{year}");
+
+    private async Task<T?> GetOrNullAsync<T>(string url)
+    {
+        var response = await _httpClient.GetAsync(url);
+        if (response.StatusCode == HttpStatusCode.NotFound)
+            return default;
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<T>();
+    }
 
     private sealed class PointBalanceResponse
     {

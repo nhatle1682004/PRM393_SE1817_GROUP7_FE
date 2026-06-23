@@ -20,7 +20,9 @@ namespace EngagementService.Application.DTOs.Feedback
         public string? Status { get; set; }
         public string? ImageUrl { get; set; }
         public string? ResolutionNote { get; set; }
+        public string? ResolveFailureReason { get; set; }
         public DateTime? CreatedAt { get; set; }
+        public DateTime? ResolvedAt { get; set; }
     }
 
     /// <summary>
@@ -35,7 +37,10 @@ namespace EngagementService.Application.DTOs.Feedback
         public string Content { get; set; } = string.Empty;
         public string? Status { get; set; }
         public string? FeedbackImageUrl { get; set; }
+        public string? ResolutionNote { get; set; }
+        public string? ResolveFailureReason { get; set; }
         public DateTime? CreatedAt { get; set; }
+        public DateTime? ResolvedAt { get; set; }
 
         // Report info
         public int ReportId { get; set; }

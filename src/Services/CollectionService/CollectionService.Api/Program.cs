@@ -20,11 +20,8 @@ var app = builder.Build();
 app.UseSharedRequestLocalization();
 app.UseInternalApiKey();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors("AllowReactApp");
 app.UseStaticFiles();

@@ -3,6 +3,7 @@ using EngagementService.Application.Clients;
 using EngagementService.Application.DTOs.Reward;
 using EngagementService.Application.Repositories;
 using EngagementService.Domain.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace EngagementService.Application.Services;
 
@@ -11,12 +12,18 @@ public sealed class RewardService : IRewardService
     private readonly IEngagementUnitOfWork _uow;
     private readonly IIdentityClient _identityClient;
     private readonly INotificationService _notificationService;
+    private readonly ILogger<RewardService> _logger;
 
-    public RewardService(IEngagementUnitOfWork uow, IIdentityClient identityClient, INotificationService notificationService)
+    public RewardService(
+        IEngagementUnitOfWork uow,
+        IIdentityClient identityClient,
+        INotificationService notificationService,
+        ILogger<RewardService> logger)
     {
         _uow = uow;
         _identityClient = identityClient;
         _notificationService = notificationService;
+        _logger = logger;
     }
 
     public async Task<int> GetUserTotalPointsAsync(int userId)
@@ -49,7 +56,12 @@ public sealed class RewardService : IRewardService
                 Points = t.Points,
                 Type = t.Type,
                 Description = t.Description,
-                CreatedAt = t.CreatedAt
+                CreatedAt = t.CreatedAt,
+                Status = t.Status,
+                SourceType = t.SourceType,
+                ReferenceId = t.ReferenceId,
+                FailureReason = t.FailureReason,
+                CompletedAt = t.CompletedAt
             });
         return Task.FromResult(history);
     }
@@ -65,8 +77,28 @@ public sealed class RewardService : IRewardService
         if (user.TotalPoints < reward.Points)
             throw new InvalidOperationException("Not enough points to redeem this voucher");
 
-        var remaining = await _identityClient.DeductPointsAsync(userId, reward.Points, $"Redeemed voucher: {reward.Name}");
         var redeemedAt = DateTime.UtcNow;
+        var sourceType = "RewardRedeem";
+        var referenceId = $"{userId}:{reward.RewardId}:{redeemedAt:yyyyMMddHHmm}";
+        var existing = FindBySource(sourceType, referenceId, "Redeemed");
+        if (existing != null)
+        {
+            if (string.Equals(existing.Status, "Completed", StringComparison.OrdinalIgnoreCase))
+            {
+                return new RedeemRewardResponseDto
+                {
+                    TransactionId = existing.TransactionId,
+                    RewardId = reward.RewardId,
+                    RewardName = reward.Name,
+                    RedeemedPoints = reward.Points,
+                    RemainingPoints = user.TotalPoints,
+                    RedeemedAt = existing.CompletedAt ?? existing.CreatedAt ?? redeemedAt
+                };
+            }
+
+            throw new InvalidOperationException("A matching redeem transaction is already pending or failed. Please retry later.");
+        }
+
         var transaction = new RewardTransaction
         {
             UserId = userId,
@@ -74,16 +106,43 @@ public sealed class RewardService : IRewardService
             Type = "Redeemed",
             Points = -reward.Points,
             Description = $"Redeemed voucher: {reward.Name}",
-            CreatedAt = redeemedAt
+            CreatedAt = redeemedAt,
+            Status = "Pending",
+            SourceType = sourceType,
+            ReferenceId = referenceId
         };
 
         await _uow.AddRewardTransactionAsync(transaction);
         await _uow.SaveChangesAsync();
-        await _notificationService.CreateAsync(new CreateNotificationRequest
+
+        int remaining;
+        try
         {
-            UserId = userId,
-            Content = $"You have successfully redeemed voucher '{reward.Name}' for {reward.Points} points."
-        });
+            remaining = await _identityClient.DeductPointsAsync(userId, reward.Points, $"Redeemed voucher: {reward.Name}");
+        }
+        catch (Exception ex)
+        {
+            await MarkTransactionFailedAsync(transaction, ex);
+            throw;
+        }
+
+        transaction.Status = "Completed";
+        transaction.CompletedAt = DateTime.UtcNow;
+        _uow.UpdateRewardTransaction(transaction);
+        await _uow.SaveChangesAsync();
+
+        try
+        {
+            await _notificationService.CreateAsync(new CreateNotificationRequest
+            {
+                UserId = userId,
+                Content = $"You have successfully redeemed voucher '{reward.Name}' for {reward.Points} points."
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create redeem notification for transaction {TransactionId}", transaction.TransactionId);
+        }
 
         return new RedeemRewardResponseDto
         {
@@ -99,12 +158,21 @@ public sealed class RewardService : IRewardService
     public async Task<Contracts.RewardTransactionDto> CreateTransactionAsync(CreateRewardTransactionRequest request)
     {
         var createdAt = DateTime.UtcNow;
-        if (request.AdjustUserPoints && request.Points != 0)
+        var existing = FindBySource(request.SourceType, request.ReferenceId, request.Type);
+        if (existing != null)
         {
-            if (request.Points > 0)
-                await _identityClient.AddPointsAsync(request.UserId, request.Points, request.Description ?? request.Type);
-            else
-                await _identityClient.DeductPointsAsync(request.UserId, Math.Abs(request.Points), request.Description ?? request.Type);
+            if (string.Equals(existing.Status, "Completed", StringComparison.OrdinalIgnoreCase))
+                return MapToContract(existing);
+
+            if (string.Equals(existing.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("A matching reward transaction is already pending.");
+
+            existing.Status = "Pending";
+            existing.FailureReason = null;
+            existing.CompletedAt = null;
+            _uow.UpdateRewardTransaction(existing);
+            await _uow.SaveChangesAsync();
+            return await CompleteTransactionAsync(existing, request);
         }
 
         var transaction = new RewardTransaction
@@ -115,24 +183,90 @@ public sealed class RewardService : IRewardService
             Points = request.Points,
             Type = request.Type,
             Description = request.Description,
-            CreatedAt = createdAt
+            CreatedAt = createdAt,
+            Status = "Pending",
+            SourceType = request.SourceType,
+            ReferenceId = request.ReferenceId
         };
         await _uow.AddRewardTransactionAsync(transaction);
         await _uow.SaveChangesAsync();
 
-        if (request.CreateNotification && !string.IsNullOrWhiteSpace(request.NotificationContent))
-            await _notificationService.CreateAsync(new CreateNotificationRequest { UserId = request.UserId, Content = request.NotificationContent });
-
-        return new Contracts.RewardTransactionDto
-        {
-            TransactionId = transaction.TransactionId,
-            UserId = transaction.UserId,
-            RewardId = transaction.RewardId,
-            ReportId = transaction.ReportId,
-            Points = transaction.Points,
-            Type = transaction.Type,
-            Description = transaction.Description,
-            CreatedAt = transaction.CreatedAt
-        };
+        return await CompleteTransactionAsync(transaction, request);
     }
+
+    private async Task<Contracts.RewardTransactionDto> CompleteTransactionAsync(RewardTransaction transaction, CreateRewardTransactionRequest request)
+    {
+        try
+        {
+            if (request.AdjustUserPoints && request.Points != 0)
+            {
+                if (request.Points > 0)
+                    await _identityClient.AddPointsAsync(request.UserId, request.Points, request.Description ?? request.Type);
+                else
+                    await _identityClient.DeductPointsAsync(request.UserId, Math.Abs(request.Points), request.Description ?? request.Type);
+            }
+        }
+        catch (Exception ex)
+        {
+            await MarkTransactionFailedAsync(transaction, ex);
+            throw;
+        }
+
+        transaction.Status = "Completed";
+        transaction.CompletedAt = DateTime.UtcNow;
+        transaction.FailureReason = null;
+        _uow.UpdateRewardTransaction(transaction);
+        await _uow.SaveChangesAsync();
+
+        if (request.CreateNotification && !string.IsNullOrWhiteSpace(request.NotificationContent))
+        {
+            try
+            {
+                await _notificationService.CreateAsync(new CreateNotificationRequest { UserId = request.UserId, Content = request.NotificationContent });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create reward notification for transaction {TransactionId}", transaction.TransactionId);
+            }
+        }
+
+        return MapToContract(transaction);
+    }
+
+    private RewardTransaction? FindBySource(string? sourceType, string? referenceId, string type)
+    {
+        if (string.IsNullOrWhiteSpace(sourceType) || string.IsNullOrWhiteSpace(referenceId))
+            return null;
+
+        return _uow.RewardTransactions.FirstOrDefault(t =>
+            t.SourceType == sourceType &&
+            t.ReferenceId == referenceId &&
+            t.Type == type);
+    }
+
+    private async Task MarkTransactionFailedAsync(RewardTransaction transaction, Exception ex)
+    {
+        transaction.Status = "Failed";
+        transaction.FailureReason = ex.Message;
+        _uow.UpdateRewardTransaction(transaction);
+        await _uow.SaveChangesAsync();
+        _logger.LogError(ex, "Reward transaction {TransactionId} failed", transaction.TransactionId);
+    }
+
+    private static Contracts.RewardTransactionDto MapToContract(RewardTransaction transaction) => new()
+    {
+        TransactionId = transaction.TransactionId,
+        UserId = transaction.UserId,
+        RewardId = transaction.RewardId,
+        ReportId = transaction.ReportId,
+        Points = transaction.Points,
+        Type = transaction.Type,
+        Description = transaction.Description,
+        CreatedAt = transaction.CreatedAt,
+        Status = transaction.Status,
+        SourceType = transaction.SourceType,
+        ReferenceId = transaction.ReferenceId,
+        FailureReason = transaction.FailureReason,
+        CompletedAt = transaction.CompletedAt
+    };
 }

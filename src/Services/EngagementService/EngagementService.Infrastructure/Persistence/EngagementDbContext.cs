@@ -52,6 +52,14 @@ public sealed class EngagementDbContext : DbContext
             entity.Property(e => e.Description).HasColumnType("text").HasColumnName("description");
             entity.Property(e => e.ReportId).HasColumnName("report_id");
             entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone").HasDefaultValueSql("CURRENT_TIMESTAMP").HasColumnName("created_at");
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Pending").HasColumnName("status");
+            entity.Property(e => e.SourceType).HasMaxLength(50).HasColumnName("source_type");
+            entity.Property(e => e.ReferenceId).HasMaxLength(100).HasColumnName("reference_id");
+            entity.Property(e => e.FailureReason).HasColumnType("text").HasColumnName("failure_reason");
+            entity.Property(e => e.CompletedAt).HasColumnType("timestamp without time zone").HasColumnName("completed_at");
+            entity.HasIndex(e => new { e.SourceType, e.ReferenceId, e.Type })
+                .IsUnique()
+                .HasFilter("reference_id IS NOT NULL");
             entity.HasOne(e => e.Reward).WithMany(r => r.RewardTransactions).HasForeignKey(e => e.RewardId);
         });
 
@@ -66,6 +74,8 @@ public sealed class EngagementDbContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Pending").HasColumnName("status");
             entity.Property(e => e.ImageUrl).HasColumnType("text").HasColumnName("image_url");
             entity.Property(e => e.ResolutionNote).HasColumnType("text").HasColumnName("resolution_note");
+            entity.Property(e => e.ResolveFailureReason).HasColumnType("text").HasColumnName("resolve_failure_reason");
+            entity.Property(e => e.ResolvedAt).HasColumnType("timestamp without time zone").HasColumnName("resolved_at");
             entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone").HasDefaultValueSql("CURRENT_TIMESTAMP").HasColumnName("created_at");
         });
     }

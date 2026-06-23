@@ -4,6 +4,7 @@ using CollectionService.Application.Repositories;
 using CollectionService.Domain.Entities;
 using Contracts;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace CollectionService.Application.Services;
 
@@ -12,12 +13,18 @@ public sealed class CollectionService : ICollectionService
     private readonly ICollectionUnitOfWork _uow;
     private readonly IWasteReportClient _wasteClient;
     private readonly IEngagementClient _engagementClient;
+    private readonly ILogger<CollectionService> _logger;
 
-    public CollectionService(ICollectionUnitOfWork uow, IWasteReportClient wasteClient, IEngagementClient engagementClient)
+    public CollectionService(
+        ICollectionUnitOfWork uow,
+        IWasteReportClient wasteClient,
+        IEngagementClient engagementClient,
+        ILogger<CollectionService> logger)
     {
         _uow = uow;
         _wasteClient = wasteClient;
         _engagementClient = engagementClient;
+        _logger = logger;
     }
 
     public async Task<DeclineAssignmentResponseDto> DeclineAssignmentAsync(int assignmentId, int collectorId, DeclineAssignmentDto dto)
@@ -159,8 +166,29 @@ public sealed class CollectionService : ICollectionService
     public async Task<CompleteCollectionResponseDto> CompleteCollectionAsync(int assignmentId, int collectorId, CompleteCollectionDto dto)
     {
         var assignment = await GetOwnedAssignmentAsync(assignmentId, collectorId);
+        if (assignment.Request == null)
+            throw new InvalidOperationException("Collection request not found");
+
+        if (assignment.CollectionConfirmation != null)
+        {
+            if (!string.Equals(assignment.Status, "Completed", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Collection confirmation already exists for this assignment");
+
+            var retryableStatuses = new[] { "Completed", "SyncFailed", "RewardFailed" };
+            if (!retryableStatuses.Contains(assignment.Request.Status, StringComparer.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Collection confirmation already exists for this assignment");
+
+            var retryReport = await _wasteClient.GetReportAsync(assignment.Request.ReportId)
+                ?? throw new InvalidOperationException("Waste report not found");
+            var retryPointsEarned = await CalculatePointsFromDetailsAsync(assignment.CollectionConfirmation.CollectionDetails);
+            await SyncCompletionAsync(assignment, retryReport, retryPointsEarned);
+            return BuildCompleteResponse(assignment, assignment.CollectionConfirmation, retryPointsEarned);
+        }
+
         if (!string.Equals(assignment.Status, "Arrived", StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("Can only complete collection when status is 'Arrived'. Please mark arrival first.");
+        if (string.Equals(assignment.Request.Status, "Completed", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Collection request is already completed");
         if (string.IsNullOrWhiteSpace(assignment.BeforeImageUrl))
             throw new InvalidOperationException("Before image not found. Please mark arrival and upload before photo first.");
         if (dto.AfterImage == null || dto.AfterImage.Length == 0)
@@ -168,14 +196,28 @@ public sealed class CollectionService : ICollectionService
         if (dto.ActualWeights == null || !dto.ActualWeights.Any())
             throw new ArgumentException("ActualWeights is required. Please provide at least one waste type with weight.");
 
-        var validWeightItems = dto.ActualWeights.Where(x => x != null && x.WasteTypeId > 0 && x.Weight > 0).ToList();
-        if (!validWeightItems.Any())
-            throw new ArgumentException("At least one valid ActualWeight is required with Weight > 0.");
+        if (dto.ActualWeights.Any(x => x == null || x.WasteTypeId <= 0 || x.Weight <= 0))
+            throw new ArgumentException("All ActualWeights must include WasteTypeId > 0 and Weight > 0.");
+
+        var wasteTypesById = new Dictionary<int, WasteTypeDto>();
+        foreach (var wasteTypeId in dto.ActualWeights.Select(x => x.WasteTypeId).Distinct())
+        {
+            var wasteType = await _wasteClient.GetWasteTypeAsync(wasteTypeId)
+                ?? throw new InvalidOperationException($"Waste type not found: {wasteTypeId}");
+            if (!wasteType.IsActive)
+                throw new InvalidOperationException($"Waste type is inactive: {wasteTypeId}");
+            wasteTypesById[wasteTypeId] = wasteType;
+        }
+
+        var pointsEarned = dto.ActualWeights.Sum(weightItem =>
+            (int)Math.Round(wasteTypesById[weightItem.WasteTypeId].RewardPoints * weightItem.Weight));
+        if (pointsEarned <= 0)
+            throw new InvalidOperationException("Calculated reward points is 0. Please verify waste type reward points and actual weights.");
+
+        var report = await _wasteClient.GetReportAsync(assignment.Request.ReportId)
+            ?? throw new InvalidOperationException("Waste report not found");
 
         var afterImageUrl = await SaveProofImageAsync(dto.AfterImage, "after");
-        if (_uow.CollectionConfirmations.FirstOrDefault(c => c.AssignmentId == assignmentId) != null)
-            throw new InvalidOperationException("Collection confirmation already exists for this assignment");
-
         var confirmation = new CollectionConfirmation
         {
             AssignmentId = assignmentId,
@@ -185,61 +227,108 @@ public sealed class CollectionService : ICollectionService
             ConfirmedAt = DateTime.UtcNow
         };
 
-        await _uow.AddConfirmationAsync(confirmation);
-        await _uow.SaveChangesAsync();
-
-        var pointsEarned = 0;
-        foreach (var weightItem in validWeightItems)
+        await _uow.ExecuteInTransactionAsync(async () =>
         {
-            var wasteType = await _wasteClient.GetWasteTypeAsync(weightItem.WasteTypeId)
-                ?? throw new InvalidOperationException($"Waste type not found: {weightItem.WasteTypeId}");
-            pointsEarned += (int)Math.Round(wasteType.RewardPoints * weightItem.Weight);
-            await _uow.AddDetailAsync(new CollectionDetail
+            await _uow.AddConfirmationAsync(confirmation);
+            foreach (var weightItem in dto.ActualWeights)
             {
-                ConfirmationId = confirmation.ConfirmationId,
-                WasteTypeId = weightItem.WasteTypeId,
-                ActualWeight = weightItem.Weight
-            });
+                await _uow.AddDetailAsync(new CollectionDetail
+                {
+                    Confirmation = confirmation,
+                    WasteTypeId = weightItem.WasteTypeId,
+                    ActualWeight = weightItem.Weight
+                });
+            }
+
+            assignment.Status = "Completed";
+            assignment.Request.Status = "Completed";
+            _uow.CollectorAssignments.Update(assignment);
+            _uow.CollectionRequests.Update(assignment.Request);
+            await _uow.SaveChangesAsync();
+        });
+
+        await SyncCompletionAsync(assignment, report, pointsEarned);
+
+        return BuildCompleteResponse(assignment, confirmation, pointsEarned);
+    }
+
+    private async Task<int> CalculatePointsFromDetailsAsync(IEnumerable<CollectionDetail> details)
+    {
+        var pointsEarned = 0;
+        foreach (var detail in details)
+        {
+            var wasteType = await _wasteClient.GetWasteTypeAsync(detail.WasteTypeId)
+                ?? throw new InvalidOperationException($"Waste type not found: {detail.WasteTypeId}");
+            if (!wasteType.IsActive)
+                throw new InvalidOperationException($"Waste type is inactive: {detail.WasteTypeId}");
+            pointsEarned += (int)Math.Round(wasteType.RewardPoints * detail.ActualWeight);
         }
 
         if (pointsEarned <= 0)
             throw new InvalidOperationException("Calculated reward points is 0. Please verify waste type reward points and actual weights.");
 
-        assignment.Status = "Completed";
-        assignment.Request.Status = "Completed";
-        _uow.CollectorAssignments.Update(assignment);
-        _uow.CollectionRequests.Update(assignment.Request);
-        await _uow.SaveChangesAsync();
-
-        var report = await _wasteClient.GetReportAsync(assignment.Request.ReportId)
-            ?? throw new InvalidOperationException("Waste report not found");
-        await _wasteClient.UpdateReportStatusAsync(assignment.Request.ReportId, "Collected");
-
-        await _engagementClient.CreateRewardTransactionAsync(new CreateRewardTransactionRequest
-        {
-            UserId = report.SubmittedBy,
-            ReportId = report.ReportId,
-            Points = pointsEarned,
-            Type = "Earned",
-            Description = $"Earned points for waste collection (Request #{assignment.RequestId})",
-            AdjustUserPoints = true,
-            CreateNotification = true,
-            NotificationContent = $"Your reported waste has been successfully collected! You have earned {pointsEarned} reward points."
-        });
-
-        return new CompleteCollectionResponseDto
-        {
-            AssignmentId = assignment.AssignmentId,
-            RequestId = assignment.RequestId,
-            ConfirmationId = confirmation.ConfirmationId,
-            Status = assignment.Status,
-            CompletedAt = confirmation.ConfirmedAt,
-            BeforeImageUrl = confirmation.BeforeImageUrl,
-            AfterImageUrl = confirmation.AfterImageUrl,
-            Note = confirmation.Note,
-            EarnedPoints = pointsEarned
-        };
+        return pointsEarned;
     }
+
+    private async Task SyncCompletionAsync(CollectorAssignment assignment, WasteReportDto report, int pointsEarned)
+    {
+        try
+        {
+            await _wasteClient.UpdateReportStatusAsync(assignment.Request.ReportId, "Collected");
+        }
+        catch (Exception ex)
+        {
+            await MarkRequestStatusAsync(assignment.Request, "SyncFailed");
+            _logger.LogError(ex, "Failed to sync waste report {ReportId} after completing assignment {AssignmentId}", assignment.Request.ReportId, assignment.AssignmentId);
+            throw;
+        }
+
+        try
+        {
+            await _engagementClient.CreateRewardTransactionAsync(new CreateRewardTransactionRequest
+            {
+                UserId = report.SubmittedBy,
+                ReportId = report.ReportId,
+                Points = pointsEarned,
+                Type = "Earned",
+                Description = $"Earned points for waste collection (Request #{assignment.RequestId})",
+                AdjustUserPoints = true,
+                CreateNotification = true,
+                NotificationContent = $"Your reported waste has been successfully collected! You have earned {pointsEarned} reward points.",
+                SourceType = "Collection",
+                ReferenceId = assignment.RequestId.ToString()
+            });
+        }
+        catch (Exception ex)
+        {
+            await MarkRequestStatusAsync(assignment.Request, "RewardFailed");
+            _logger.LogError(ex, "Failed to create reward transaction for assignment {AssignmentId} and request {RequestId}", assignment.AssignmentId, assignment.RequestId);
+            throw;
+        }
+
+        if (!string.Equals(assignment.Request.Status, "Completed", StringComparison.OrdinalIgnoreCase))
+            await MarkRequestStatusAsync(assignment.Request, "Completed");
+    }
+
+    private async Task MarkRequestStatusAsync(CollectionRequest request, string status)
+    {
+        request.Status = status;
+        _uow.CollectionRequests.Update(request);
+        await _uow.SaveChangesAsync();
+    }
+
+    private static CompleteCollectionResponseDto BuildCompleteResponse(CollectorAssignment assignment, CollectionConfirmation confirmation, int pointsEarned) => new()
+    {
+        AssignmentId = assignment.AssignmentId,
+        RequestId = assignment.RequestId,
+        ConfirmationId = confirmation.ConfirmationId,
+        Status = assignment.Status,
+        CompletedAt = confirmation.ConfirmedAt,
+        BeforeImageUrl = confirmation.BeforeImageUrl,
+        AfterImageUrl = confirmation.AfterImageUrl,
+        Note = confirmation.Note,
+        EarnedPoints = pointsEarned
+    };
 
     private async Task<CollectorAssignment> GetOwnedAssignmentAsync(int assignmentId, int collectorId)
     {

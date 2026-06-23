@@ -10,4 +10,6 @@ public sealed class Feedback
     public string? ImageUrl { get; set; }
     public DateTime? CreatedAt { get; set; }
     public string? ResolutionNote { get; set; }
+    public string? ResolveFailureReason { get; set; }
+    public DateTime? ResolvedAt { get; set; }
 }

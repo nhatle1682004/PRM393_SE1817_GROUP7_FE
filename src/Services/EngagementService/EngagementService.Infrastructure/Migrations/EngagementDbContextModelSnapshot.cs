@@ -55,6 +55,14 @@ namespace EngagementService.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("resolution_note");
 
+                    b.Property<string>("ResolveFailureReason")
+                        .HasColumnType("text")
+                        .HasColumnName("resolve_failure_reason");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("resolved_at");
+
                     b.Property<string>("Status")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
@@ -153,6 +161,10 @@ namespace EngagementService.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TransactionId"));
 
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("completed_at");
+
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
@@ -163,11 +175,20 @@ namespace EngagementService.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
+                    b.Property<string>("FailureReason")
+                        .HasColumnType("text")
+                        .HasColumnName("failure_reason");
+
                     b.Property<int>("Points")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasDefaultValue(0)
                         .HasColumnName("points");
+
+                    b.Property<string>("ReferenceId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("reference_id");
 
                     b.Property<int?>("ReportId")
                         .HasColumnType("integer")
@@ -176,6 +197,19 @@ namespace EngagementService.Infrastructure.Migrations
                     b.Property<int?>("RewardId")
                         .HasColumnType("integer")
                         .HasColumnName("reward_id");
+
+                    b.Property<string>("SourceType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("source_type");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("Pending")
+                        .HasColumnName("status");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -193,6 +227,10 @@ namespace EngagementService.Infrastructure.Migrations
                         .HasName("reward_transactions_pkey");
 
                     b.HasIndex("RewardId");
+
+                    b.HasIndex("SourceType", "ReferenceId", "Type")
+                        .IsUnique()
+                        .HasFilter("reference_id IS NOT NULL");
 
                     b.ToTable("reward_transactions", "engagement");
                 });

@@ -13,6 +13,8 @@ public interface IEngagementUnitOfWork
     Task AddFeedbackAsync(Feedback feedback);
     void UpdateNotification(Notification notification);
     void UpdateReward(Reward reward);
+    void UpdateRewardTransaction(RewardTransaction transaction);
     void UpdateFeedback(Feedback feedback);
+    Task ExecuteInTransactionAsync(Func<Task> action, CancellationToken cancellationToken = default);
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

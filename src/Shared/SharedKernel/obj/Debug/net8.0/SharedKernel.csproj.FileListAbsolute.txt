@@ -1,0 +1,12 @@
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\SharedKernel\obj\Debug\net8.0\SharedKernel.GeneratedMSBuildEditorConfig.editorconfig
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\SharedKernel\obj\Debug\net8.0\SharedKernel.AssemblyInfoInputs.cache
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\SharedKernel\obj\Debug\net8.0\SharedKernel.AssemblyInfo.cs
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\SharedKernel\obj\Debug\net8.0\SharedKernel.csproj.CoreCompileInputs.cache
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\SharedKernel\bin\Debug\net8.0\SharedKernel.deps.json
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\SharedKernel\bin\Debug\net8.0\SharedKernel.dll
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\SharedKernel\bin\Debug\net8.0\SharedKernel.pdb
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\SharedKernel\obj\Debug\net8.0\SharedKernel.csproj.AssemblyReference.cache
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\SharedKernel\obj\Debug\net8.0\SharedKernel.dll
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\SharedKernel\obj\Debug\net8.0\refint\SharedKernel.dll
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\SharedKernel\obj\Debug\net8.0\SharedKernel.pdb
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\SharedKernel\obj\Debug\net8.0\ref\SharedKernel.dll

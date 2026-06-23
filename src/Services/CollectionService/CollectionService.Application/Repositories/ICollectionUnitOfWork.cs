@@ -10,5 +10,6 @@ public interface ICollectionUnitOfWork
     IQueryable<CollectionDetail> CollectionDetails { get; }
     Task AddConfirmationAsync(CollectionConfirmation confirmation);
     Task AddDetailAsync(CollectionDetail detail);
+    Task ExecuteInTransactionAsync(Func<Task> action, CancellationToken cancellationToken = default);
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

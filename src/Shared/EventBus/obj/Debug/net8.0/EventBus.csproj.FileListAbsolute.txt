@@ -1,0 +1,11 @@
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\EventBus\bin\Debug\net8.0\EventBus.deps.json
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\EventBus\bin\Debug\net8.0\EventBus.dll
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\EventBus\bin\Debug\net8.0\EventBus.pdb
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\EventBus\obj\Debug\net8.0\EventBus.GeneratedMSBuildEditorConfig.editorconfig
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\EventBus\obj\Debug\net8.0\EventBus.AssemblyInfoInputs.cache
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\EventBus\obj\Debug\net8.0\EventBus.AssemblyInfo.cs
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\EventBus\obj\Debug\net8.0\EventBus.csproj.CoreCompileInputs.cache
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\EventBus\obj\Debug\net8.0\EventBus.dll
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\EventBus\obj\Debug\net8.0\refint\EventBus.dll
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\EventBus\obj\Debug\net8.0\EventBus.pdb
+D:\Learning\refactor\BackEnd-Microservices\src\Shared\EventBus\obj\Debug\net8.0\ref\EventBus.dll

@@ -3,6 +3,7 @@ using WasteReportService.Application.Clients;
 using WasteReportService.Application.DTOs.WasteReport;
 using WasteReportService.Application.Repositories;
 using WasteReportService.Domain.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace WasteReportService.Application.Services;
 
@@ -13,17 +14,20 @@ public sealed class WasteReportService : IWasteReportService
     private readonly IIdentityClient _identityClient;
     private readonly ICollectionClient _collectionClient;
     private readonly IEngagementClient _engagementClient;
+    private readonly ILogger<WasteReportService> _logger;
 
     public WasteReportService(
         IWasteUnitOfWork uow,
         IIdentityClient identityClient,
         ICollectionClient collectionClient,
-        IEngagementClient engagementClient)
+        IEngagementClient engagementClient,
+        ILogger<WasteReportService> logger)
     {
         _uow = uow;
         _identityClient = identityClient;
         _collectionClient = collectionClient;
         _engagementClient = engagementClient;
+        _logger = logger;
     }
 
     public async Task<WasteReportCreatedResponseDto> CreateAsync(int userId, CreateWasteReportDto dto)
@@ -104,10 +108,6 @@ public sealed class WasteReportService : IWasteReportService
         if (!string.Equals(report.Status, "Pending", StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("Only Pending reports can be accepted");
 
-        report.Status = "Accepted";
-        _uow.WasteReports.Update(report);
-        await _uow.SaveChangesAsync();
-
         await _collectionClient.CreateFromReportAsync(new CreateCollectionRequestFromReportRequest
         {
             ReportId = reportId,
@@ -115,11 +115,22 @@ public sealed class WasteReportService : IWasteReportService
             Status = "Pending"
         });
 
-        await _engagementClient.CreateNotificationAsync(new CreateNotificationRequest
+        report.Status = "Accepted";
+        _uow.WasteReports.Update(report);
+        await _uow.SaveChangesAsync();
+
+        try
         {
-            UserId = report.SubmittedBy,
-            Content = $"Your waste report #{reportId} has been accepted and is waiting for collection."
-        });
+            await _engagementClient.CreateNotificationAsync(new CreateNotificationRequest
+            {
+                UserId = report.SubmittedBy,
+                Content = $"Your waste report #{reportId} has been accepted and is waiting for collection."
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create accepted notification for waste report {ReportId}", reportId);
+        }
 
         return new WasteReportStatusResponseDto { Id = report.ReportId, Status = report.Status };
     }

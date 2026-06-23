@@ -1,6 +1,7 @@
 using EngagementService.Application.Repositories;
 using EngagementService.Domain.Entities;
 using EngagementService.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace EngagementService.Infrastructure.Repositories;
 
@@ -22,6 +23,14 @@ public sealed class EngagementUnitOfWork : IEngagementUnitOfWork
     public Task AddFeedbackAsync(Feedback feedback) => _context.Feedbacks.AddAsync(feedback).AsTask();
     public void UpdateNotification(Notification notification) => _context.Notifications.Update(notification);
     public void UpdateReward(Reward reward) => _context.Rewards.Update(reward);
+    public void UpdateRewardTransaction(RewardTransaction transaction) => _context.RewardTransactions.Update(transaction);
     public void UpdateFeedback(Feedback feedback) => _context.Feedbacks.Update(feedback);
+    public async Task ExecuteInTransactionAsync(Func<Task> action, CancellationToken cancellationToken = default)
+    {
+        await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+        await action();
+        await transaction.CommitAsync(cancellationToken);
+    }
+
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => _context.SaveChangesAsync(cancellationToken);
 }

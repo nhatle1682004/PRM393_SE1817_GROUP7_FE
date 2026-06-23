@@ -1,4 +1,5 @@
 using Contracts;
+using System.Net;
 using System.Net.Http.Json;
 
 namespace CollectionService.Application.Clients;
@@ -12,8 +13,18 @@ public sealed class IdentityClient : IIdentityClient
         _httpClient = httpClient;
     }
 
-    public Task<UserDto?> GetUserAsync(int userId) => _httpClient.GetFromJsonAsync<UserDto>($"/internal/identity/users/{userId}");
-    public Task<CollectorProfileDto?> GetCollectorAsync(int collectorId) => _httpClient.GetFromJsonAsync<CollectorProfileDto>($"/internal/identity/collectors/{collectorId}");
+    public Task<UserDto?> GetUserAsync(int userId) => GetOrNullAsync<UserDto>($"/internal/identity/users/{userId}");
+    public Task<CollectorProfileDto?> GetCollectorAsync(int collectorId) => GetOrNullAsync<CollectorProfileDto>($"/internal/identity/collectors/{collectorId}");
     public async Task<IEnumerable<CollectorProfileDto>> GetCollectorsByEnterpriseAsync(int enterpriseId)
-        => await _httpClient.GetFromJsonAsync<List<CollectorProfileDto>>($"/internal/identity/collectors/by-enterprise/{enterpriseId}") ?? new List<CollectorProfileDto>();
+        => await GetOrNullAsync<List<CollectorProfileDto>>($"/internal/identity/collectors/by-enterprise/{enterpriseId}") ?? new List<CollectorProfileDto>();
+
+    private async Task<T?> GetOrNullAsync<T>(string url)
+    {
+        var response = await _httpClient.GetAsync(url);
+        if (response.StatusCode == HttpStatusCode.NotFound)
+            return default;
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<T>();
+    }
 }

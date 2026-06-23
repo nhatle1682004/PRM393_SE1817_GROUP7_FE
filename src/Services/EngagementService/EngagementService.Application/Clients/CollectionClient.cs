@@ -1,4 +1,5 @@
 using Contracts;
+using System.Net;
 using System.Net.Http.Json;
 
 namespace EngagementService.Application.Clients;
@@ -13,7 +14,7 @@ public sealed class CollectionClient : ICollectionClient
     }
 
     public Task<CollectionFeedbackContextDto?> GetFeedbackContextByReportAsync(int reportId)
-        => _httpClient.GetFromJsonAsync<CollectionFeedbackContextDto>($"/internal/collection/feedback-context/by-report/{reportId}");
+        => GetOrNullAsync<CollectionFeedbackContextDto>($"/internal/collection/feedback-context/by-report/{reportId}");
 
     public async Task CancelAssignmentForComplaintAsync(CancelAssignmentForComplaintRequest request)
     {
@@ -22,5 +23,15 @@ public sealed class CollectionClient : ICollectionClient
     }
 
     public Task<CollectionDashboardStatsDto?> GetDashboardStatsAsync()
-        => _httpClient.GetFromJsonAsync<CollectionDashboardStatsDto>("/internal/collection/dashboard");
+        => GetOrNullAsync<CollectionDashboardStatsDto>("/internal/collection/dashboard");
+
+    private async Task<T?> GetOrNullAsync<T>(string url)
+    {
+        var response = await _httpClient.GetAsync(url);
+        if (response.StatusCode == HttpStatusCode.NotFound)
+            return default;
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<T>();
+    }
 }

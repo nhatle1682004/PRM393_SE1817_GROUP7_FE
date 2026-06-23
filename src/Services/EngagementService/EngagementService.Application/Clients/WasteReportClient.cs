@@ -1,4 +1,5 @@
 using Contracts;
+using System.Net;
 using System.Net.Http.Json;
 
 namespace EngagementService.Application.Clients;
@@ -12,7 +13,7 @@ public sealed class WasteReportClient : IWasteReportClient
         _httpClient = httpClient;
     }
 
-    public Task<WasteReportDto?> GetReportAsync(int reportId) => _httpClient.GetFromJsonAsync<WasteReportDto>($"/internal/waste/reports/{reportId}");
+    public Task<WasteReportDto?> GetReportAsync(int reportId) => GetOrNullAsync<WasteReportDto>($"/internal/waste/reports/{reportId}");
 
     public async Task UpdateReportStatusAsync(int reportId, string status)
     {
@@ -20,5 +21,15 @@ public sealed class WasteReportClient : IWasteReportClient
         response.EnsureSuccessStatusCode();
     }
 
-    public Task<WasteDashboardStatsDto?> GetDashboardStatsAsync(int year) => _httpClient.GetFromJsonAsync<WasteDashboardStatsDto>($"/internal/waste/dashboard/{year}");
+    public Task<WasteDashboardStatsDto?> GetDashboardStatsAsync(int year) => GetOrNullAsync<WasteDashboardStatsDto>($"/internal/waste/dashboard/{year}");
+
+    private async Task<T?> GetOrNullAsync<T>(string url)
+    {
+        var response = await _httpClient.GetAsync(url);
+        if (response.StatusCode == HttpStatusCode.NotFound)
+            return default;
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<T>();
+    }
 }
