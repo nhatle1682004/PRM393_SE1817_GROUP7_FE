@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "niVFbpmi8Lg=",
+  "dgSpecHash": "nHiHs/cEeW4=",
   "success": true,
-  "projectFilePath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj",
+  "projectFilePath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\ductr\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.27\\microsoft.netcore.app.ref.8.0.27.nupkg.sha512",
     "C:\\Users\\ductr\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.27\\microsoft.windowsdesktop.app.ref.8.0.27.nupkg.sha512",
+    "C:\\Users\\ductr\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.27\\microsoft.netcore.app.ref.8.0.27.nupkg.sha512",
     "C:\\Users\\ductr\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.27\\microsoft.aspnetcore.app.ref.8.0.27.nupkg.sha512"
   ],
   "logs": []

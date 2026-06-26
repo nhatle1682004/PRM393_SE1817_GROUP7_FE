@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "WxtHIxp3P6o=",
+  "dgSpecHash": "/RUsUQ2n5Eo=",
   "success": true,
-  "projectFilePath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj",
+  "projectFilePath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ductr\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\ductr\\.nuget\\packages\\fluentvalidation\\11.9.0\\fluentvalidation.11.9.0.nupkg.sha512",
@@ -23,9 +23,9 @@
     "C:\\Users\\ductr\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.6.2\\swashbuckle.aspnetcore.swaggergen.6.6.2.nupkg.sha512",
     "C:\\Users\\ductr\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.6.2\\swashbuckle.aspnetcore.swaggerui.6.6.2.nupkg.sha512",
     "C:\\Users\\ductr\\.nuget\\packages\\system.identitymodel.tokens.jwt\\8.15.0\\system.identitymodel.tokens.jwt.8.15.0.nupkg.sha512",
-    "C:\\Users\\ductr\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.27\\microsoft.aspnetcore.app.ref.8.0.27.nupkg.sha512",
+    "C:\\Users\\ductr\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.27\\microsoft.windowsdesktop.app.ref.8.0.27.nupkg.sha512",
     "C:\\Users\\ductr\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.27\\microsoft.netcore.app.ref.8.0.27.nupkg.sha512",
-    "C:\\Users\\ductr\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.27\\microsoft.windowsdesktop.app.ref.8.0.27.nupkg.sha512"
+    "C:\\Users\\ductr\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.27\\microsoft.aspnetcore.app.ref.8.0.27.nupkg.sha512"
   ],
   "logs": []
 }

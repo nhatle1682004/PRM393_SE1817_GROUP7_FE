@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "FlR25bN561g=",
+  "dgSpecHash": "IZad6+PXnCo=",
   "success": true,
-  "projectFilePath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Api\\IdentityService.Api.csproj",
+  "projectFilePath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Api\\IdentityService.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ductr\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\ductr\\.nuget\\packages\\fluentvalidation\\11.11.0\\fluentvalidation.11.11.0.nupkg.sha512",
@@ -63,8 +63,8 @@
     "C:\\Users\\ductr\\.nuget\\packages\\system.text.encodings.web\\8.0.0\\system.text.encodings.web.8.0.0.nupkg.sha512",
     "C:\\Users\\ductr\\.nuget\\packages\\system.text.json\\8.0.0\\system.text.json.8.0.0.nupkg.sha512",
     "C:\\Users\\ductr\\.nuget\\packages\\system.threading.channels\\6.0.0\\system.threading.channels.6.0.0.nupkg.sha512",
-    "C:\\Users\\ductr\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.27\\microsoft.netcore.app.ref.8.0.27.nupkg.sha512",
     "C:\\Users\\ductr\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.27\\microsoft.windowsdesktop.app.ref.8.0.27.nupkg.sha512",
+    "C:\\Users\\ductr\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.27\\microsoft.netcore.app.ref.8.0.27.nupkg.sha512",
     "C:\\Users\\ductr\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.27\\microsoft.aspnetcore.app.ref.8.0.27.nupkg.sha512",
     "C:\\Users\\ductr\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.27\\microsoft.netcore.app.host.win-x64.8.0.27.nupkg.sha512"
   ],

@@ -28,6 +28,33 @@ public sealed class IdentityDbContext : DbContext
             entity.Property(e => e.Description).HasMaxLength(255).HasColumnName("description");
         });
 
+        modelBuilder.Entity<Role>().HasData(
+            new Role
+            {
+                RoleId = 1,
+                RoleName = "Citizen",
+                Description = "Regular citizen user"
+            },
+            new Role
+            {
+                RoleId = 2,
+                RoleName = "Collector",
+                Description = "Waste collector"
+            },
+            new Role
+            {
+                RoleId = 3,
+                RoleName = "Enterprise",
+                Description = "Enterprise account"
+            },
+            new Role
+            {
+                RoleId = 4,
+                RoleName = "Admin",
+                Description = "System administrator"
+            }
+        );
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.ToTable("users", "identity");

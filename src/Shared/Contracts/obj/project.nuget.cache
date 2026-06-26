@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "AkctVYv4Cd0=",
+  "dgSpecHash": "PEFpWkFUKqE=",
   "success": true,
-  "projectFilePath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\Contracts\\Contracts.csproj",
+  "projectFilePath": "D:\\Learning\\PRM\\GrProject\\src\\Shared\\Contracts\\Contracts.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\ductr\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.27\\microsoft.netcore.app.ref.8.0.27.nupkg.sha512",
     "C:\\Users\\ductr\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.27\\microsoft.windowsdesktop.app.ref.8.0.27.nupkg.sha512",
+    "C:\\Users\\ductr\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.27\\microsoft.netcore.app.ref.8.0.27.nupkg.sha512",
     "C:\\Users\\ductr\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.27\\microsoft.aspnetcore.app.ref.8.0.27.nupkg.sha512"
   ],
   "logs": []

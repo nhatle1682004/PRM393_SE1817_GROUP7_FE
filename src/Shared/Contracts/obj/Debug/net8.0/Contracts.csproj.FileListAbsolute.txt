@@ -9,3 +9,15 @@ D:\Learning\refactor\BackEnd-Microservices\src\Shared\Contracts\obj\Debug\net8.0
 D:\Learning\refactor\BackEnd-Microservices\src\Shared\Contracts\obj\Debug\net8.0\refint\Contracts.dll
 D:\Learning\refactor\BackEnd-Microservices\src\Shared\Contracts\obj\Debug\net8.0\Contracts.pdb
 D:\Learning\refactor\BackEnd-Microservices\src\Shared\Contracts\obj\Debug\net8.0\ref\Contracts.dll
+D:\Learning\PRM\GrProject\src\Shared\Contracts\bin\Debug\net8.0\Contracts.deps.json
+D:\Learning\PRM\GrProject\src\Shared\Contracts\bin\Debug\net8.0\Contracts.dll
+D:\Learning\PRM\GrProject\src\Shared\Contracts\bin\Debug\net8.0\Contracts.pdb
+D:\Learning\PRM\GrProject\src\Shared\Contracts\obj\Debug\net8.0\Contracts.GeneratedMSBuildEditorConfig.editorconfig
+D:\Learning\PRM\GrProject\src\Shared\Contracts\obj\Debug\net8.0\Contracts.AssemblyInfoInputs.cache
+D:\Learning\PRM\GrProject\src\Shared\Contracts\obj\Debug\net8.0\Contracts.AssemblyInfo.cs
+D:\Learning\PRM\GrProject\src\Shared\Contracts\obj\Debug\net8.0\Contracts.csproj.CoreCompileInputs.cache
+D:\Learning\PRM\GrProject\src\Shared\Contracts\obj\Debug\net8.0\Contracts.sourcelink.json
+D:\Learning\PRM\GrProject\src\Shared\Contracts\obj\Debug\net8.0\Contracts.dll
+D:\Learning\PRM\GrProject\src\Shared\Contracts\obj\Debug\net8.0\refint\Contracts.dll
+D:\Learning\PRM\GrProject\src\Shared\Contracts\obj\Debug\net8.0\Contracts.pdb
+D:\Learning\PRM\GrProject\src\Shared\Contracts\obj\Debug\net8.0\ref\Contracts.dll

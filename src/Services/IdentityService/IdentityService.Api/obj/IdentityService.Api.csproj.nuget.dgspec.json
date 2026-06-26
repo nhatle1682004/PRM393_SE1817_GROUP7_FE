@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Api\\IdentityService.Api.csproj": {}
+    "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Api\\IdentityService.Api.csproj": {}
   },
   "projects": {
-    "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Api\\IdentityService.Api.csproj": {
+    "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Api\\IdentityService.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Api\\IdentityService.Api.csproj",
+        "projectUniqueName": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Api\\IdentityService.Api.csproj",
         "projectName": "IdentityService.Api",
-        "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Api\\IdentityService.Api.csproj",
+        "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Api\\IdentityService.Api.csproj",
         "packagesPath": "C:\\Users\\ductr\\.nuget\\packages\\",
-        "outputPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Api\\obj\\",
+        "outputPath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -34,17 +34,17 @@
             "framework": "net8.0",
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj": {
-                "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj"
+              "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj": {
+                "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj"
               },
-              "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj": {
-                "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj"
+              "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj": {
+                "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj"
               },
-              "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\Contracts\\Contracts.csproj": {
-                "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\Contracts\\Contracts.csproj"
+              "D:\\Learning\\PRM\\GrProject\\src\\Shared\\Contracts\\Contracts.csproj": {
+                "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Shared\\Contracts\\Contracts.csproj"
               },
-              "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
-                "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\SharedKernel\\SharedKernel.csproj"
+              "D:\\Learning\\PRM\\GrProject\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
+                "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Shared\\SharedKernel\\SharedKernel.csproj"
               }
             }
           }
@@ -130,14 +130,14 @@
         }
       }
     },
-    "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj": {
+    "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj",
+        "projectUniqueName": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj",
         "projectName": "IdentityService.Application",
-        "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj",
+        "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj",
         "packagesPath": "C:\\Users\\ductr\\.nuget\\packages\\",
-        "outputPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Application\\obj\\",
+        "outputPath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -160,14 +160,14 @@
             "framework": "net8.0",
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj": {
-                "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj"
+              "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj": {
+                "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj"
               },
-              "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\Contracts\\Contracts.csproj": {
-                "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\Contracts\\Contracts.csproj"
+              "D:\\Learning\\PRM\\GrProject\\src\\Shared\\Contracts\\Contracts.csproj": {
+                "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Shared\\Contracts\\Contracts.csproj"
               },
-              "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
-                "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\SharedKernel\\SharedKernel.csproj"
+              "D:\\Learning\\PRM\\GrProject\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
+                "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Shared\\SharedKernel\\SharedKernel.csproj"
               }
             }
           }
@@ -243,14 +243,14 @@
         }
       }
     },
-    "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj": {
+    "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj",
+        "projectUniqueName": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj",
         "projectName": "IdentityService.Domain",
-        "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj",
+        "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj",
         "packagesPath": "C:\\Users\\ductr\\.nuget\\packages\\",
-        "outputPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Domain\\obj\\",
+        "outputPath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -325,14 +325,14 @@
         }
       }
     },
-    "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj": {
+    "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj",
+        "projectUniqueName": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj",
         "projectName": "IdentityService.Infrastructure",
-        "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj",
+        "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\ductr\\.nuget\\packages\\",
-        "outputPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Infrastructure\\obj\\",
+        "outputPath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -355,17 +355,17 @@
             "framework": "net8.0",
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj": {
-                "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj"
+              "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj": {
+                "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Application\\IdentityService.Application.csproj"
               },
-              "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj": {
-                "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj"
+              "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj": {
+                "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Services\\IdentityService\\IdentityService.Domain\\IdentityService.Domain.csproj"
               },
-              "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\Contracts\\Contracts.csproj": {
-                "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\Contracts\\Contracts.csproj"
+              "D:\\Learning\\PRM\\GrProject\\src\\Shared\\Contracts\\Contracts.csproj": {
+                "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Shared\\Contracts\\Contracts.csproj"
               },
-              "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
-                "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\SharedKernel\\SharedKernel.csproj"
+              "D:\\Learning\\PRM\\GrProject\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
+                "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Shared\\SharedKernel\\SharedKernel.csproj"
               }
             }
           }
@@ -442,14 +442,14 @@
         }
       }
     },
-    "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\Contracts\\Contracts.csproj": {
+    "D:\\Learning\\PRM\\GrProject\\src\\Shared\\Contracts\\Contracts.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\Contracts\\Contracts.csproj",
+        "projectUniqueName": "D:\\Learning\\PRM\\GrProject\\src\\Shared\\Contracts\\Contracts.csproj",
         "projectName": "Contracts",
-        "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\Contracts\\Contracts.csproj",
+        "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Shared\\Contracts\\Contracts.csproj",
         "packagesPath": "C:\\Users\\ductr\\.nuget\\packages\\",
-        "outputPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\Contracts\\obj\\",
+        "outputPath": "D:\\Learning\\PRM\\GrProject\\src\\Shared\\Contracts\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -524,14 +524,14 @@
         }
       }
     },
-    "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
+    "D:\\Learning\\PRM\\GrProject\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\SharedKernel\\SharedKernel.csproj",
+        "projectUniqueName": "D:\\Learning\\PRM\\GrProject\\src\\Shared\\SharedKernel\\SharedKernel.csproj",
         "projectName": "SharedKernel",
-        "projectPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\SharedKernel\\SharedKernel.csproj",
+        "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Shared\\SharedKernel\\SharedKernel.csproj",
         "packagesPath": "C:\\Users\\ductr\\.nuget\\packages\\",
-        "outputPath": "D:\\Learning\\refactor\\BackEnd-Microservices\\src\\Shared\\SharedKernel\\obj\\",
+        "outputPath": "D:\\Learning\\PRM\\GrProject\\src\\Shared\\SharedKernel\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
