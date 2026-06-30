@@ -22,12 +22,12 @@ class StorageService {
 
   // ================= TỪ KHÓA USERNAME =================
 
-  // 🛠️ THÊM: Hàm lưu tên người dùng tạm thời khi bấm Login giả lập
+  //Hàm lưu tên người dùng tạm thời khi bấm Login giả lập
   Future<void> saveUsername(String name) async {
     await _storage.write(key: _userKey, value: name);
   }
 
-  // 🛠️ THÊM: Hàm đọc tên người dùng lên để hiển thị động lên thanh Header
+  //Hàm đọc tên người dùng lên để hiển thị động lên thanh Header
   Future<String?> getUsername() async {
     return await _storage.read(key: _userKey);
   }
@@ -37,6 +37,6 @@ class StorageService {
   // Hàm xóa Token và Tên khi Đăng xuất (Được nâng cấp để xóa sạch cả hai)
   Future<void> deleteToken() async {
     await _storage.delete(key: _tokenKey);
-    await _storage.delete(key: _userKey); // 🛠️ THÊM: Xóa luôn tên khi Log out
+    await _storage.delete(key: _userKey); //Xóa luôn tên khi Log out
   }
 }
