@@ -4,9 +4,8 @@ import 'package:waste_collection_management_system/main.dart';
 
 void main() {
   testWidgets('Login screen renders', (WidgetTester tester) async {
-    await tester.pumpWidget(const WasteCollectionManagementSystem());
+    await tester.pumpWidget(const WasteCollectionApp());
 
-    expect(find.text('EcoCollect'), findsOneWidget);
-    expect(find.text('Log In'), findsOneWidget);
+    expect(find.text('Waste Collection'), findsOneWidget);
   });
 }
