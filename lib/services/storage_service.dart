@@ -1,42 +1,86 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+class UserProfile {
+  final int userId;
+  final String fullName;
+  final String email;
+  final int roleId;
+
+  const UserProfile({
+    required this.userId,
+    required this.fullName,
+    required this.email,
+    required this.roleId, 
+  });
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) {
+    return UserProfile(
+      userId: json['userId'] is int ? json['userId'] as int : int.tryParse(json['userId']?.toString() ?? '') ?? 0,
+      fullName: json['fullName']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      roleId: json['roleId'] is int ? json['roleId'] as int : int.tryParse(json['roleId']?.toString() ?? '') ?? 0,
+    );
+  }
+
+  Map<String, String> toStorageMap() {
+    return {
+      'userId': userId.toString(),
+      'fullName': fullName,
+      'email': email,
+      'roleId': roleId.toString(),
+    };
+  }
+}
+
 class StorageService {
-  // Khởi tạo bộ lưu trữ bảo mật của hệ thống
   final _storage = const FlutterSecureStorage();
 
-  // Từ khóa cố định để định danh dữ liệu trong máy
   static const _tokenKey = 'access_token';
-  static const _userKey = 'username'; // 🛠️ THÊM: Từ khóa định danh cho tên người dùng
+  static const _userProfilePrefix = 'user_';
 
-  // ================= TỪ KHÓA TOKEN =================
-
-  // Hàm ghi Token vào bộ nhớ máy
   Future<void> saveToken(String token) async {
     await _storage.write(key: _tokenKey, value: token);
   }
 
-  // Hàm đọc Token từ bộ nhớ máy ra để xem
   Future<String?> getToken() async {
     return await _storage.read(key: _tokenKey);
   }
 
-  // ================= TỪ KHÓA USERNAME =================
-
-  //Hàm lưu tên người dùng tạm thời khi bấm Login giả lập
-  Future<void> saveUsername(String name) async {
-    await _storage.write(key: _userKey, value: name);
+  Future<void> saveUserProfile(UserProfile profile) async {
+    final data = profile.toStorageMap();
+    for (final entry in data.entries) {
+      await _storage.write(key: '$_userProfilePrefix${entry.key}', value: entry.value);
+    }
   }
 
-  //Hàm đọc tên người dùng lên để hiển thị động lên thanh Header
-  Future<String?> getUsername() async {
-    return await _storage.read(key: _userKey);
+  Future<UserProfile?> getUserProfile() async {
+    final userId = await _storage.read(key: '${_userProfilePrefix}userId');
+    if (userId == null) return null;
+
+    final fullName = await _storage.read(key: '${_userProfilePrefix}fullName') ?? '';
+    final email = await _storage.read(key: '${_userProfilePrefix}email') ?? '';
+    final roleId = await _storage.read(key: '${_userProfilePrefix}roleId') ?? '0';
+
+    return UserProfile(
+      userId: int.tryParse(userId) ?? 0,
+      fullName: fullName,
+      email: email,
+      roleId: int.tryParse(roleId) ?? 0,
+    );
   }
 
-  // ================= ĐĂNG XUẤT =================
-
-  // Hàm xóa Token và Tên khi Đăng xuất (Được nâng cấp để xóa sạch cả hai)
   Future<void> deleteToken() async {
     await _storage.delete(key: _tokenKey);
-    await _storage.delete(key: _userKey); //Xóa luôn tên khi Log out
+  }
+
+  Future<void> deleteUserProfile() async {
+    await _storage.delete(key: '${_userProfilePrefix}userId');
+    await _storage.delete(key: '${_userProfilePrefix}fullName');
+    await _storage.delete(key: '${_userProfilePrefix}email');
+    await _storage.delete(key: '${_userProfilePrefix}roleId');
+  }
+
+  Future<void> clear() async {
+    await _storage.deleteAll();
   }
 }

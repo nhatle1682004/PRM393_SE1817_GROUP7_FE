@@ -1,0 +1,27 @@
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:camera/camera.dart';
+
+abstract class ReportView {
+  void onLocationUpdated(double lat, double lng);
+  void onImageStateChanged(bool hasImage);
+  void onImageFileUpdated(File? file);
+  void onWebImageFileUpdated(XFile? file);
+  void onSubmitting(bool isSubmitting);
+  void onSuccess(String message);
+  void onError(String error);
+  void onWasteTypeToggled(String type, bool isSelected);
+  void onShowImageSourceDialog();
+  void onShowWebCamera(List<CameraDescription> cameras);
+}
+
+abstract class ReportPresenter {
+  void toggleWasteType(String type);
+  void pickImage();
+  Future<void> pickFromCamera();
+  Future<void> pickFromGallery();
+  void onWebImageCaptured(XFile file);
+  void getCurrentLocation();
+  void submitReport(String description);
+  void dispose();
+}
