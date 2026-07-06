@@ -43,6 +43,7 @@ class AuthService {
       fullName: fullName,
       email: email,
       roleId: 1,
+      roleName: 'User',
     ));
   }
 
@@ -68,6 +69,7 @@ class AuthService {
         fullName: profile.fullName,
         email: profile.email,
         roleId: profile.roleId,
+        roleName: profile.roleName,
       ));
     }
 

@@ -5,21 +5,34 @@ class UserProfile {
   final String fullName;
   final String email;
   final int roleId;
+  final String roleName;
 
   const UserProfile({
     required this.userId,
     required this.fullName,
     required this.email,
-    required this.roleId, 
+    required this.roleId,
+    required this.roleName,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
+    final roleId = json['roleId'] is int ? json['roleId'] as int : int.tryParse(json['roleId']?.toString() ?? '') ?? 0;
     return UserProfile(
       userId: json['userId'] is int ? json['userId'] as int : int.tryParse(json['userId']?.toString() ?? '') ?? 0,
       fullName: json['fullName']?.toString() ?? '',
       email: json['email']?.toString() ?? '',
-      roleId: json['roleId'] is int ? json['roleId'] as int : int.tryParse(json['roleId']?.toString() ?? '') ?? 0,
+      roleId: roleId,
+      roleName: json['roleName']?.toString() ?? _getRoleName(roleId),
     );
+  }
+
+  static String _getRoleName(int roleId) {
+    switch (roleId) {
+      case 1: return 'User';
+      case 2: return 'Admin';
+      case 3: return 'Collector';
+      default: return 'Unknown';
+    }
   }
 
   Map<String, String> toStorageMap() {
@@ -28,6 +41,7 @@ class UserProfile {
       'fullName': fullName,
       'email': email,
       'roleId': roleId.toString(),
+      'roleName': roleName,
     };
   }
 }
@@ -60,12 +74,14 @@ class StorageService {
     final fullName = await _storage.read(key: '${_userProfilePrefix}fullName') ?? '';
     final email = await _storage.read(key: '${_userProfilePrefix}email') ?? '';
     final roleId = await _storage.read(key: '${_userProfilePrefix}roleId') ?? '0';
+    final roleName = await _storage.read(key: '${_userProfilePrefix}roleName') ?? UserProfile._getRoleName(int.tryParse(roleId) ?? 0);
 
     return UserProfile(
       userId: int.tryParse(userId) ?? 0,
       fullName: fullName,
       email: email,
       roleId: int.tryParse(roleId) ?? 0,
+      roleName: roleName,
     );
   }
 
