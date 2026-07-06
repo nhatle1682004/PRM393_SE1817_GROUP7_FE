@@ -1,3 +1,6 @@
+import 'auth_user.dart';
+import 'json_helpers.dart';
+
 class UserProfileData {
   final int userId;
   final String fullName;
@@ -33,20 +36,49 @@ class UserProfileData {
 
   factory UserProfileData.fromJson(Map<String, dynamic> json) {
     return UserProfileData(
-      userId: json['userId'] is int ? json['userId'] as int : int.tryParse(json['userId']?.toString() ?? '') ?? 0,
-      fullName: json['fullName']?.toString() ?? '',
-      email: json['email']?.toString() ?? '',
-      roleId: json['roleId'] is int ? json['roleId'] as int : int.tryParse(json['roleId']?.toString() ?? '') ?? 0,
-      phone: json['phone']?.toString(),
-      avatarUrl: json['avatarUrl']?.toString() ?? json['avatar']?.toString(),
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'].toString()) : null,
+      userId: JsonHelpers.intValue(json, ['userId', 'UserId', 'id', 'Id']),
+      fullName: JsonHelpers.stringValue(json, [
+        'fullName',
+        'FullName',
+        'name',
+        'Name',
+      ]),
+      email: JsonHelpers.stringValue(json, ['email', 'Email']),
+      roleId: JsonHelpers.intValue(json, ['roleId', 'RoleId']),
+      phone: JsonHelpers.pick(json, ['phone', 'Phone'])?.toString(),
+      avatarUrl: JsonHelpers.pick(json, [
+        'avatarUrl',
+        'AvatarUrl',
+        'avatar',
+        'Avatar',
+      ])?.toString(),
+      createdAt: JsonHelpers.dateValue(json, ['createdAt', 'CreatedAt']),
       // New fields
-      firstName: json['firstName']?.toString(),
-      lastName: json['lastName']?.toString(),
-      bio: json['bio']?.toString() ?? json['bioGraphy']?.toString() ?? json['introduction']?.toString(),
-      country: json['country']?.toString(),
-      city: json['city']?.toString() ?? json['province']?.toString() ?? json['district']?.toString(),
-      address: json['address']?.toString() ?? json['specificAddress']?.toString(),
+      firstName: JsonHelpers.pick(json, ['firstName', 'FirstName'])?.toString(),
+      lastName: JsonHelpers.pick(json, ['lastName', 'LastName'])?.toString(),
+      bio: JsonHelpers.pick(json, [
+        'bio',
+        'Bio',
+        'bioGraphy',
+        'BioGraphy',
+        'introduction',
+        'Introduction',
+      ])?.toString(),
+      country: JsonHelpers.pick(json, ['country', 'Country'])?.toString(),
+      city: JsonHelpers.pick(json, [
+        'city',
+        'City',
+        'province',
+        'Province',
+        'district',
+        'District',
+      ])?.toString(),
+      address: JsonHelpers.pick(json, [
+        'address',
+        'Address',
+        'specificAddress',
+        'SpecificAddress',
+      ])?.toString(),
     );
   }
 
@@ -102,13 +134,15 @@ class UserProfileData {
   String get roleName {
     switch (roleId) {
       case 1:
-        return 'User';
+        return 'Citizen';
       case 2:
-        return 'Admin';
+        return 'Enterprise';
       case 3:
         return 'Collector';
+      case 4:
+        return 'Admin';
       default:
-        return 'Unknown';
+        return AuthUser.roleNameFromId(roleId);
     }
   }
 
@@ -116,7 +150,8 @@ class UserProfileData {
     if (fullName.isEmpty) return 'U';
     final parts = fullName.trim().split(' ');
     if (parts.length >= 2) {
-      return '${parts[parts.length - 2][0]}${parts[parts.length - 1][0]}'.toUpperCase();
+      return '${parts[parts.length - 2][0]}${parts[parts.length - 1][0]}'
+          .toUpperCase();
     }
     return fullName.substring(0, fullName.length >= 2 ? 2 : 1).toUpperCase();
   }

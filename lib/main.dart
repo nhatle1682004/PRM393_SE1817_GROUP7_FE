@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:waste_collection_management_system/presentation/app_router.dart';
 import 'package:waste_collection_management_system/presentation/login/login_screen.dart';
-import 'package:waste_collection_management_system/presentation/home/home_screen.dart';
-import 'package:waste_collection_management_system/services/storage_service.dart';
 import 'package:geolocator/geolocator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize location services
   await _initializeLocation();
-  
+
   runApp(const WasteCollectionApp());
 }
 
@@ -21,7 +19,7 @@ Future<void> _initializeLocation() async {
       // Location services are not enabled, app will work without GPS
       return;
     }
-    
+
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -40,7 +38,7 @@ class WasteCollectionApp extends StatefulWidget {
 
 class _WasteCollectionAppState extends State<WasteCollectionApp> {
   bool _isChecking = true;
-  bool _hasValidToken = false;
+  Widget _home = const LoginScreen();
 
   @override
   void initState() {
@@ -49,12 +47,10 @@ class _WasteCollectionAppState extends State<WasteCollectionApp> {
   }
 
   Future<void> _checkAuthToken() async {
-    final storage = StorageService();
-    final token = await storage.getToken();
-    
+    final home = await AppRouter.initialScreen();
     if (mounted) {
       setState(() {
-        _hasValidToken = token != null && token.isNotEmpty;
+        _home = home;
         _isChecking = false;
       });
     }
@@ -65,10 +61,7 @@ class _WasteCollectionAppState extends State<WasteCollectionApp> {
     return MaterialApp(
       title: 'Waste Collection',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        fontFamily: 'Arial',
-      ),
+      theme: ThemeData(primarySwatch: Colors.green, fontFamily: 'Arial'),
       home: _buildHome(),
     );
   }
@@ -82,11 +75,7 @@ class _WasteCollectionAppState extends State<WasteCollectionApp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.eco,
-                color: Color(0xff10b981),
-                size: 64,
-              ),
+              Icon(Icons.eco, color: Color(0xff10b981), size: 64),
               SizedBox(height: 24),
               Text(
                 'Waste Collection',
@@ -97,19 +86,13 @@ class _WasteCollectionAppState extends State<WasteCollectionApp> {
                 ),
               ),
               SizedBox(height: 16),
-              CircularProgressIndicator(
-                color: Color(0xff10b981),
-              ),
+              CircularProgressIndicator(color: Color(0xff10b981)),
             ],
           ),
         ),
       );
     }
 
-    // Navigate based on token status
-    if (_hasValidToken) {
-      return const HomeScreen();
-    }
-    return const LoginScreen();
+    return _home;
   }
 }
