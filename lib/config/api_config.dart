@@ -1,9 +1,23 @@
+import 'package:flutter/foundation.dart';
+
 class ApiConfig {
   ApiConfig._();
 
-  /// URL gốc của Backend.
-  /// Android emulator dùng `http://10.0.2.2:3000/api` thay vì localhost.
-  static const String baseUrl = 'http://10.0.2.2:3000/api';
+  static String get _host {
+    if (kIsWeb) {
+      return 'localhost';
+    }
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return '10.0.2.2';
+    }
+
+    return 'localhost';
+  }
+
+  static const int _port = 5000;
+
+  static String get baseUrl => 'http://$_host:$_port/api';
 
   // 1. AUTHENTICATION - api/auth
   
@@ -21,6 +35,9 @@ class ApiConfig {
   
   /// Gửi OTP khi quên mật khẩu
   static const String forgotPassword = '/auth/forgot-password';
+
+  /// Gửi lại OTP đăng ký
+  static const String resendOtp = '/auth/resend-otp';
   
   /// Reset mật khẩu bằng OTP
   static const String resetPassword = '/auth/reset-password';

@@ -1,30 +1,95 @@
+import 'package:waste_collection_management_system/config/api_config.dart';
+import 'package:waste_collection_management_system/services/api_service.dart';
+import 'package:waste_collection_management_system/services/storage_service.dart';
 
 class AuthService {
-  /// Hàm đăng nhập
-  /// Trả về dữ liệu từ server nếu thành công, ném ra lỗi nếu thất bại
-  Future<Map<String, dynamic>> login(String email, String password) async {
-    // -------------------------------------------------------------------------
-    // VÍ DỤ CÁCH GỌI API THẬT (Bỏ comment khi có API)
-    // -------------------------------------------------------------------------
-    /*
-    try {
-      final response = await ApiService.post(
-        ApiConfig.login,
-        body: {
-          'email': email,
-          'password': password,
-        },
-      );
+  final StorageService _storage = StorageService();
 
-      // Trả về dữ liệu (thường chứa token và thông tin user)
-      return response.data;
-    } catch (e) {
-      // Lỗi đã được xử lý ở ApiService (trả về String thông báo lỗi)
-      rethrow;
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    final response = await ApiService.post(
+      ApiConfig.login,
+      body: {
+        'email': email,
+        'password': password,
+      },
+    );
+
+    final data = response.data as Map<String, dynamic>;
+    final token = data['token']?.toString();
+    final user = data['user'] as Map<String, dynamic>?;
+
+    if (token == null || user == null) {
+      throw Exception('Phản hồi đăng nhập không hợp lệ từ máy chủ.');
     }
-    */
-    
-    // Hiện tại chưa có API, trả về Map trống hoặc ném lỗi để tránh lỗi compile
-    throw 'API chưa sẵn sàng. Hãy cấu hình backend trước.';
+
+    await _storage.saveToken(token);
+    await _storage.saveUserProfile(UserProfile.fromJson(user));
+
+    return data;
+  }
+
+  Future<void> register(String fullName, String email, String password, String confirmPassword) async {
+    await ApiService.post(
+      ApiConfig.register,
+      body: {
+        'fullName': fullName,
+        'email': email,
+        'password': password,
+        'confirmPassword': confirmPassword,
+      },
+    );
+    await _storage.saveUserProfile(UserProfile(
+      userId: 0,
+      fullName: fullName,
+      email: email,
+      roleId: 1,
+    ));
+  }
+
+  Future<int> verifyOtp(String email, String otp) async {
+    final response = await ApiService.post(
+      ApiConfig.verifyOtp,
+      body: {
+        'email': email,
+        'otp': otp,
+      },
+    );
+
+    final data = response.data as Map<String, dynamic>;
+    final userId = data['userId'];
+    if (userId == null) {
+      throw Exception('Phản hồi xác thực không hợp lệ từ máy chủ.');
+    }
+
+    final profile = await _storage.getUserProfile();
+    if (profile != null) {
+      await _storage.saveUserProfile(UserProfile(
+        userId: userId is int ? userId : int.tryParse(userId.toString()) ?? 0,
+        fullName: profile.fullName,
+        email: profile.email,
+        roleId: profile.roleId,
+      ));
+    }
+
+    return userId is int ? userId : int.tryParse(userId.toString()) ?? 0;
+  }
+
+  Future<void> logout() async {
+    await _storage.clear();
+  }
+
+  // TODO: cập nhật khi BE có endpoint resend OTP riêng
+  Future<void> resendOtp() async {
+    final profile = await _storage.getUserProfile();
+    if (profile == null) {
+      throw Exception('Không tìm thấy thông tin đăng ký. Vui lòng đăng ký lại.');
+    }
+
+    await ApiService.post(
+      ApiConfig.resendOtp,
+      body: {
+        'email': profile.email,
+      },
+    );
   }
 }

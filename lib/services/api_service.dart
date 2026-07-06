@@ -1,4 +1,7 @@
 import 'package:dio/dio.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 import '../config/api_config.dart';
 // 🛠️ THÊM: Import file quản lý lưu trữ token của bạn vào đây
 import '../services/storage_service.dart';
@@ -43,7 +46,7 @@ class ApiService {
 
   // 🕵️ HÀM ĐĂNG NHẬP GIẢ LẬP (MOCK LOGIN) KHI CHƯA CÓ BACKEND .NET
   static Future<bool> mockLogin(String email, String password) async {
-    // Giả lập độ trễ mạng mất 1.5 giây giống như đang gọi API thật
+    // Giả lập độ trễ mạng mất 1.5 giây giống như dang gọi API thật
     await Future.delayed(const Duration(milliseconds: 1500));
 
     // Điều kiện giả lập đăng nhập thành công đơn giản (chỉ cần nhập text)
@@ -76,6 +79,54 @@ class ApiService {
     }
   }
 
+  /// Upload multipart form data (for image uploads)
+  static Future<Response> uploadMultipart(String endpoint, {
+    File? imageFile,
+    XFile? webImageFile,
+    required double latitude,
+    required double longitude,
+    String? description,
+    required List<int> wasteTypeIds,
+  }) async {
+    try {
+      MultipartFile? multipartFile;
+
+      if (kIsWeb && webImageFile != null) {
+        final bytes = await webImageFile.readAsBytes();
+        multipartFile = MultipartFile.fromBytes(
+          bytes,
+          filename: webImageFile.name,
+        );
+      } else if (imageFile != null) {
+        multipartFile = await MultipartFile.fromFile(
+          imageFile.path,
+          filename: imageFile.path.split('/').last,
+        );
+      }
+
+      if (multipartFile == null) throw "Hình ảnh không hợp lệ";
+
+      final formData = FormData.fromMap({
+        'Image': multipartFile,
+        'Latitude': latitude,
+        'Longitude': longitude,
+        if (description != null && description.isNotEmpty) 'Description': description,
+        'WasteTypeIds': wasteTypeIds,
+      });
+
+      final response = await _dio.post(
+        endpoint,
+        data: formData,
+        options: Options(
+          headers: {'Content-Type': 'multipart/form-data'},
+        ),
+      );
+      return response;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   static Future<Response> put(String endpoint, {dynamic body}) async {
     try {
       final response = await _dio.put(endpoint, data: body);
@@ -96,13 +147,46 @@ class ApiService {
 
   static String _handleError(DioException error) {
     if (error.response != null) {
+      final statusCode = error.response?.statusCode;
       final data = error.response?.data;
+
+      // Thử đọc message từ nhiều dạng response
       if (data is Map && data.containsKey('message')) {
         return data['message'];
       }
-      return 'Server error: ${error.response?.statusCode}';
+      if (data is Map && data.containsKey('Message')) {
+        return data['Message'];
+      }
+
+      // Với lỗi validation của FluentValidation, BE trả dạng dictionary errors
+      if (data is Map && data.containsKey('errors')) {
+        final errors = data['errors'] as Map<String, dynamic>;
+        if (errors.isNotEmpty) {
+          final firstField = errors.keys.first;
+          final firstError = errors[firstField];
+          if (firstError is List && firstError.isNotEmpty) {
+            return firstError[0].toString();
+          }
+        }
+      }
+
+      // Fallback: hiển thị status code rõ ràng
+      if (statusCode == 400) return 'Yêu cầu không hợp lệ';
+      if (statusCode == 401) return 'Không được xác thực';
+      if (statusCode == 403) return 'Không có quyền truy cập';
+      if (statusCode == 404) return 'Không tìm thấy';
+      if (statusCode == 409) return 'Xung đột dữ liệu';
+      if (statusCode != null) return 'Lỗi máy chủ ($statusCode)';
+      return 'Server error';
     } else {
-      return error.message ?? 'Unknown connection error';
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        return 'Hết thời gian kết nối. Vui lòng thử lại.';
+      }
+      if (error.type == DioExceptionType.connectionError) {
+        return 'Không thể kết nối máy chủ. Kiểm tra mạng.';
+      }
+      return error.message ?? 'Lỗi kết nối không xác định';
     }
   }
 }
