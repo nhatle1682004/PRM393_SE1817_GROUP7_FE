@@ -158,9 +158,11 @@ public sealed class AuthService : IAuthService
 
     private static string LoadEmailTemplate(string fileName)
     {
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "EmailTemplates", fileName);
+        var outputPath = Path.Combine(AppContext.BaseDirectory, "EmailTemplates", fileName);
+        var workingDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "EmailTemplates", fileName);
+        var path = File.Exists(outputPath) ? outputPath : workingDirectoryPath;
         if (!File.Exists(path))
-            throw new FileNotFoundException($"Email template not found: {path}");
+            throw new FileNotFoundException($"Email template not found. Checked: {outputPath}; {workingDirectoryPath}");
 
         return File.ReadAllText(path);
     }

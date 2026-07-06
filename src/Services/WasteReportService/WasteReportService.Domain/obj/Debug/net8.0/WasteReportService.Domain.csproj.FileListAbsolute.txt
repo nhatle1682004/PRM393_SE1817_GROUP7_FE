@@ -1,11 +1,12 @@
-D:\Learning\refactor\BackEnd-Microservices\src\Services\WasteReportService\WasteReportService.Domain\bin\Debug\net8.0\WasteReportService.Domain.deps.json
-D:\Learning\refactor\BackEnd-Microservices\src\Services\WasteReportService\WasteReportService.Domain\bin\Debug\net8.0\WasteReportService.Domain.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\WasteReportService\WasteReportService.Domain\bin\Debug\net8.0\WasteReportService.Domain.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\WasteReportService.Domain.GeneratedMSBuildEditorConfig.editorconfig
-D:\Learning\refactor\BackEnd-Microservices\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\WasteReportService.Domain.AssemblyInfoInputs.cache
-D:\Learning\refactor\BackEnd-Microservices\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\WasteReportService.Domain.AssemblyInfo.cs
-D:\Learning\refactor\BackEnd-Microservices\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\WasteReportService.Domain.csproj.CoreCompileInputs.cache
-D:\Learning\refactor\BackEnd-Microservices\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\WasteReportService.Domain.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\refint\WasteReportService.Domain.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\WasteReportService.Domain.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\ref\WasteReportService.Domain.dll
+D:\Learning\New folder\new\BE\src\Services\WasteReportService\WasteReportService.Domain\bin\Debug\net8.0\WasteReportService.Domain.deps.json
+D:\Learning\New folder\new\BE\src\Services\WasteReportService\WasteReportService.Domain\bin\Debug\net8.0\WasteReportService.Domain.dll
+D:\Learning\New folder\new\BE\src\Services\WasteReportService\WasteReportService.Domain\bin\Debug\net8.0\WasteReportService.Domain.pdb
+D:\Learning\New folder\new\BE\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\WasteReportService.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Learning\New folder\new\BE\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\WasteReportService.Domain.AssemblyInfoInputs.cache
+D:\Learning\New folder\new\BE\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\WasteReportService.Domain.AssemblyInfo.cs
+D:\Learning\New folder\new\BE\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\WasteReportService.Domain.csproj.CoreCompileInputs.cache
+D:\Learning\New folder\new\BE\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\WasteReportService.Domain.sourcelink.json
+D:\Learning\New folder\new\BE\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\WasteReportService.Domain.dll
+D:\Learning\New folder\new\BE\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\refint\WasteReportService.Domain.dll
+D:\Learning\New folder\new\BE\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\WasteReportService.Domain.pdb
+D:\Learning\New folder\new\BE\src\Services\WasteReportService\WasteReportService.Domain\obj\Debug\net8.0\ref\WasteReportService.Domain.dll

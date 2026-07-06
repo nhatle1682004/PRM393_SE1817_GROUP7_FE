@@ -19,7 +19,7 @@ public sealed class EmailService : IEmailService
         using var client = new SmtpClient(smtp["Host"], int.Parse(smtp["Port"]!))
         {
             Credentials = new NetworkCredential(smtp["Username"], smtp["Password"]),
-            EnableSsl = true
+            EnableSsl = smtp.GetValue("EnableSsl", true)
         };
 
         using var mail = new MailMessage

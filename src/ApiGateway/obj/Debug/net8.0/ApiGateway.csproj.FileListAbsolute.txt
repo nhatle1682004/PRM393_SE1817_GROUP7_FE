@@ -1,48 +1,49 @@
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\ApiGateway.csproj.AssemblyReference.cache
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\rpswa.dswa.cache.json
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\ApiGateway.GeneratedMSBuildEditorConfig.editorconfig
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\ApiGateway.AssemblyInfoInputs.cache
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\ApiGateway.AssemblyInfo.cs
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\ApiGateway.csproj.CoreCompileInputs.cache
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\ApiGateway.MvcApplicationPartsAssemblyInfo.cs
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\ApiGateway.MvcApplicationPartsAssemblyInfo.cache
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\appsettings.Development.json
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\appsettings.json
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\ApiGateway.staticwebassets.endpoints.json
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\ApiGateway.exe
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\ApiGateway.deps.json
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\ApiGateway.runtimeconfig.json
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\ApiGateway.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\ApiGateway.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\Microsoft.AspNetCore.OpenApi.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\Microsoft.OpenApi.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\System.IO.Hashing.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\Yarp.ReverseProxy.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\SharedKernel.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\bin\Debug\net8.0\SharedKernel.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\rjimswa.dswa.cache.json
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\scopedcss\bundle\ApiGateway.styles.css
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\staticwebassets.build.json
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\staticwebassets.build.json.cache
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\staticwebassets.development.json
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\swae.build.ex.cache
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\ApiGateway.csproj.Up2Date
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\ApiGateway.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\refint\ApiGateway.dll
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\ApiGateway.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\ApiGateway.genruntimeconfig.cache
-D:\Learning\refactor\BackEnd-Microservices\src\ApiGateway\obj\Debug\net8.0\ref\ApiGateway.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\appsettings.Development.json
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\appsettings.json
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\ApiGateway.staticwebassets.endpoints.json
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\ApiGateway.exe
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\ApiGateway.deps.json
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\ApiGateway.runtimeconfig.json
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\ApiGateway.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\ApiGateway.pdb
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\Microsoft.AspNetCore.OpenApi.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\Microsoft.OpenApi.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\System.IO.Hashing.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\Yarp.ReverseProxy.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\SharedKernel.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\bin\Debug\net8.0\SharedKernel.pdb
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\ApiGateway.csproj.AssemblyReference.cache
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\rpswa.dswa.cache.json
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\ApiGateway.GeneratedMSBuildEditorConfig.editorconfig
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\ApiGateway.AssemblyInfoInputs.cache
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\ApiGateway.AssemblyInfo.cs
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\ApiGateway.csproj.CoreCompileInputs.cache
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\ApiGateway.MvcApplicationPartsAssemblyInfo.cs
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\ApiGateway.MvcApplicationPartsAssemblyInfo.cache
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\ApiGateway.sourcelink.json
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\rjimswa.dswa.cache.json
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\scopedcss\bundle\ApiGateway.styles.css
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\staticwebassets.build.json
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\staticwebassets.build.json.cache
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\staticwebassets.development.json
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\staticwebassets.build.endpoints.json
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\swae.build.ex.cache
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\ApiGateway.csproj.Up2Date
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\ApiGateway.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\refint\ApiGateway.dll
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\ApiGateway.pdb
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\ApiGateway.genruntimeconfig.cache
+D:\Learning\New folder\new\BE\src\ApiGateway\obj\Debug\net8.0\ref\ApiGateway.dll

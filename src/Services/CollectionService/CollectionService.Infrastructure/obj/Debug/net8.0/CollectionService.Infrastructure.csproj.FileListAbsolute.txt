@@ -1,23 +1,24 @@
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Infrastructure.deps.json
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Infrastructure.runtimeconfig.json
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Infrastructure.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Infrastructure.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Application.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Domain.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\Contracts.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\SharedKernel.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Domain.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Application.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\SharedKernel.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\Contracts.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.csproj.AssemblyReference.cache
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.AssemblyInfoInputs.cache
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.AssemblyInfo.cs
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.csproj.CoreCompileInputs.cache
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\Collecti.1447A1C4.Up2Date
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\refint\CollectionService.Infrastructure.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.genruntimeconfig.cache
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\ref\CollectionService.Infrastructure.dll
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Infrastructure.deps.json
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Infrastructure.runtimeconfig.json
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Infrastructure.dll
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Infrastructure.pdb
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Application.dll
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Domain.dll
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\Contracts.dll
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\SharedKernel.dll
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Domain.pdb
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\CollectionService.Application.pdb
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\SharedKernel.pdb
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\bin\Debug\net8.0\Contracts.pdb
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.csproj.AssemblyReference.cache
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.AssemblyInfoInputs.cache
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.AssemblyInfo.cs
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.csproj.CoreCompileInputs.cache
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.sourcelink.json
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\Collecti.1447A1C4.Up2Date
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.dll
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\refint\CollectionService.Infrastructure.dll
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.pdb
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\CollectionService.Infrastructure.genruntimeconfig.cache
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Infrastructure\obj\Debug\net8.0\ref\CollectionService.Infrastructure.dll

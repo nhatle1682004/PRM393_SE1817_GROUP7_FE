@@ -117,14 +117,14 @@ namespace IdentityService.Infrastructure.Migrations
                         new
                         {
                             RoleId = 2,
-                            Description = "Waste collector",
-                            RoleName = "Collector"
+                            Description = "Enterprise account",
+                            RoleName = "Enterprise"
                         },
                         new
                         {
                             RoleId = 3,
-                            Description = "Enterprise account",
-                            RoleName = "Enterprise"
+                            Description = "Waste collector",
+                            RoleName = "Collector"
                         },
                         new
                         {

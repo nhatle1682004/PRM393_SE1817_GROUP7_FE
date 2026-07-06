@@ -272,6 +272,22 @@ public sealed class WasteReportService : IWasteReportService
             .GroupBy(r => r.CreatedAt!.Value.Month)
             .ToDictionary(g => g.Key, g => g.Count());
 
+        var recentReports = reports.OrderByDescending(r => r.CreatedAt).Take(5).ToList();
+        var recentReportDtos = new List<RecentReportDto>();
+        foreach (var recentReport in recentReports)
+        {
+            var submitter = await _identityClient.GetUserAsync(recentReport.SubmittedBy);
+            recentReportDtos.Add(new RecentReportDto
+            {
+                ReportId = recentReport.ReportId,
+                SubmittedByName = submitter?.FullName ?? "Unknown",
+                Description = recentReport.Description,
+                Status = recentReport.Status,
+                WasteTypeNames = recentReport.WasteTypes.Select(w => w.Name).ToList(),
+                CreatedAt = recentReport.CreatedAt
+            });
+        }
+
         return new WasteDashboardStatsDto
         {
             TotalReports = reports.Count,
@@ -283,7 +299,7 @@ public sealed class WasteReportService : IWasteReportService
             ReportStatusDistribution = statusCounts.Select(x => new StatusCountDto { Status = x.Key, Count = x.Value }).OrderByDescending(x => x.Count).ToList(),
             ReportsByMonth = Enumerable.Range(1, 12).Select(m => new MonthlyCountDto { Month = m, MonthName = monthNames[m - 1], Count = reportMonthData.GetValueOrDefault(m) }).ToList(),
             WasteTypeDistribution = reports.SelectMany(r => r.WasteTypes).GroupBy(w => w.Name).Select(g => new WasteTypeDistributionDto { Name = g.Key, Count = g.Count() }).OrderByDescending(x => x.Count).ToList(),
-            RecentReports = reports.OrderByDescending(r => r.CreatedAt).Take(5).Select(r => new RecentReportDto { ReportId = r.ReportId, SubmittedByName = string.Empty, Description = r.Description, Status = r.Status, WasteTypeNames = r.WasteTypes.Select(w => w.Name).ToList(), CreatedAt = r.CreatedAt }).ToList()
+            RecentReports = recentReportDtos
         };
     }
 

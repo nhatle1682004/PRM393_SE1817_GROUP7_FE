@@ -904,11 +904,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Learning\\PRM\\GrProject\\src\\ApiGateway\\ApiGateway.csproj",
+      "projectUniqueName": "D:\\Learning\\New folder\\new\\BE\\src\\ApiGateway\\ApiGateway.csproj",
       "projectName": "ApiGateway",
-      "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\ApiGateway\\ApiGateway.csproj",
+      "projectPath": "D:\\Learning\\New folder\\new\\BE\\src\\ApiGateway\\ApiGateway.csproj",
       "packagesPath": "C:\\Users\\ductr\\.nuget\\packages\\",
-      "outputPath": "D:\\Learning\\PRM\\GrProject\\src\\ApiGateway\\obj\\",
+      "outputPath": "D:\\Learning\\New folder\\new\\BE\\src\\ApiGateway\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -931,8 +931,8 @@
           "framework": "net8.0",
           "targetAlias": "net8.0",
           "projectReferences": {
-            "D:\\Learning\\PRM\\GrProject\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
-              "projectPath": "D:\\Learning\\PRM\\GrProject\\src\\Shared\\SharedKernel\\SharedKernel.csproj"
+            "D:\\Learning\\New folder\\new\\BE\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
+              "projectPath": "D:\\Learning\\New folder\\new\\BE\\src\\Shared\\SharedKernel\\SharedKernel.csproj"
             }
           }
         }

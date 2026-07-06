@@ -79,7 +79,9 @@ public sealed class RewardService : IRewardService
 
         var redeemedAt = DateTime.UtcNow;
         var sourceType = "RewardRedeem";
-        var referenceId = $"{userId}:{reward.RewardId}:{redeemedAt:yyyyMMddHHmm}";
+        // A public redeem call is a distinct business operation. Grouping by minute
+        // incorrectly treated two legitimate redemptions as the same request.
+        var referenceId = $"{userId}:{reward.RewardId}:{Guid.NewGuid():N}";
         var existing = FindBySource(sourceType, referenceId, "Redeemed");
         if (existing != null)
         {

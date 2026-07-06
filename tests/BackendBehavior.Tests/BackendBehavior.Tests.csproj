@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="NSubstitute" Version="5.3.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Services\IdentityService\IdentityService.Application\IdentityService.Application.csproj" />
+    <ProjectReference Include="..\..\src\Services\WasteReportService\WasteReportService.Application\WasteReportService.Application.csproj" />
+    <ProjectReference Include="..\..\src\Services\CollectionService\CollectionService.Application\CollectionService.Application.csproj" />
+    <ProjectReference Include="..\..\src\Services\EngagementService\EngagementService.Application\EngagementService.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\src\Services\IdentityService\IdentityService.Api\EmailTemplates\OtpVerification.html"
+             Link="EmailTemplates\OtpVerification.html"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

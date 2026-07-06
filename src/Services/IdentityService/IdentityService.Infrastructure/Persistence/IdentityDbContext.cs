@@ -38,14 +38,14 @@ public sealed class IdentityDbContext : DbContext
             new Role
             {
                 RoleId = 2,
-                RoleName = "Collector",
-                Description = "Waste collector"
+                RoleName = "Enterprise",
+                Description = "Enterprise account"
             },
             new Role
             {
                 RoleId = 3,
-                RoleName = "Enterprise",
-                Description = "Enterprise account"
+                RoleName = "Collector",
+                Description = "Waste collector"
             },
             new Role
             {

@@ -21,6 +21,12 @@ services:
       ServiceUrls__WasteReportService: http://waste-report-service:8080
       ServiceUrls__CollectionService: http://collection-service:8080
       ServiceUrls__EngagementService: http://engagement-service:8080
+      SmtpSettings__Host: ${SMTP_HOST:-smtp.gmail.com}
+      SmtpSettings__Port: ${SMTP_PORT:-587}
+      SmtpSettings__EnableSsl: ${SMTP_ENABLE_SSL:-true}
+      SmtpSettings__Username: ${SMTP_USERNAME:-}
+      SmtpSettings__Password: ${SMTP_PASSWORD:-}
+      SmtpSettings__FromName: ${SMTP_FROM_NAME:-Waste Collection Platform}
     ports:
       - "5001:8080"
     depends_on:
@@ -39,6 +45,8 @@ services:
       ServiceUrls__EngagementService: http://engagement-service:8080
     ports:
       - "5002:8080"
+    volumes:
+      - waste-report-uploads:/app/wwwroot/uploads/waste-reports
     depends_on:
       - identity-service
       - postgres
@@ -56,6 +64,8 @@ services:
       ServiceUrls__EngagementService: http://engagement-service:8080
     ports:
       - "5003:8080"
+    volumes:
+      - collection-uploads:/app/wwwroot/uploads
     depends_on:
       - identity-service
       - waste-report-service
@@ -74,6 +84,8 @@ services:
       ServiceUrls__EngagementService: http://engagement-service:8080
     ports:
       - "5004:8080"
+    volumes:
+      - feedback-uploads:/app/wwwroot/uploads/feedbacks
     depends_on:
       - identity-service
       - postgres
@@ -98,3 +110,6 @@ services:
 
 volumes:
   postgres-data:
+  waste-report-uploads:
+  collection-uploads:
+  feedback-uploads:

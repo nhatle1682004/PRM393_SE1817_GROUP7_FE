@@ -1,47 +1,24 @@
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Infrastructure.deps.json
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Infrastructure.runtimeconfig.json
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Infrastructure.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Infrastructure.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\Contracts.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Application.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Domain.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\SharedKernel.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Domain.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Application.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\SharedKernel.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\Contracts.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.csproj.AssemblyReference.cache
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.AssemblyInfoInputs.cache
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.AssemblyInfo.cs
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.csproj.CoreCompileInputs.cache
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\Identity.1C9B4358.Up2Date
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\refint\IdentityService.Infrastructure.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.genruntimeconfig.cache
-D:\Learning\refactor\BackEnd-Microservices\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\ref\IdentityService.Infrastructure.dll
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Infrastructure.deps.json
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Infrastructure.runtimeconfig.json
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Infrastructure.dll
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Infrastructure.pdb
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\Contracts.dll
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Application.dll
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Domain.dll
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\SharedKernel.dll
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Domain.pdb
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Application.pdb
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\SharedKernel.pdb
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\Contracts.pdb
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.csproj.AssemblyReference.cache
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.AssemblyInfoInputs.cache
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.AssemblyInfo.cs
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.csproj.CoreCompileInputs.cache
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.sourcelink.json
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\Identity.1C9B4358.Up2Date
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.dll
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\refint\IdentityService.Infrastructure.dll
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.pdb
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.genruntimeconfig.cache
-D:\Learning\PRM\GrProject\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\ref\IdentityService.Infrastructure.dll
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Infrastructure.deps.json
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Infrastructure.runtimeconfig.json
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Infrastructure.dll
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Infrastructure.pdb
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\Contracts.dll
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Application.dll
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Domain.dll
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\SharedKernel.dll
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Domain.pdb
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\IdentityService.Application.pdb
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\SharedKernel.pdb
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\bin\Debug\net8.0\Contracts.pdb
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.csproj.AssemblyReference.cache
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.AssemblyInfoInputs.cache
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.AssemblyInfo.cs
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.csproj.CoreCompileInputs.cache
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.sourcelink.json
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\Identity.1C9B4358.Up2Date
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.dll
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\refint\IdentityService.Infrastructure.dll
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.pdb
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\IdentityService.Infrastructure.genruntimeconfig.cache
+D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Infrastructure\obj\Debug\net8.0\ref\IdentityService.Infrastructure.dll

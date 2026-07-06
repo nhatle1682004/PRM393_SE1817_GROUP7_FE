@@ -1,0 +1,4 @@
+citizen@example.com     / Password123!
+enterprise@example.com  / Password123!
+collector@example.com   / Password123!
+admin@example.com       / Password123!

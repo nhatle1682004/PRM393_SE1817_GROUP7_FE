@@ -1,11 +1,12 @@
-D:\Learning\refactor\BackEnd-Microservices\src\Services\EngagementService\EngagementService.Domain\bin\Debug\net8.0\EngagementService.Domain.deps.json
-D:\Learning\refactor\BackEnd-Microservices\src\Services\EngagementService\EngagementService.Domain\bin\Debug\net8.0\EngagementService.Domain.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\EngagementService\EngagementService.Domain\bin\Debug\net8.0\EngagementService.Domain.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.GeneratedMSBuildEditorConfig.editorconfig
-D:\Learning\refactor\BackEnd-Microservices\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.AssemblyInfoInputs.cache
-D:\Learning\refactor\BackEnd-Microservices\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.AssemblyInfo.cs
-D:\Learning\refactor\BackEnd-Microservices\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.csproj.CoreCompileInputs.cache
-D:\Learning\refactor\BackEnd-Microservices\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\refint\EngagementService.Domain.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\ref\EngagementService.Domain.dll
+D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.Domain\bin\Debug\net8.0\EngagementService.Domain.deps.json
+D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.Domain\bin\Debug\net8.0\EngagementService.Domain.dll
+D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.Domain\bin\Debug\net8.0\EngagementService.Domain.pdb
+D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.AssemblyInfoInputs.cache
+D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.AssemblyInfo.cs
+D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.csproj.CoreCompileInputs.cache
+D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.sourcelink.json
+D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.dll
+D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\refint\EngagementService.Domain.dll
+D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.pdb
+D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\ref\EngagementService.Domain.dll

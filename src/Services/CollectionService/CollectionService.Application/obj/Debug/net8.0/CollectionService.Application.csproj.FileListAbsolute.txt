@@ -1,19 +1,20 @@
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\CollectionService.Application.csproj.AssemblyReference.cache
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\CollectionService.Application.GeneratedMSBuildEditorConfig.editorconfig
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\CollectionService.Application.AssemblyInfoInputs.cache
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\CollectionService.Application.AssemblyInfo.cs
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\CollectionService.Application.csproj.CoreCompileInputs.cache
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\CollectionService.Application.deps.json
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\CollectionService.Application.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\CollectionService.Application.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\CollectionService.Domain.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\Contracts.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\SharedKernel.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\CollectionService.Domain.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\SharedKernel.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\Contracts.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\Collecti.96D9FB1C.Up2Date
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\CollectionService.Application.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\refint\CollectionService.Application.dll
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\CollectionService.Application.pdb
-D:\Learning\refactor\BackEnd-Microservices\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\ref\CollectionService.Application.dll
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\CollectionService.Application.deps.json
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\CollectionService.Application.dll
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\CollectionService.Application.pdb
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\CollectionService.Domain.dll
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\Contracts.dll
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\SharedKernel.dll
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\CollectionService.Domain.pdb
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\SharedKernel.pdb
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\bin\Debug\net8.0\Contracts.pdb
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\CollectionService.Application.csproj.AssemblyReference.cache
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\CollectionService.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\CollectionService.Application.AssemblyInfoInputs.cache
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\CollectionService.Application.AssemblyInfo.cs
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\CollectionService.Application.csproj.CoreCompileInputs.cache
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\CollectionService.Application.sourcelink.json
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\Collecti.96D9FB1C.Up2Date
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\CollectionService.Application.dll
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\refint\CollectionService.Application.dll
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\CollectionService.Application.pdb
+D:\Learning\New folder\new\BE\src\Services\CollectionService\CollectionService.Application\obj\Debug\net8.0\ref\CollectionService.Application.dll
