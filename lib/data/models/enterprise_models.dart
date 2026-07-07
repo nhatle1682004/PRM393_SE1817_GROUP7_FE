@@ -740,6 +740,7 @@ class CancelAssignmentResponse {
 // ============ REPORT ============
 class EnterpriseReport {
   final int reportId;
+  final int? requestId;
   final String submittedByName;
   final List<String> wasteTypeNames;
   final String status;
@@ -753,6 +754,7 @@ class EnterpriseReport {
 
   EnterpriseReport({
     required this.reportId,
+    this.requestId,
     required this.submittedByName,
     this.wasteTypeNames = const [],
     required this.status,
@@ -788,6 +790,7 @@ class EnterpriseReport {
 
     return EnterpriseReport(
       reportId: _toInt(json['reportId'] ?? json['id']),
+      requestId: json['requestId'] ?? json['RequestId'],
       submittedByName: json['submittedByName'] ?? json['citizenName'] ?? json['userName'] ?? '',
       wasteTypeNames: json['wasteTypeNames'] != null
           ? (json['wasteTypeNames'] as List).map((e) => e?.toString() ?? '').toList()
@@ -812,6 +815,7 @@ class EnterpriseReport {
 
   EnterpriseReport copyWith({
     int? reportId,
+    int? requestId,
     String? submittedByName,
     List<String>? wasteTypeNames,
     String? status,
@@ -825,6 +829,7 @@ class EnterpriseReport {
   }) {
     return EnterpriseReport(
       reportId: reportId ?? this.reportId,
+      requestId: requestId ?? this.requestId,
       submittedByName: submittedByName ?? this.submittedByName,
       wasteTypeNames: wasteTypeNames ?? this.wasteTypeNames,
       status: status ?? this.status,
@@ -883,8 +888,8 @@ class EnterpriseFeedback {
       content: json['content'] ?? json['description'] ?? '',
       reportId: json['reportId'] != null ? _toInt(json['reportId']) : null,
       status: json['status'] ?? 'Pending',
-      imageUrl: json['imageUrl'],
-      resolution: json['resolution'],
+      imageUrl: json['imageUrl'] ?? json['feedbackImageUrl'],
+      resolution: json['resolutionNote'] ?? json['resolution'],
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'].toString())
           : null,

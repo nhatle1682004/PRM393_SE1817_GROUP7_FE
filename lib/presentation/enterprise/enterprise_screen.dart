@@ -22,6 +22,7 @@ class EnterpriseScreen extends StatefulWidget {
 
 class _EnterpriseScreenState extends State<EnterpriseScreen> {
   int _currentIndex = 0;
+  int? _pendingAssignmentReportId; // Lưu requestId cần phân công
   EnterpriseStats? _stats;
   bool _isLoading = true;
   String? _errorMessage;
@@ -51,10 +52,14 @@ class _EnterpriseScreenState extends State<EnterpriseScreen> {
   }
 
   Future<void> _loadDashboardData() async {
+    final profile = await AuthService.getProfile();
+    final districtId = profile?.managedDistrictId;
     try {
       final results = await Future.wait([
         EnterpriseApiService.getCollectionRequests(),
-        EnterpriseApiService.getReports(),
+        districtId != null
+          ? EnterpriseApiService.getReportsByDistrict(districtId)
+          : EnterpriseApiService.getReports(),
       ]);
       
       final requests = results[0] as List<EnterpriseCollectionRequest>;
@@ -72,6 +77,15 @@ class _EnterpriseScreenState extends State<EnterpriseScreen> {
   Future<void> _loadUserProfile() async {
     final profile = await AuthService.getProfile();
     if (mounted) setState(() => _userProfile = profile);
+  }
+
+  // Callback khi báo cáo được duyệt - chuyển sang trang phân công
+  void _onReportAccepted(int requestId) {
+    debugPrint('_onReportAccepted called with requestId: $requestId');
+    setState(() {
+      _pendingAssignmentReportId = requestId;
+      _currentIndex = 3; // Chuyển sang tab Phân công
+    });
   }
 
   Future<void> _loadStats() async {
@@ -760,8 +774,16 @@ class _EnterpriseScreenState extends State<EnterpriseScreen> {
       child: switch (_currentIndex) {
         1 => const CollectionRequestsView(),
         2 => const CollectorsView(),
-        3 => const AssignmentsView(),
-        4 => const ReportsView(),
+        3 => AssignmentsView(
+          pendingRequestId: _pendingAssignmentReportId,
+          onAssignmentComplete: () {
+            setState(() {
+              _currentIndex = 4; // Quay về trang Báo cáo
+              _pendingAssignmentReportId = null; // Clear pending
+            });
+          },
+        ),
+        4 => ReportsView(onReportAccepted: _onReportAccepted),
         5 => const FeedbacksView(),
         6 => NotificationsView(onRefreshParent: _loadNotifications),
         7 => const EnterpriseProfileView(),

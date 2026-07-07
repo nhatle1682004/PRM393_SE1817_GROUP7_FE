@@ -52,13 +52,19 @@ class _RightPanelFormState extends State<RightPanelForm> {
           final storage = StorageService();
           final profile = await storage.getUserProfile();
 
+          // DEBUG: Check what's happening
+          debugPrint('DEBUG LOGIN: profile=$profile, roleId=${profile?.roleId}, expected=${AppRoles.enterprise}');
+
           // Route based on role
           Widget nextScreen;
           if (profile != null && profile.roleId == AppRoles.admin) {
+            debugPrint('Navigating to AdminScreen');
             nextScreen = const AdminScreen();
           } else if (profile != null && profile.roleId == AppRoles.enterprise) {
+            debugPrint('Navigating to EnterpriseScreen');
             nextScreen = const EnterpriseScreen();
           } else {
+            debugPrint('Navigating to HomeScreen (default)');
             nextScreen = const HomeScreen();
           }
 

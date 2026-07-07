@@ -3,7 +3,10 @@ import 'package:waste_collection_management_system/data/models/enterprise_models
 import 'package:waste_collection_management_system/services/enterprise_api_service.dart';
 
 class AssignmentsView extends StatefulWidget {
-  const AssignmentsView({super.key});
+  final int? pendingRequestId;
+  final VoidCallback? onAssignmentComplete;
+
+  const AssignmentsView({super.key, this.pendingRequestId, this.onAssignmentComplete});
 
   @override
   State<AssignmentsView> createState() => _AssignmentsViewState();
@@ -11,15 +14,42 @@ class AssignmentsView extends StatefulWidget {
 
 class _AssignmentsViewState extends State<AssignmentsView> {
   List<EnterpriseAssignment> _assignments = [];
+  List<EnterpriseCollector> _collectors = [];
   bool _isLoading = true;
+  bool _isLoadingCollectors = false;
+  bool _isAssigning = false;
   String? _error;
   String _statusFilter = 'Tất cả';
   final List<String> _statusFilters = ['Tất cả', 'Pending', 'InProgress', 'Completed', 'Cancelled'];
+  
+  // Dialog state
+  int? _currentDialogRequestId;
 
   @override
   void initState() {
     super.initState();
+    debugPrint('AssignmentsView initState - pendingRequestId: ${widget.pendingRequestId}');
     _loadAssignments();
+    _loadCollectors();
+
+    // Nếu có pendingRequestId, hiện dialog phân công
+    if (widget.pendingRequestId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showAssignDialogForRequest(widget.pendingRequestId!);
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(AssignmentsView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    debugPrint('AssignmentsView didUpdateWidget - old: ${oldWidget.pendingRequestId}, new: ${widget.pendingRequestId}');
+    // Khi pendingRequestId thay đổi, hiện dialog
+    if (widget.pendingRequestId != null && widget.pendingRequestId != oldWidget.pendingRequestId) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showAssignDialogForRequest(widget.pendingRequestId!);
+      });
+    }
   }
 
   Future<void> _loadAssignments() async {
@@ -46,9 +76,130 @@ class _AssignmentsViewState extends State<AssignmentsView> {
     }
   }
 
+  Future<void> _loadCollectors() async {
+    // Nếu đã load rồi thì không cần reload
+    if (_collectors.isNotEmpty && !_isLoadingCollectors) {
+      return;
+    }
+    
+    setState(() => _isLoadingCollectors = true);
+    try {
+      final collectors = await EnterpriseApiService.getCollectors();
+      debugPrint('Collectors loaded: ${collectors.length} items');
+      for (var c in collectors) {
+        debugPrint('  - id: ${c.collectorId}, name: ${c.fullName}, available: ${c.isAvailable}');
+      }
+      if (mounted) {
+        setState(() {
+          _collectors = collectors;
+          _isLoadingCollectors = false;
+        });
+        
+        // Nếu có requestId đang chờ, hiện dialog
+        if (_currentDialogRequestId != null) {
+          await Future.delayed(const Duration(milliseconds: 100));
+          if (mounted) {
+            _showAssignDialogInternal(_currentDialogRequestId!);
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading collectors: $e');
+      if (mounted) {
+        setState(() {
+          _collectors = [];
+          _isLoadingCollectors = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi tải nhân viên: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   List<EnterpriseAssignment> get _filteredAssignments {
     if (_statusFilter == 'Tất cả') return _assignments;
     return _assignments.where((a) => a.status == _statusFilter).toList();
+  }
+
+  // Dialog phân công cho request cụ thể
+  void _showAssignDialogForRequest(int requestId) {
+    debugPrint('_showAssignDialogForRequest called with requestId: $requestId');
+    _currentDialogRequestId = requestId;
+    
+    // Always load collectors first before showing dialog
+    _loadCollectors();
+  }
+
+  void _showAssignDialogInternal(int requestId) {
+    int? localSelectedId;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return _AssignCollectorDialog(
+            requestId: requestId,
+            collectors: _collectors,
+            isLoadingCollectors: _isLoadingCollectors,
+            selectedCollectorId: localSelectedId,
+            onCollectorSelected: (id) {
+              setDialogState(() {
+                localSelectedId = id;
+              });
+            },
+            onAssign: (collectorId) {
+              Navigator.pop(dialogContext);
+              _assignRequest(requestId, collectorId);
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _assignRequest(int requestId, int collectorId) async {
+    if (_isAssigning) return;
+
+    setState(() => _isAssigning = true);
+
+    try {
+      await EnterpriseApiService.assignCollector(
+        AssignCollectorRequest(requestId: requestId, collectorId: collectorId),
+      );
+
+      // Load lại assignments
+      await _loadAssignments();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Phân công thành công'),
+            backgroundColor: Color(0xFF10B981),
+            duration: Duration(seconds: 1),
+          ),
+        );
+        
+        // Quay về trang Báo cáo sau khi phân công thành công
+        widget.onAssignmentComplete?.call();
+      }
+    } on Exception catch (e) {
+      if (!e.toString().contains('404') && !e.toString().contains('Không tìm thấy')) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Lỗi: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } finally {
+      if (mounted) setState(() => _isAssigning = false);
+    }
   }
 
   Future<void> _cancelAssignment(EnterpriseAssignment assignment) async {
@@ -706,5 +857,188 @@ class _StatusBadge extends StatelessWidget {
       default:
         return status;
     }
+  }
+}
+
+// Dialog chọn nhân viên để phân công
+class _AssignCollectorDialog extends StatelessWidget {
+  final int requestId;
+  final List<EnterpriseCollector> collectors;
+  final bool isLoadingCollectors;
+  final int? selectedCollectorId;
+  final Function(int) onCollectorSelected;
+  final Function(int collectorId) onAssign;
+
+  const _AssignCollectorDialog({
+    required this.requestId,
+    required this.collectors,
+    required this.isLoadingCollectors,
+    required this.selectedCollectorId,
+    required this.onCollectorSelected,
+    required this.onAssign,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width > 600;
+
+    return AlertDialog(
+      title: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF10B981).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.person_add, color: Color(0xFF10B981), size: 24),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Phân công yêu cầu'),
+                Text(
+                  '#$requestId',
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close),
+          ),
+        ],
+      ),
+      content: SizedBox(
+        width: isWide ? 500 : double.maxFinite,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Chọn nhân viên để xử lý yêu cầu này',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            if (isLoadingCollectors)
+              const Center(child: CircularProgressIndicator())
+            else if (collectors.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Icon(Icons.person_off, size: 48, color: Colors.grey.shade400),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Không có nhân viên nào',
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Vui lòng kiểm tra lại hệ thống',
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                    ),
+                  ],
+                ),
+              )
+            else
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 300),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: collectors.map((collector) {
+                      final isSelected = selectedCollectorId == collector.collectorId;
+                      return InkWell(
+                        onTap: () => onCollectorSelected(collector.collectorId),
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          margin: const EdgeInsets.only(bottom: 8),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? const Color(0xFF10B981).withValues(alpha: 0.1)
+                                : Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isSelected ? const Color(0xFF10B981) : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: isSelected
+                                    ? const Color(0xFF10B981)
+                                    : Colors.grey.shade300,
+                                child: Text(
+                                  (collector.fullName?.isNotEmpty ?? false)
+                                      ? collector.fullName![0].toUpperCase()
+                                      : '?',
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.white : Colors.grey.shade600,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      collector.fullName ?? 'Nhân viên',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: isSelected
+                                            ? const Color(0xFF10B981)
+                                            : Colors.black87,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${collector.completedCount} công việc hoàn thành',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (isSelected)
+                                const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 24),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Hủy'),
+        ),
+        ElevatedButton(
+          onPressed: selectedCollectorId != null
+              ? () {
+                  Navigator.pop(context);
+                  onAssign(selectedCollectorId!);
+                }
+              : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF10B981),
+            foregroundColor: Colors.white,
+            disabledBackgroundColor: Colors.grey.shade300,
+          ),
+          child: const Text('Xác nhận phân công'),
+        ),
+      ],
+    );
   }
 }

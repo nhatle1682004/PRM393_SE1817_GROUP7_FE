@@ -18,14 +18,16 @@ class AuthService {
     final data = response.data as Map<String, dynamic>;
     
     final token = data['token']?.toString();
-    final user = data['user'] as Map<String, dynamic>?;
-
-    if (token == null || user == null) {
+    if (token == null) {
       throw Exception('Phản hồi đăng nhập không hợp lệ từ máy chủ.');
     }
 
     await _storage.saveToken(token);
-    await _storage.saveUserProfile(UserProfile.fromJson(user));
+
+    // Fetch full profile to get roleId (login response doesn't include roleId)
+    final profileResponse = await ApiService.get(ApiConfig.profile);
+    final profileData = profileResponse.data as Map<String, dynamic>;
+    await _storage.saveUserProfile(UserProfile.fromJson(profileData));
 
     return data;
   }

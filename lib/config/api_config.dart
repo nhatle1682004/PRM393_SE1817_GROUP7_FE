@@ -239,15 +239,18 @@ class ApiConfig {
   /// Lấy danh sách phân công của Enterprise
   static const String enterpriseAssignments = '/enterprise/assignments';
 
+  /// Chi tiết / gán lại collector / hủy phân công
+  static String enterpriseAssignmentDetail(int id) => '/enterprise/assignments/$id';
+
   /// Gán collector cho yêu cầu thu gom
   static const String enterpriseAssignCollector = '/enterprise/assignments';
-
-  /// Hủy phân công
-  static String enterpriseCancelAssignment(int id) => '/enterprise/assignments/$id/cancel';
 
   // ============ ENTERPRISE REPORTS - api/waste-reports (Enterprise) ============
   /// Danh sách báo cáo (Enterprise get all pending reports)
   static const String enterpriseReports = '/waste-reports';
+
+  /// Danh sách báo cáo theo quận (Enterprise)
+  static String enterpriseReportsByDistrict(int districtId) => '/waste-reports/district/$districtId';
 
   /// Chi tiết báo cáo
   static String enterpriseReport(int id) => '/waste-reports/$id';

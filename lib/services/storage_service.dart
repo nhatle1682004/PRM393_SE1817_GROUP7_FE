@@ -6,6 +6,7 @@ class UserProfile {
   final String email;
   final int roleId;
   final String roleName;
+  final int? managedDistrictId;
 
   const UserProfile({
     required this.userId,
@@ -13,16 +14,26 @@ class UserProfile {
     required this.email,
     required this.roleId,
     required this.roleName,
+    this.managedDistrictId,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     final roleId = json['roleId'] is int ? json['roleId'] as int : int.tryParse(json['roleId']?.toString() ?? '') ?? 0;
+    int? districtId;
+    if (json['managedDistrictId'] != null) {
+      if (json['managedDistrictId'] is int) {
+        districtId = json['managedDistrictId'] as int;
+      } else {
+        districtId = int.tryParse(json['managedDistrictId'].toString());
+      }
+    }
     return UserProfile(
       userId: json['userId'] is int ? json['userId'] as int : int.tryParse(json['userId']?.toString() ?? '') ?? 0,
       fullName: json['fullName']?.toString() ?? '',
       email: json['email']?.toString() ?? '',
       roleId: roleId,
       roleName: json['roleName']?.toString() ?? _getRoleName(roleId),
+      managedDistrictId: districtId,
     );
   }
 
@@ -37,13 +48,17 @@ class UserProfile {
   }
 
   Map<String, String> toStorageMap() {
-    return {
+    final map = {
       'userId': userId.toString(),
       'fullName': fullName,
       'email': email,
       'roleId': roleId.toString(),
       'roleName': roleName,
     };
+    if (managedDistrictId != null) {
+      map['managedDistrictId'] = managedDistrictId.toString();
+    }
+    return map;
   }
 }
 
@@ -76,6 +91,8 @@ class StorageService {
     final email = await _storage.read(key: '${_userProfilePrefix}email') ?? '';
     final roleId = await _storage.read(key: '${_userProfilePrefix}roleId') ?? '0';
     final roleName = await _storage.read(key: '${_userProfilePrefix}roleName') ?? UserProfile._getRoleName(int.tryParse(roleId) ?? 0);
+    final managedDistrictIdStr = await _storage.read(key: '${_userProfilePrefix}managedDistrictId');
+    final managedDistrictId = managedDistrictIdStr != null ? int.tryParse(managedDistrictIdStr) : null;
 
     return UserProfile(
       userId: int.tryParse(userId) ?? 0,
@@ -83,6 +100,7 @@ class StorageService {
       email: email,
       roleId: int.tryParse(roleId) ?? 0,
       roleName: roleName,
+      managedDistrictId: managedDistrictId,
     );
   }
 
@@ -95,6 +113,8 @@ class StorageService {
     await _storage.delete(key: '${_userProfilePrefix}fullName');
     await _storage.delete(key: '${_userProfilePrefix}email');
     await _storage.delete(key: '${_userProfilePrefix}roleId');
+    await _storage.delete(key: '${_userProfilePrefix}roleName');
+    await _storage.delete(key: '${_userProfilePrefix}managedDistrictId');
   }
 
   Future<void> clear() async {
