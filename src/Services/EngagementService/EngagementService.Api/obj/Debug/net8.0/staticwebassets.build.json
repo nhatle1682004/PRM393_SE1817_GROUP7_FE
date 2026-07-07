@@ -1,1 +1,11 @@
-{"Version":1,"Hash":"6MQIsYGbrsfD8gu1y1YkMr0sLHTPu4osgrByJS/roDY=","Source":"EngagementService.Api","BasePath":"/","Mode":"Root","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[{"Name":"EngagementService.Api\\wwwroot","Source":"EngagementService.Api","ContentRoot":"D:\\Learning\\New folder\\new\\BE\\src\\Services\\EngagementService\\EngagementService.Api\\wwwroot\\","BasePath":"/","Pattern":"**"}],"Assets":[],"Endpoints":[]}
+{
+  "Version": 1,
+  "Hash": "T1fRqyNRSO9RAvFKnDdk9LDq1zDG2aKFPRaQ3By9AA4=",
+  "Source": "EngagementService.Api",
+  "BasePath": "_content/EngagementService.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

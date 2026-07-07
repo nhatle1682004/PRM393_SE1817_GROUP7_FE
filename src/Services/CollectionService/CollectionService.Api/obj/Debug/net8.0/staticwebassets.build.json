@@ -1,1 +1,11 @@
-{"Version":1,"Hash":"zpFoJ6OKwubAZAgJdGcbYahtKOj+dpYKeyJMy193B9A=","Source":"CollectionService.Api","BasePath":"/","Mode":"Root","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[{"Name":"CollectionService.Api\\wwwroot","Source":"CollectionService.Api","ContentRoot":"D:\\Learning\\New folder\\new\\BE\\src\\Services\\CollectionService\\CollectionService.Api\\wwwroot\\","BasePath":"/","Pattern":"**"}],"Assets":[],"Endpoints":[]}
+{
+  "Version": 1,
+  "Hash": "7GHtZQQq5d0Abgup8XoF3X7DvYLMbquIBxHu3wuj1x0=",
+  "Source": "CollectionService.Api",
+  "BasePath": "_content/CollectionService.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

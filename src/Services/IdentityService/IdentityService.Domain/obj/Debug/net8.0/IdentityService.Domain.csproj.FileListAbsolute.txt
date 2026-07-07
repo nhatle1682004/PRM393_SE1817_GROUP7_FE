@@ -10,3 +10,15 @@ D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Domai
 D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Domain\obj\Debug\net8.0\refint\IdentityService.Domain.dll
 D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Domain\obj\Debug\net8.0\IdentityService.Domain.pdb
 D:\Learning\New folder\new\BE\src\Services\IdentityService\IdentityService.Domain\obj\Debug\net8.0\ref\IdentityService.Domain.dll
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\IdentityService\IdentityService.Domain\bin\Debug\net8.0\IdentityService.Domain.deps.json
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\IdentityService\IdentityService.Domain\bin\Debug\net8.0\IdentityService.Domain.dll
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\IdentityService\IdentityService.Domain\bin\Debug\net8.0\IdentityService.Domain.pdb
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\IdentityService\IdentityService.Domain\obj\Debug\net8.0\IdentityService.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\IdentityService\IdentityService.Domain\obj\Debug\net8.0\IdentityService.Domain.AssemblyInfoInputs.cache
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\IdentityService\IdentityService.Domain\obj\Debug\net8.0\IdentityService.Domain.AssemblyInfo.cs
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\IdentityService\IdentityService.Domain\obj\Debug\net8.0\IdentityService.Domain.csproj.CoreCompileInputs.cache
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\IdentityService\IdentityService.Domain\obj\Debug\net8.0\IdentityService.Domain.sourcelink.json
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\IdentityService\IdentityService.Domain\obj\Debug\net8.0\IdentityService.Domain.dll
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\IdentityService\IdentityService.Domain\obj\Debug\net8.0\refint\IdentityService.Domain.dll
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\IdentityService\IdentityService.Domain\obj\Debug\net8.0\IdentityService.Domain.pdb
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\IdentityService\IdentityService.Domain\obj\Debug\net8.0\ref\IdentityService.Domain.dll

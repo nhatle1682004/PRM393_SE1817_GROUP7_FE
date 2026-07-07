@@ -76,11 +76,7 @@ public static class ServiceCollectionExtensions
         {
             options.AddPolicy("AllowReactApp", policy =>
             {
-                policy.WithOrigins(
-                        "http://localhost:5000",
-                        "https://localhost:5000",
-                        "http://127.0.0.1:5000",
-                        "https://127.0.0.1:5000")
+                policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost" || new Uri(origin).Host == "127.0.0.1")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .WithExposedHeaders("WWW-Authenticate");

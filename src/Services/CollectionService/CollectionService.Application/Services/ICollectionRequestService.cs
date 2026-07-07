@@ -14,4 +14,7 @@ public interface ICollectionRequestService
     Task<CollectionFeedbackContextDto?> GetFeedbackContextByReportAsync(int reportId);
     Task CancelAssignmentForComplaintAsync(CancelAssignmentForComplaintRequest request);
     Task<CollectionDashboardStatsDto> GetDashboardStatsAsync();
+    Task<IEnumerable<global::CollectionService.Application.DTOs.Assignment.CollectorDto>> GetCollectorsByEnterpriseAsync(int enterpriseId);
+    Task<global::CollectionService.Application.DTOs.Assignment.CollectorDto?> GetCollectorDetailAsync(int collectorId, int enterpriseId);
+    Task<bool> UpdateCollectorAvailabilityAsync(int collectorId, int enterpriseId, bool isAvailable);
 }

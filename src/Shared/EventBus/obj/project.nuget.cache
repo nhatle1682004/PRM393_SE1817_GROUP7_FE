@@ -1,12 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "fl9QJ/Y+9EQ=",
+  "dgSpecHash": "C31mjujwHNQ=",
   "success": true,
-  "projectFilePath": "D:\\Learning\\New folder\\new\\BE\\src\\Shared\\EventBus\\EventBus.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\ductr\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.27\\microsoft.netcore.app.ref.8.0.27.nupkg.sha512",
-    "C:\\Users\\ductr\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.27\\microsoft.windowsdesktop.app.ref.8.0.27.nupkg.sha512",
-    "C:\\Users\\ductr\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.27\\microsoft.aspnetcore.app.ref.8.0.27.nupkg.sha512"
-  ],
+  "projectFilePath": "D:\\CN8\\PRM393\\code\\project\\New folder\\be\\PRM393_SE1817_GROUP7_FE\\src\\Shared\\EventBus\\EventBus.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }

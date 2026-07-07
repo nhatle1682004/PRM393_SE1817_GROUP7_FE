@@ -67,6 +67,12 @@ public sealed class InternalIdentityController : ControllerBase
         return Ok(await _userService.AddCollectorWarningAsync(id, request.Warnings));
     }
 
+    [HttpPut("collectors/{id:int}/availability")]
+    public async Task<IActionResult> UpdateAvailability(int id, [FromBody] bool isAvailable)
+    {
+        return Ok(await _userService.UpdateCollectorAvailabilityAsync(id, isAvailable));
+    }
+
     [HttpGet("dashboard/{year:int}")]
     public async Task<IActionResult> GetDashboardStats(int year)
     {

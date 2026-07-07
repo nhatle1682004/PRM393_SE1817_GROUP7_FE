@@ -18,6 +18,12 @@ public sealed class IdentityClient : IIdentityClient
     public async Task<IEnumerable<CollectorProfileDto>> GetCollectorsByEnterpriseAsync(int enterpriseId)
         => await GetOrNullAsync<List<CollectorProfileDto>>($"/internal/identity/collectors/by-enterprise/{enterpriseId}") ?? new List<CollectorProfileDto>();
 
+    public async Task UpdateCollectorAvailabilityAsync(int collectorId, bool isAvailable)
+    {
+        var response = await _httpClient.PutAsJsonAsync($"/internal/identity/collectors/{collectorId}/availability", isAvailable);
+        response.EnsureSuccessStatusCode();
+    }
+
     private async Task<T?> GetOrNullAsync<T>(string url)
     {
         var response = await _httpClient.GetAsync(url);

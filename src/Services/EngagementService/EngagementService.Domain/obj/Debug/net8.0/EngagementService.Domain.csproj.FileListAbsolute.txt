@@ -10,3 +10,15 @@ D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.D
 D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\refint\EngagementService.Domain.dll
 D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.pdb
 D:\Learning\New folder\new\BE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\ref\EngagementService.Domain.dll
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\EngagementService\EngagementService.Domain\bin\Debug\net8.0\EngagementService.Domain.deps.json
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\EngagementService\EngagementService.Domain\bin\Debug\net8.0\EngagementService.Domain.dll
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\EngagementService\EngagementService.Domain\bin\Debug\net8.0\EngagementService.Domain.pdb
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.AssemblyInfoInputs.cache
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.AssemblyInfo.cs
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.csproj.CoreCompileInputs.cache
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.sourcelink.json
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.dll
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\refint\EngagementService.Domain.dll
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\EngagementService.Domain.pdb
+D:\CN8\PRM393\code\project\New folder\be\PRM393_SE1817_GROUP7_FE\src\Services\EngagementService\EngagementService.Domain\obj\Debug\net8.0\ref\EngagementService.Domain.dll

@@ -5,6 +5,7 @@ using CollectionService.Application.Repositories;
 using CollectionService.Domain.Entities;
 using Contracts;
 using PublicCollectionRequestDto = CollectionService.Application.DTOs.CollectionRequest.CollectionRequestDto;
+using CollectorDtoLocal = CollectionService.Application.DTOs.Assignment.CollectorDto;
 
 namespace CollectionService.Application.Services;
 
@@ -141,6 +142,63 @@ public sealed class CollectionRequestService : ICollectionRequestService
             CompletedAssignments = completed.Count,
             TopCollectors = top
         };
+    }
+
+    public async Task<IEnumerable<CollectorDtoLocal>> GetCollectorsByEnterpriseAsync(int enterpriseId)
+    {
+        var collectors = await _identityClient.GetCollectorsByEnterpriseAsync(enterpriseId);
+        var result = new List<CollectorDtoLocal>();
+
+        foreach (var c in collectors)
+        {
+            var allAssignments = await _uow.CollectorAssignments.GetByCollectorIdAsync(c.CollectorId);
+            var completedCount = allAssignments.Count(a => a.Status == "Completed");
+            result.Add(new CollectorDtoLocal
+            {
+                CollectorId = c.CollectorId,
+                FullName = c.FullName,
+                Email = c.Email,
+                Phone = c.Phone,
+                IsAvailable = c.IsAvailable,
+                WarningCount = c.WarningCount,
+                CompletedCount = completedCount,
+                TotalAssignments = allAssignments.Count()
+            });
+        }
+
+        return result;
+    }
+
+    public async Task<CollectorDtoLocal?> GetCollectorDetailAsync(int collectorId, int enterpriseId)
+    {
+        var collector = await _identityClient.GetCollectorAsync(collectorId);
+        if (collector == null || collector.EnterpriseId != enterpriseId)
+            return null;
+
+        var allAssignments = await _uow.CollectorAssignments.GetByCollectorIdAsync(collectorId);
+        var completedCount = allAssignments.Count(a => a.Status == "Completed");
+
+        return new CollectorDtoLocal
+        {
+            CollectorId = collector.CollectorId,
+            FullName = collector.FullName,
+            Email = collector.Email,
+            Phone = collector.Phone,
+            IsAvailable = collector.IsAvailable,
+            WarningCount = collector.WarningCount,
+            CompletedCount = completedCount,
+            TotalAssignments = allAssignments.Count()
+        };
+    }
+
+    public async Task<bool> UpdateCollectorAvailabilityAsync(int collectorId, int enterpriseId, bool isAvailable)
+    {
+        var collector = await _identityClient.GetCollectorAsync(collectorId);
+        if (collector == null || collector.EnterpriseId != enterpriseId)
+            throw new InvalidOperationException("Collector not found or does not belong to your enterprise");
+
+        await _identityClient.UpdateCollectorAvailabilityAsync(collectorId, isAvailable);
+        return true;
     }
 
     private async Task<PublicCollectionRequestDto> MapListDtoAsync(CollectionRequest request)

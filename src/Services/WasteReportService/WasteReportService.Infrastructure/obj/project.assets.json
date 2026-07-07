@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 3,
   "targets": {
     "net8.0": {
       "Humanizer.Core/2.14.1": {
@@ -3115,50 +3115,41 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\ductr\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\ADMIN\\AppData\\Local\\Temp\\cursor-sandbox-cache\\fa58776afcd8c1e46cda206c02f130b5\\nuget": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Learning\\New folder\\new\\BE\\src\\Services\\WasteReportService\\WasteReportService.Infrastructure\\WasteReportService.Infrastructure.csproj",
+      "projectUniqueName": "D:\\CN8\\PRM393\\code\\project\\New folder\\be\\PRM393_SE1817_GROUP7_FE\\src\\Services\\WasteReportService\\WasteReportService.Infrastructure\\WasteReportService.Infrastructure.csproj",
       "projectName": "WasteReportService.Infrastructure",
-      "projectPath": "D:\\Learning\\New folder\\new\\BE\\src\\Services\\WasteReportService\\WasteReportService.Infrastructure\\WasteReportService.Infrastructure.csproj",
-      "packagesPath": "C:\\Users\\ductr\\.nuget\\packages\\",
-      "outputPath": "D:\\Learning\\New folder\\new\\BE\\src\\Services\\WasteReportService\\WasteReportService.Infrastructure\\obj\\",
+      "projectPath": "D:\\CN8\\PRM393\\code\\project\\New folder\\be\\PRM393_SE1817_GROUP7_FE\\src\\Services\\WasteReportService\\WasteReportService.Infrastructure\\WasteReportService.Infrastructure.csproj",
+      "packagesPath": "C:\\Users\\ADMIN\\AppData\\Local\\Temp\\cursor-sandbox-cache\\fa58776afcd8c1e46cda206c02f130b5\\nuget",
+      "outputPath": "D:\\CN8\\PRM393\\code\\project\\New folder\\be\\PRM393_SE1817_GROUP7_FE\\src\\Services\\WasteReportService\\WasteReportService.Infrastructure\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\ductr\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
-          "framework": "net8.0",
           "targetAlias": "net8.0",
           "projectReferences": {
-            "D:\\Learning\\New folder\\new\\BE\\src\\Services\\WasteReportService\\WasteReportService.Application\\WasteReportService.Application.csproj": {
-              "projectPath": "D:\\Learning\\New folder\\new\\BE\\src\\Services\\WasteReportService\\WasteReportService.Application\\WasteReportService.Application.csproj"
+            "D:\\CN8\\PRM393\\code\\project\\New folder\\be\\PRM393_SE1817_GROUP7_FE\\src\\Services\\WasteReportService\\WasteReportService.Application\\WasteReportService.Application.csproj": {
+              "projectPath": "D:\\CN8\\PRM393\\code\\project\\New folder\\be\\PRM393_SE1817_GROUP7_FE\\src\\Services\\WasteReportService\\WasteReportService.Application\\WasteReportService.Application.csproj"
             },
-            "D:\\Learning\\New folder\\new\\BE\\src\\Services\\WasteReportService\\WasteReportService.Domain\\WasteReportService.Domain.csproj": {
-              "projectPath": "D:\\Learning\\New folder\\new\\BE\\src\\Services\\WasteReportService\\WasteReportService.Domain\\WasteReportService.Domain.csproj"
+            "D:\\CN8\\PRM393\\code\\project\\New folder\\be\\PRM393_SE1817_GROUP7_FE\\src\\Services\\WasteReportService\\WasteReportService.Domain\\WasteReportService.Domain.csproj": {
+              "projectPath": "D:\\CN8\\PRM393\\code\\project\\New folder\\be\\PRM393_SE1817_GROUP7_FE\\src\\Services\\WasteReportService\\WasteReportService.Domain\\WasteReportService.Domain.csproj"
             },
-            "D:\\Learning\\New folder\\new\\BE\\src\\Shared\\Contracts\\Contracts.csproj": {
-              "projectPath": "D:\\Learning\\New folder\\new\\BE\\src\\Shared\\Contracts\\Contracts.csproj"
+            "D:\\CN8\\PRM393\\code\\project\\New folder\\be\\PRM393_SE1817_GROUP7_FE\\src\\Shared\\Contracts\\Contracts.csproj": {
+              "projectPath": "D:\\CN8\\PRM393\\code\\project\\New folder\\be\\PRM393_SE1817_GROUP7_FE\\src\\Shared\\Contracts\\Contracts.csproj"
             },
-            "D:\\Learning\\New folder\\new\\BE\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
-              "projectPath": "D:\\Learning\\New folder\\new\\BE\\src\\Shared\\SharedKernel\\SharedKernel.csproj"
+            "D:\\CN8\\PRM393\\code\\project\\New folder\\be\\PRM393_SE1817_GROUP7_FE\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
+              "projectPath": "D:\\CN8\\PRM393\\code\\project\\New folder\\be\\PRM393_SE1817_GROUP7_FE\\src\\Shared\\SharedKernel\\SharedKernel.csproj"
             }
           }
         }
@@ -3172,12 +3163,10 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      },
-      "SdkAnalysisLevel": "10.0.300"
+      }
     },
     "frameworks": {
       "net8.0": {
-        "framework": "net8.0",
         "targetAlias": "net8.0",
         "dependencies": {
           "Microsoft.EntityFrameworkCore": {
@@ -3212,26 +3201,12 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[8.0.27, 8.0.27]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Ref",
-            "version": "[8.0.27, 8.0.27]"
-          },
-          {
-            "name": "Microsoft.WindowsDesktop.App.Ref",
-            "version": "[8.0.27, 8.0.27]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.300/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.422/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

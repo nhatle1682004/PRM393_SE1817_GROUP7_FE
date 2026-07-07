@@ -1,1 +1,11 @@
-{"Version":1,"Hash":"9ME+yDeqpJlznSiDQ50todtaX/goqI/HRi61BuQpkcI=","Source":"WasteReportService.Api","BasePath":"/","Mode":"Root","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[{"Name":"WasteReportService.Api\\wwwroot","Source":"WasteReportService.Api","ContentRoot":"D:\\Learning\\New folder\\new\\BE\\src\\Services\\WasteReportService\\WasteReportService.Api\\wwwroot\\","BasePath":"/","Pattern":"**"}],"Assets":[],"Endpoints":[]}
+{
+  "Version": 1,
+  "Hash": "bpepq8dyghByy13INRDgaWGFAeYmZ1E5Zb1IFf45om0=",
+  "Source": "WasteReportService.Api",
+  "BasePath": "_content/WasteReportService.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
