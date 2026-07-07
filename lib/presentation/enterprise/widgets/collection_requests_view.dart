@@ -64,7 +64,13 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(color: const Color(0xFFE2E8F0)),
+        ),
+      ),
       child: Row(
         children: [
           Text(
@@ -83,9 +89,10 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF10B981),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
           ),
@@ -96,37 +103,41 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
 
   Widget _buildFilters() {
     return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        itemCount: _statusFilters.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final filter = _statusFilters[index];
-          final isSelected = _statusFilter == filter;
-          return FilterChip(
-            label: Text(_getStatusLabel(filter)),
-            selected: isSelected,
-            onSelected: (selected) {
-              setState(() {
-                _statusFilter = selected ? filter : 'Tất cả';
-              });
-            },
-            selectedColor: const Color(0xFF10B981).withOpacity(0.2),
-            checkmarkColor: const Color(0xFF10B981),
-            labelStyle: TextStyle(
-              color: isSelected ? const Color(0xFF10B981) : Colors.grey.shade600,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: BorderSide(
-                color: isSelected ? const Color(0xFF10B981) : Colors.grey.shade300,
+        child: Row(
+          children: List.generate(_statusFilters.length, (index) {
+            final filter = _statusFilters[index];
+            final isSelected = _statusFilter == filter;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: FilterChip(
+                label: Text(_getStatusLabel(filter)),
+                selected: isSelected,
+                onSelected: (selected) {
+                  setState(() {
+                    _statusFilter = selected ? filter : 'Tất cả';
+                  });
+                },
+                selectedColor: const Color(0xFF10B981).withOpacity(0.15),
+                checkmarkColor: const Color(0xFF10B981),
+                labelStyle: TextStyle(
+                  color: isSelected ? const Color(0xFF10B981) : const Color(0xFF64748B),
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  fontSize: 13,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(
+                    color: isSelected ? const Color(0xFF10B981) : const Color(0xFFE2E8F0),
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 4),
               ),
-            ),
-          );
-        },
+            );
+          }),
+        ),
       ),
     );
   }
@@ -182,16 +193,53 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
-          const SizedBox(height: 16),
-          Text(
-            _error ?? 'Lỗi không xác định',
-            style: const TextStyle(color: Color(0xFF64748B)),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFEE2E2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.error_outline,
+              size: 48,
+              color: const Color(0xFFDC2626),
+            ),
           ),
-          const SizedBox(height: 16),
-          ElevatedButton(
+          const SizedBox(height: 20),
+          Text(
+            'Đã xảy ra lỗi',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              _error ?? 'Không thể tải dữ liệu',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF64748B),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
             onPressed: _loadRequests,
-            child: const Text('Thử lại'),
+            icon: const Icon(Icons.refresh, size: 18),
+            label: const Text('Thử lại'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
         ],
       ),
@@ -203,13 +251,33 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.inbox_outlined, size: 64, color: Colors.grey.shade300),
-          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.inbox_outlined,
+              size: 48,
+              color: const Color(0xFF94A3B8),
+            ),
+          ),
+          const SizedBox(height: 20),
           Text(
             'Không có yêu cầu nào',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
-              color: Colors.grey.shade500,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Danh sách yêu cầu sẽ hiển thị tại đây',
+            style: const TextStyle(
+              fontSize: 14,
+              color: Color(0xFF64748B),
             ),
           ),
         ],
@@ -244,6 +312,9 @@ class _RequestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 400;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 0,
@@ -259,79 +330,51 @@ class _RequestCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: _getStatusColor(request.status).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      Icons.local_shipping,
-                      color: _getStatusColor(request.status),
-                      size: 22,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Yêu cầu #${request.requestId}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          request.wasteTypeName ?? 'N/A',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  _StatusBadge(status: request.status ?? 'Pending'),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  _buildInfoChip(Icons.location_on, request.location),
-                ],
-              ),
+              if (isMobile)
+                _buildMobileHeader()
+              else
+                _buildDesktopHeader(),
+              const SizedBox(height: 12),
+              
+              // Location chip
+              _buildInfoChip(Icons.location_on, request.location),
+              
+              // Collector
               if (request.assignedCollectorName != null) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     Icon(Icons.person, size: 16, color: Colors.grey.shade500),
                     const SizedBox(width: 6),
-                    Text(
-                      'Collector: ${request.assignedCollectorName}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade600,
+                    Expanded(
+                      child: Text(
+                        'NV: ${request.assignedCollectorName}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
               ],
+              
+              // Timestamp
               if (request.createdAt != null) ...[
                 const SizedBox(height: 8),
                 Row(
                   children: [
                     Icon(Icons.access_time, size: 16, color: Colors.grey.shade400),
                     const SizedBox(width: 6),
-                    Text(
-                      _formatDate(request.createdAt!),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade400,
+                    Flexible(
+                      child: Text(
+                        _formatDate(request.createdAt!),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade400,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -341,6 +384,102 @@ class _RequestCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDesktopHeader() {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: _getStatusColor(request.status).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            Icons.local_shipping,
+            color: _getStatusColor(request.status),
+            size: 22,
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Yêu cầu #${request.requestId}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                request.wasteTypeName ?? 'N/A',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey.shade600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+        Flexible(child: _StatusBadge(status: request.status ?? 'Pending')),
+      ],
+    );
+  }
+
+  Widget _buildMobileHeader() {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: _getStatusColor(request.status).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            Icons.local_shipping,
+            color: _getStatusColor(request.status),
+            size: 18,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Yêu cầu #${request.requestId}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Flexible(child: _StatusBadge(status: request.status ?? 'Pending')),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Text(
+                request.wasteTypeName ?? 'N/A',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -356,11 +495,15 @@ class _RequestCard extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: Colors.grey.shade600),
           const SizedBox(width: 4),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade700,
+          Flexible(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade700,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ),
         ],

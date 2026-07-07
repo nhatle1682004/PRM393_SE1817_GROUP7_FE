@@ -76,7 +76,13 @@ class _CollectorsViewState extends State<CollectorsView> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(color: const Color(0xFFE2E8F0)),
+        ),
+      ),
       child: Row(
         children: [
           Text(
@@ -95,9 +101,10 @@ class _CollectorsViewState extends State<CollectorsView> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF10B981),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
           ),
@@ -151,16 +158,53 @@ class _CollectorsViewState extends State<CollectorsView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
-          const SizedBox(height: 16),
-          Text(
-            _error ?? 'Lỗi không xác định',
-            style: const TextStyle(color: Color(0xFF64748B)),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFEE2E2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.error_outline,
+              size: 48,
+              color: const Color(0xFFDC2626),
+            ),
           ),
-          const SizedBox(height: 16),
-          ElevatedButton(
+          const SizedBox(height: 20),
+          Text(
+            'Đã xảy ra lỗi',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              _error ?? 'Không thể tải dữ liệu',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF64748B),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
             onPressed: _loadCollectors,
-            child: const Text('Thử lại'),
+            icon: const Icon(Icons.refresh, size: 18),
+            label: const Text('Thử lại'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
         ],
       ),
@@ -172,13 +216,33 @@ class _CollectorsViewState extends State<CollectorsView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.people_outline, size: 64, color: Colors.grey.shade300),
-          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.people_outline,
+              size: 48,
+              color: const Color(0xFF94A3B8),
+            ),
+          ),
+          const SizedBox(height: 20),
           Text(
             'Chưa có nhân viên nào',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
-              color: Colors.grey.shade500,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Danh sách nhân viên sẽ hiển thị tại đây',
+            style: const TextStyle(
+              fontSize: 14,
+              color: Color(0xFF64748B),
             ),
           ),
         ],
@@ -202,13 +266,16 @@ class _CollectorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 400;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: isSelected ? const Color(0xFF10B981) : Colors.grey.shade200,
+          color: isSelected ? const Color(0xFF10B981) : const Color(0xFFE2E8F0),
           width: isSelected ? 2 : 1,
         ),
       ),
@@ -220,41 +287,18 @@ class _CollectorCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  _buildAvatar(),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          collector.fullName ?? 'N/A',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        if (collector.email != null)
-                          Text(
-                            collector.email!,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  _buildStatusBadge(),
-                ],
-              ),
+              // Header Row
+              if (isMobile)
+                _buildMobileHeader()
+              else
+                _buildDesktopHeader(),
+              
+              // Expanded Details
               if (isSelected) ...[
                 const SizedBox(height: 16),
                 const Divider(height: 1),
                 const SizedBox(height: 16),
-                _buildDetails(),
+                _buildDetails(isMobile),
               ],
             ],
           ),
@@ -263,13 +307,84 @@ class _CollectorCard extends StatelessWidget {
     );
   }
 
-  Widget _buildAvatar() {
+  Widget _buildDesktopHeader() {
+    return Row(
+      children: [
+        _buildAvatar(size: 48),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                collector.fullName ?? 'N/A',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              if (collector.email != null)
+                Text(
+                  collector.email!,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF64748B),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+            ],
+          ),
+        ),
+        Flexible(child: _buildStatusBadge()),
+      ],
+    );
+  }
+
+  Widget _buildMobileHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            _buildAvatar(size: 40),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                collector.fullName ?? 'N/A',
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Flexible(child: _buildStatusBadge()),
+          ],
+        ),
+        if (collector.email != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            collector.email!,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade600,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildAvatar({required double size}) {
     final name = collector.fullName ?? 'N/A';
     final initials = name.split(' ').where((s) => s.isNotEmpty).take(2).map((s) => s[0]).join().toUpperCase();
 
     return Container(
-      width: 48,
-      height: 48,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         color: collector.isAvailable
             ? const Color(0xFF10B981).withOpacity(0.1)
@@ -284,7 +399,7 @@ class _CollectorCard extends StatelessWidget {
                 ? const Color(0xFF10B981)
                 : Colors.grey.shade400,
             fontWeight: FontWeight.w700,
-            fontSize: 16,
+            fontSize: size * 0.35,
           ),
         ),
       ),
@@ -313,68 +428,67 @@ class _CollectorCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDetails() {
+  Widget _buildDetails(bool isMobile) {
+    if (isMobile) {
+      return Column(
+        children: [
+          _buildDetailRow(Icons.phone, collector.phone ?? 'N/A'),
+          const SizedBox(height: 12),
+          _buildMobileStats(),
+          const SizedBox(height: 16),
+          _buildToggleButton(),
+        ],
+      );
+    }
+    
     return Column(
       children: [
         _buildDetailRow(Icons.phone, collector.phone ?? 'N/A'),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatItem(
-                Icons.check_circle_outline,
-                collector.completedCount.toString(),
-                'Hoàn thành',
-                const Color(0xFF10B981),
-              ),
-            ),
-            Expanded(
-              child: _buildStatItem(
-                Icons.assignment,
-                collector.totalAssignments.toString(),
-                'Tổng phân công',
-                const Color(0xFF3B82F6),
-              ),
-            ),
-            Expanded(
-              child: _buildStatItem(
-                Icons.warning_amber,
-                collector.warningCount.toString(),
-                'Cảnh cáo',
-                collector.warningCount > 0
-                    ? const Color(0xFFF59E0B)
-                    : Colors.grey,
-              ),
-            ),
-          ],
-        ),
+        _buildDesktopStats(),
         const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: onToggleAvailability,
-            icon: Icon(
-              collector.isAvailable ? Icons.pause : Icons.play_arrow,
-            ),
-            label: Text(
-              collector.isAvailable
-                  ? 'Đánh dấu không sẵn sàng'
-                  : 'Đánh dấu sẵn sàng',
-            ),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: collector.isAvailable
-                  ? const Color(0xFFEF4444)
-                  : const Color(0xFF10B981),
-              side: BorderSide(
-                color: collector.isAvailable
-                    ? const Color(0xFFEF4444)
-                    : const Color(0xFF10B981),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
+        _buildToggleButton(),
+      ],
+    );
+  }
+
+  Widget _buildMobileStats() {
+    return Row(
+      children: [
+        Expanded(child: _buildStatItem(Icons.check_circle_outline, collector.completedCount.toString(), 'Hoàn thành', const Color(0xFF10B981))),
+        Expanded(child: _buildStatItem(Icons.assignment, collector.totalAssignments.toString(), 'Tổng PC', const Color(0xFF3B82F6))),
+        Expanded(child: _buildStatItem(Icons.warning_amber, collector.warningCount.toString(), 'Cảnh cáo', collector.warningCount > 0 ? const Color(0xFFF59E0B) : Colors.grey)),
+      ],
+    );
+  }
+
+  Widget _buildDesktopStats() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildStatItem(
+            Icons.check_circle_outline,
+            collector.completedCount.toString(),
+            'Hoàn thành',
+            const Color(0xFF10B981),
+          ),
+        ),
+        Expanded(
+          child: _buildStatItem(
+            Icons.assignment,
+            collector.totalAssignments.toString(),
+            'Tổng phân công',
+            const Color(0xFF3B82F6),
+          ),
+        ),
+        Expanded(
+          child: _buildStatItem(
+            Icons.warning_amber,
+            collector.warningCount.toString(),
+            'Cảnh cáo',
+            collector.warningCount > 0
+                ? const Color(0xFFF59E0B)
+                : Colors.grey,
           ),
         ),
       ],
@@ -386,23 +500,50 @@ class _CollectorCard extends StatelessWidget {
       children: [
         Icon(icon, size: 18, color: Colors.grey.shade500),
         const SizedBox(width: 8),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey.shade700,
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade700,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildStatItem(
-    IconData icon,
-    String value,
-    String label,
-    Color color,
-  ) {
+  Widget _buildToggleButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: onToggleAvailability,
+        icon: Icon(
+          collector.isAvailable ? Icons.pause : Icons.play_arrow,
+          size: 18,
+        ),
+        label: Text(
+          collector.isAvailable
+              ? 'Đánh dấu không sẵn sàng'
+              : 'Đánh dấu sẵn sàng',
+        ),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white,
+          backgroundColor: collector.isAvailable
+              ? const Color(0xFFDC2626)
+              : const Color(0xFF10B981),
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem(IconData icon, String value, String label, Color color) {
     return Column(
       children: [
         Icon(icon, size: 20, color: color),
@@ -421,6 +562,7 @@ class _CollectorCard extends StatelessWidget {
             fontSize: 11,
             color: Colors.grey.shade500,
           ),
+          textAlign: TextAlign.center,
         ),
       ],
     );

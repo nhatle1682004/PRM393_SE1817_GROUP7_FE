@@ -10,7 +10,8 @@ class RegisterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: LayoutBuilder(
+      body: SafeArea(
+        child: LayoutBuilder(
           builder: (context, constraints){// constraints là thông tin về kích thước màn hình
             if ( constraints.maxWidth >800){
               return Row(
@@ -24,7 +25,7 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const Expanded(
+                  Expanded(
                     flex: 1,
                     child: SingleChildScrollView(
                       padding: EdgeInsets.symmetric(vertical: 20),
@@ -35,15 +36,16 @@ class RegisterScreen extends StatelessWidget {
               );
             }else{
               // giao dien mobile
-              return const Scaffold(
-                backgroundColor: Colors.white,
-                body: SingleChildScrollView(
-                  padding: EdgeInsets.all(24),
-                  child: Center(child: RegisterPanelForm()),
-                ),
-              );
+            return Scaffold(
+              backgroundColor: Colors.white,
+              body: SingleChildScrollView(
+                padding: EdgeInsets.all(24),
+                child: Center(child: RegisterPanelForm()),
+              ),
+            );
             }
-          }
+          },
+        ),
       ),
     );
   }

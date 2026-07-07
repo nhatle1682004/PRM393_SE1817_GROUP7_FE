@@ -104,9 +104,9 @@ class UserProfileData {
       case 1:
         return 'Citizen';
       case 2:
-        return 'Collector';
-      case 3:
         return 'Enterprise';
+      case 3:
+        return 'Collector';
       case 4:
         return 'Admin';
       default:
@@ -115,8 +115,8 @@ class UserProfileData {
   }
 
   bool get isCitizen => roleId == 1;
-  bool get isCollector => roleId == 2;
-  bool get isEnterprise => roleId == 3;
+  bool get isEnterprise => roleId == 2;
+  bool get isCollector => roleId == 3;
   bool get isAdmin => roleId == 4;
 
   String get initials {

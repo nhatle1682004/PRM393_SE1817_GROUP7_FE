@@ -29,8 +29,8 @@ class UserProfile {
   static String _getRoleName(int roleId) {
     switch (roleId) {
       case 1: return 'Citizen';
-      case 2: return 'Collector';
-      case 3: return 'Enterprise';
+      case 2: return 'Enterprise';
+      case 3: return 'Collector';
       case 4: return 'Admin';
       default: return 'Unknown';
     }

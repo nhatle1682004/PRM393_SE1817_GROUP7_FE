@@ -748,6 +748,8 @@ class EnterpriseReport {
   final double latitude;
   final double longitude;
   final DateTime? createdAt;
+  final String? assignedCollectorName;
+  final int? assignedCollectorId;
 
   EnterpriseReport({
     required this.reportId,
@@ -759,6 +761,8 @@ class EnterpriseReport {
     this.latitude = 0.0,
     this.longitude = 0.0,
     this.createdAt,
+    this.assignedCollectorName,
+    this.assignedCollectorId,
   });
 
   factory EnterpriseReport.fromJson(Map<String, dynamic>? json) {
@@ -790,12 +794,47 @@ class EnterpriseReport {
           : (json['wasteTypeName'] != null ? [json['wasteTypeName'].toString()] : []),
       status: json['status'] ?? 'Pending',
       description: json['description'],
-      imageUrl: json['imageUrl'] ?? json['reportImageUrl'],
+      imageUrl: json['imageUrl'] 
+          ?? json['reportImageUrl'] 
+          ?? json['image'] 
+          ?? json['image_url'] 
+          ?? json['evidenceImage'] 
+          ?? json['evidenceUrl'],
       latitude: _toDouble(json['latitude']),
       longitude: _toDouble(json['longitude']),
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'].toString())
           : null,
+      assignedCollectorName: json['assignedCollectorName'] ?? json['collectorName'],
+      assignedCollectorId: json['assignedCollectorId'] ?? json['collectorId'],
+    );
+  }
+
+  EnterpriseReport copyWith({
+    int? reportId,
+    String? submittedByName,
+    List<String>? wasteTypeNames,
+    String? status,
+    String? description,
+    String? imageUrl,
+    double? latitude,
+    double? longitude,
+    DateTime? createdAt,
+    String? assignedCollectorName,
+    int? assignedCollectorId,
+  }) {
+    return EnterpriseReport(
+      reportId: reportId ?? this.reportId,
+      submittedByName: submittedByName ?? this.submittedByName,
+      wasteTypeNames: wasteTypeNames ?? this.wasteTypeNames,
+      status: status ?? this.status,
+      description: description ?? this.description,
+      imageUrl: imageUrl ?? this.imageUrl,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      createdAt: createdAt ?? this.createdAt,
+      assignedCollectorName: assignedCollectorName ?? this.assignedCollectorName,
+      assignedCollectorId: assignedCollectorId ?? this.assignedCollectorId,
     );
   }
 }
@@ -857,12 +896,17 @@ class EnterpriseFeedback {
 }
 
 class ResolveFeedbackRequest {
-  final String resolution;
+  final String action; // "warn" or "reassign"
+  final String adminNote;
 
-  ResolveFeedbackRequest({required this.resolution});
+  ResolveFeedbackRequest({
+    required this.action,
+    required this.adminNote,
+  });
 
   Map<String, dynamic> toJson() => {
-    'resolution': resolution,
+    'action': action,
+    'adminNote': adminNote,
   };
 }
 
@@ -904,6 +948,22 @@ class EnterpriseNotification {
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'].toString())
           : null,
+    );
+  }
+
+  EnterpriseNotification copyWith({
+    int? notificationId,
+    String? title,
+    String? content,
+    bool? isRead,
+    DateTime? createdAt,
+  }) {
+    return EnterpriseNotification(
+      notificationId: notificationId ?? this.notificationId,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      isRead: isRead ?? this.isRead,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 }

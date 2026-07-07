@@ -89,18 +89,20 @@ class _AdminScreenState extends State<AdminScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       drawer: isMobile ? _buildDrawer() : null,
-      body: Row(
-        children: [
-          if (!isMobile) _buildSidebar(),
-          Expanded(
-            child: Column(
-              children: [
-                _buildHeader(isMobile),
-                Expanded(child: _buildContent()),
-              ],
+      body: SafeArea(
+        child: Row(
+          children: [
+            if (!isMobile) _buildSidebar(),
+            Expanded(
+              child: Column(
+                children: [
+                  _buildHeader(isMobile),
+                  Expanded(child: _buildContent()),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

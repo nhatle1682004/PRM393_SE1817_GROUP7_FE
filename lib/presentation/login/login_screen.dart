@@ -9,8 +9,8 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // LayoutBuilder giống như một chiếc thước đo tự động chạy liên tục để đo chiều rộng màn hình
-      body: LayoutBuilder(
+      body: SafeArea(
+        child: LayoutBuilder(
         builder: (context, constraints) {
           // CHỖ HIỂN THỊ WEB ( MÀN HÌNH > 800px)
           if (constraints.maxWidth > 800) {
@@ -46,7 +46,7 @@ class LoginScreen extends StatelessWidget {
             );
           } else {
             // CHỖ HIỂN THỊ MOBILE ( MÀN HÌNH < 800px)
-            return const Scaffold(
+            return Scaffold(
               backgroundColor: Colors.white,
               body: SingleChildScrollView(
                 child: Padding(
@@ -58,6 +58,7 @@ class LoginScreen extends StatelessWidget {
           }
         },
       ),
+    ),
     );
   }
 }

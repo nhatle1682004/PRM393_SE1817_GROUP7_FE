@@ -3,7 +3,8 @@ import 'package:waste_collection_management_system/data/models/enterprise_models
 import 'package:waste_collection_management_system/services/enterprise_api_service.dart';
 
 class NotificationsView extends StatefulWidget {
-  const NotificationsView({super.key});
+  final VoidCallback? onRefreshParent;
+  const NotificationsView({super.key, this.onRefreshParent});
 
   @override
   State<NotificationsView> createState() => _NotificationsViewState();
@@ -34,6 +35,8 @@ class _NotificationsViewState extends State<NotificationsView> {
           _notifications = notifications;
           _isLoading = false;
         });
+        // Đồng bộ lại với parent nếu cần
+        widget.onRefreshParent?.call();
       }
     } catch (e) {
       if (mounted) {
@@ -48,14 +51,25 @@ class _NotificationsViewState extends State<NotificationsView> {
   Future<void> _markAsRead(EnterpriseNotification notification) async {
     if (notification.isRead) return;
 
+    // Cập nhật UI ngay lập tức (Optimistic UI)
+    setState(() {
+      final index = _notifications.indexWhere((n) => n.notificationId == notification.notificationId);
+      if (index != -1) {
+        _notifications[index] = _notifications[index].copyWith(isRead: true);
+      }
+    });
+
     try {
       await EnterpriseApiService.markNotificationRead(notification.notificationId);
-      _loadNotifications();
+      // Gọi parent để cập nhật số lượng thông báo trên chuông
+      widget.onRefreshParent?.call();
     } catch (e) {
+      // Nếu lỗi thì rollback lại trạng thái cũ
+      _loadNotifications();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Lỗi: ${e.toString()}'),
+            content: Text('Không thể đánh dấu: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -64,18 +78,27 @@ class _NotificationsViewState extends State<NotificationsView> {
   }
 
   Future<void> _markAllAsRead() async {
+    if (_unreadCount == 0) return;
+
+    // Tạm thời đánh dấu tất cả là đã đọc trong UI
+    setState(() {
+      _notifications = _notifications.map((n) => n.copyWith(isRead: true)).toList();
+    });
+
     try {
       await EnterpriseApiService.markAllNotificationsRead();
+      widget.onRefreshParent?.call();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Đã đánh dấu tất cả là đã đọc'),
             backgroundColor: Color(0xFF10B981),
+            duration: Duration(seconds: 1),
           ),
         );
-        _loadNotifications();
       }
     } catch (e) {
+      _loadNotifications();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -109,7 +132,13 @@ class _NotificationsViewState extends State<NotificationsView> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(color: const Color(0xFFE2E8F0)),
+        ),
+      ),
       child: Row(
         children: [
           Text(
@@ -125,7 +154,7 @@ class _NotificationsViewState extends State<NotificationsView> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: const Color(0xFFEF4444),
+                color: const Color(0xFFDC2626),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -146,6 +175,7 @@ class _NotificationsViewState extends State<NotificationsView> {
               label: const Text('Đọc tất cả'),
               style: TextButton.styleFrom(
                 foregroundColor: const Color(0xFF10B981),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
             ),
           IconButton(
@@ -160,7 +190,7 @@ class _NotificationsViewState extends State<NotificationsView> {
 
   Widget _buildFilterBar() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
           FilterChip(
@@ -171,8 +201,19 @@ class _NotificationsViewState extends State<NotificationsView> {
                 _showUnreadOnly = !selected;
               });
             },
-            selectedColor: const Color(0xFF10B981).withOpacity(0.2),
+            selectedColor: const Color(0xFF10B981).withValues(alpha: 0.15),
             checkmarkColor: const Color(0xFF10B981),
+            labelStyle: TextStyle(
+              color: !_showUnreadOnly ? const Color(0xFF10B981) : const Color(0xFF64748B),
+              fontWeight: !_showUnreadOnly ? FontWeight.w600 : FontWeight.w500,
+              fontSize: 13,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: BorderSide(
+                color: !_showUnreadOnly ? const Color(0xFF10B981) : const Color(0xFFE2E8F0),
+              ),
+            ),
           ),
           const SizedBox(width: 8),
           FilterChip(
@@ -183,8 +224,19 @@ class _NotificationsViewState extends State<NotificationsView> {
                 _showUnreadOnly = selected;
               });
             },
-            selectedColor: const Color(0xFF10B981).withOpacity(0.2),
+            selectedColor: const Color(0xFF10B981).withValues(alpha: 0.15),
             checkmarkColor: const Color(0xFF10B981),
+            labelStyle: TextStyle(
+              color: _showUnreadOnly ? const Color(0xFF10B981) : const Color(0xFF64748B),
+              fontWeight: _showUnreadOnly ? FontWeight.w600 : FontWeight.w500,
+              fontSize: 13,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: BorderSide(
+                color: _showUnreadOnly ? const Color(0xFF10B981) : const Color(0xFFE2E8F0),
+              ),
+            ),
           ),
         ],
       ),
@@ -228,13 +280,53 @@ class _NotificationsViewState extends State<NotificationsView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
-          const SizedBox(height: 16),
-          Text(_error ?? 'Lỗi không xác định'),
-          const SizedBox(height: 16),
-          ElevatedButton(
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFEE2E2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.error_outline,
+              size: 48,
+              color: const Color(0xFFDC2626),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Đã xảy ra lỗi',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              _error ?? 'Không thể tải dữ liệu',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF64748B),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
             onPressed: _loadNotifications,
-            child: const Text('Thử lại'),
+            icon: const Icon(Icons.refresh, size: 18),
+            label: const Text('Thử lại'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
         ],
       ),
@@ -246,15 +338,34 @@ class _NotificationsViewState extends State<NotificationsView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            _showUnreadOnly ? Icons.notifications_off : Icons.notifications_outlined,
-            size: 64,
-            color: Colors.grey.shade300,
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              _showUnreadOnly ? Icons.notifications_off : Icons.notifications_outlined,
+              size: 48,
+              color: const Color(0xFF94A3B8),
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Text(
             _showUnreadOnly ? 'Không có thông báo chưa đọc' : 'Không có thông báo nào',
-            style: TextStyle(fontSize: 16, color: Colors.grey.shade500),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _showUnreadOnly ? 'Tất cả thông báo đã được đọc' : 'Thông báo sẽ hiển thị tại đây',
+            style: const TextStyle(
+              fontSize: 14,
+              color: Color(0xFF64748B),
+            ),
           ),
         ],
       ),
@@ -282,7 +393,7 @@ class _NotificationCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: notification.isRead ? Colors.grey.shade200 : const Color(0xFF10B981).withOpacity(0.3),
+          color: notification.isRead ? Colors.grey.shade200 : const Color(0xFF10B981).withValues(alpha: 0.3),
           width: notification.isRead ? 1 : 2,
         ),
       ),
@@ -297,7 +408,7 @@ class _NotificationCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: color, size: 22),

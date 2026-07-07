@@ -13,15 +13,17 @@ class DashboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width > 600;
+
     return RefreshIndicator(
       onRefresh: () async => onRefresh(),
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(isWide ? 24 : 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildStatsGrid(context),
+            _buildStatsGrid(context, isWide),
             const SizedBox(height: 24),
             _buildCollectionsSection(context),
             const SizedBox(height: 24),
@@ -32,58 +34,80 @@ class DashboardView extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsGrid(BuildContext context) {
-    final isWide = MediaQuery.of(context).size.width > 800;
+  Widget _buildStatsGrid(BuildContext context, bool isWide) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isVerySmall = screenWidth < 400;
+
+    int crossAxisCount;
+    double childAspectRatio;
+
+    if (isVerySmall) {
+      crossAxisCount = 2;
+      childAspectRatio = 1.1;
+    } else if (isWide) {
+      crossAxisCount = 4;
+      childAspectRatio = 1.2;
+    } else {
+      crossAxisCount = 2;
+      childAspectRatio = 1.15;
+    }
 
     return GridView.count(
-      crossAxisCount: isWide ? 4 : 2,
+      crossAxisCount: crossAxisCount,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: isWide ? 1.5 : 1.3,
+      crossAxisSpacing: isWide ? 16 : 10,
+      mainAxisSpacing: isWide ? 16 : 10,
+      childAspectRatio: childAspectRatio,
       children: [
         _StatCard(
           title: 'Tổng Collector',
           value: stats?.totalCollectors ?? 0,
           icon: Icons.people,
           color: const Color(0xFF3B82F6),
+          isWide: isWide,
         ),
         _StatCard(
           title: 'Yêu cầu thu gom',
           value: stats?.totalCollections ?? 0,
           icon: Icons.local_shipping,
           color: const Color(0xFF10B981),
+          isWide: isWide,
         ),
         _StatCard(
           title: 'Chờ xử lý',
           value: stats?.pendingReports ?? 0,
           icon: Icons.pending_actions,
           color: const Color(0xFFF59E0B),
+          isWide: isWide,
         ),
         _StatCard(
           title: 'Hoàn thành',
           value: stats?.completedCollections ?? 0,
           icon: Icons.check_circle,
           color: const Color(0xFF6366F1),
+          isWide: isWide,
         ),
       ],
     );
   }
 
   Widget _buildCollectionsSection(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWide = screenWidth > 600;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Thu gom gần đây',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: isWide ? 18 : 16,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1E293B),
+            color: const Color(0xFF1E293B),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         if (stats?.recentCollections?.isEmpty ?? true)
           _buildEmptyState('Chưa có yêu cầu thu gom nào')
         else
@@ -91,10 +115,10 @@ class DashboardView extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: stats!.recentCollections!.length.clamp(0, 5),
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
             itemBuilder: (context, index) {
               final item = stats!.recentCollections![index];
-              return _CollectionCard(item: item);
+              return _CollectionCard(item: item, isWide: isWide);
             },
           ),
       ],
@@ -102,18 +126,21 @@ class DashboardView extends StatelessWidget {
   }
 
   Widget _buildReportsSection(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWide = screenWidth > 600;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Báo cáo gần đây',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: isWide ? 18 : 16,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1E293B),
+            color: const Color(0xFF1E293B),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         if (stats?.recentReports?.isEmpty ?? true)
           _buildEmptyState('Chưa có báo cáo nào')
         else
@@ -121,10 +148,10 @@ class DashboardView extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: stats!.recentReports!.length.clamp(0, 5),
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
             itemBuilder: (context, index) {
               final item = stats!.recentReports![index];
-              return _ReportCard(item: item);
+              return _ReportCard(item: item, isWide: isWide);
             },
           ),
       ],
@@ -157,18 +184,25 @@ class _StatCard extends StatelessWidget {
   final int value;
   final IconData icon;
   final Color color;
+  final bool isWide;
 
   const _StatCard({
     required this.title,
     required this.value,
     required this.icon,
     required this.color,
+    required this.isWide,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isVerySmall = MediaQuery.of(context).size.width < 400;
+    final padding = isWide ? 14.0 : 10.0;
+    final iconSize = isVerySmall ? 16.0 : (isWide ? 22.0 : 18.0);
+    final valueFontSize = isVerySmall ? 18.0 : (isWide ? 26.0 : 22.0);
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -185,30 +219,32 @@ class _StatCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(isWide ? 10 : 7),
             decoration: BoxDecoration(
               color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: color, size: 22),
+            child: Icon(icon, color: color, size: iconSize),
           ),
           const Spacer(),
           Text(
             value.toString(),
             style: TextStyle(
-              fontSize: 28,
+              fontSize: valueFontSize,
               fontWeight: FontWeight.w800,
               color: color,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             title,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: isWide ? 12 : 9,
               color: Colors.grey.shade600,
               fontWeight: FontWeight.w500,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -218,13 +254,17 @@ class _StatCard extends StatelessWidget {
 
 class _CollectionCard extends StatelessWidget {
   final RecentCollectionDto item;
+  final bool isWide;
 
-  const _CollectionCard({required this.item});
+  const _CollectionCard({required this.item, required this.isWide});
 
   @override
   Widget build(BuildContext context) {
+    final isVerySmall = MediaQuery.of(context).size.width < 400;
+    final padding = isWide ? 14.0 : 10.0;
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -233,7 +273,7 @@ class _CollectionCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(isWide ? 10 : 8),
             decoration: BoxDecoration(
               color: _getStatusColor(item.status).withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
@@ -241,7 +281,7 @@ class _CollectionCard extends StatelessWidget {
             child: Icon(
               _getStatusIcon(item.status),
               color: _getStatusColor(item.status),
-              size: 20,
+              size: isVerySmall ? 14 : (isWide ? 20 : 16),
             ),
           ),
           const SizedBox(width: 14),
@@ -251,9 +291,9 @@ class _CollectionCard extends StatelessWidget {
               children: [
                 Text(
                   'Yêu cầu #${item.requestId}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                    fontSize: isWide ? 14 : (isVerySmall ? 10 : 12),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -261,9 +301,11 @@ class _CollectionCard extends StatelessWidget {
                   Text(
                     'Collector: ${item.collectorName}',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: isWide ? 12 : (isVerySmall ? 8 : 10),
                       color: Colors.grey.shade600,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
               ],
             ),
@@ -309,13 +351,17 @@ class _CollectionCard extends StatelessWidget {
 
 class _ReportCard extends StatelessWidget {
   final RecentReportDto item;
+  final bool isWide;
 
-  const _ReportCard({required this.item});
+  const _ReportCard({required this.item, required this.isWide});
 
   @override
   Widget build(BuildContext context) {
+    final isVerySmall = MediaQuery.of(context).size.width < 400;
+    final padding = isWide ? 14.0 : 10.0;
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -324,15 +370,15 @@ class _ReportCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(isWide ? 10 : 8),
             decoration: BoxDecoration(
               color: const Color(0xFFF59E0B).withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.report_problem,
-              color: Color(0xFFF59E0B),
-              size: 20,
+              color: const Color(0xFFF59E0B),
+              size: isVerySmall ? 14 : (isWide ? 20 : 16),
             ),
           ),
           const SizedBox(width: 14),
@@ -342,23 +388,26 @@ class _ReportCard extends StatelessWidget {
               children: [
                 Text(
                   'Báo cáo #${item.reportId}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                    fontSize: isWide ? 14 : (isVerySmall ? 10 : 12),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   item.submittedByName,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: isWide ? 12 : (isVerySmall ? 8 : 10),
                     color: Colors.grey.shade600,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 if (item.wasteTypeNames.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Wrap(
                     spacing: 4,
+                    runSpacing: 4,
                     children: item.wasteTypeNames.take(2).map((type) {
                       return Container(
                         padding: const EdgeInsets.symmetric(
@@ -371,7 +420,7 @@ class _ReportCard extends StatelessWidget {
                         ),
                         child: Text(
                           type,
-                          style: const TextStyle(fontSize: 10),
+                          style: TextStyle(fontSize: isWide ? 10 : 8),
                         ),
                       );
                     }).toList(),

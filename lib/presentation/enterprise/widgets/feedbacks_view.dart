@@ -52,54 +52,99 @@ class _FeedbacksViewState extends State<FeedbacksView> {
   }
 
   Future<void> _resolveFeedback(EnterpriseFeedback feedback) async {
-    final controller = TextEditingController();
+    String? selectedAction;
+    final noteController = TextEditingController();
 
-    final result = await showDialog<String>(
+    final result = await showDialog<Map<String, String>>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Xử lý phản hồi'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Xử lý phản hồi #${feedback.feedbackId}'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                labelText: 'Nội dung xử lý',
-                border: OutlineInputBorder(),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Xử lý phản hồi'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Phản hồi #${feedback.feedbackId} từ: ${feedback.userName ?? 'N/A'}'),
+              const SizedBox(height: 16),
+              const Text(
+                'Chọn hành động:',
+                style: TextStyle(fontWeight: FontWeight.w500),
               ),
-              maxLines: 3,
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: _ActionChip(
+                      label: 'Cảnh cáo',
+                      icon: Icons.warning_amber,
+                      isSelected: selectedAction == 'warn',
+                      onTap: () => setDialogState(() => selectedAction = 'warn'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _ActionChip(
+                      label: 'Chỉ định lại',
+                      icon: Icons.replay,
+                      isSelected: selectedAction == 'reassign',
+                      onTap: () => setDialogState(() => selectedAction = 'reassign'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: noteController,
+                decoration: const InputDecoration(
+                  labelText: 'Ghi chú (tùy chọn)',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 2,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: selectedAction == null
+                  ? null
+                  : () => Navigator.pop(context, {
+                        'action': selectedAction!,
+                        'note': noteController.text,
+                      }),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF10B981),
+              ),
+              child: const Text('Xác nhận'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF10B981),
-            ),
-            child: const Text('Xác nhận'),
-          ),
-        ],
       ),
     );
 
-    if (result != null && result.isNotEmpty) {
+    noteController.dispose();
+
+    if (result != null) {
       try {
         await EnterpriseApiService.resolveFeedback(
           feedback.feedbackId,
-          ResolveFeedbackRequest(resolution: result),
+          ResolveFeedbackRequest(
+            action: result['action']!,
+            adminNote: result['note'] ?? '',
+          ),
         );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Đã xử lý phản hồi'),
-              backgroundColor: Color(0xFF10B981),
+            SnackBar(
+              content: Text(
+                result['action'] == 'warn'
+                    ? 'Đã cảnh cáo nhân viên thu gom'
+                    : 'Đã chỉ định lại và cảnh cáo',
+              ),
+              backgroundColor: const Color(0xFF10B981),
             ),
           );
           _loadFeedbacks();
@@ -177,7 +222,13 @@ class _FeedbacksViewState extends State<FeedbacksView> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(color: const Color(0xFFE2E8F0)),
+        ),
+      ),
       child: Row(
         children: [
           Text(
@@ -196,9 +247,10 @@ class _FeedbacksViewState extends State<FeedbacksView> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF10B981),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
           ),
@@ -209,37 +261,41 @@ class _FeedbacksViewState extends State<FeedbacksView> {
 
   Widget _buildFilters() {
     return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        itemCount: _statusFilters.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final filter = _statusFilters[index];
-          final isSelected = _statusFilter == filter;
-          return FilterChip(
-            label: Text(_getStatusLabel(filter)),
-            selected: isSelected,
-            onSelected: (selected) {
-              setState(() {
-                _statusFilter = selected ? filter : 'Tất cả';
-              });
-            },
-            selectedColor: const Color(0xFF10B981).withOpacity(0.2),
-            checkmarkColor: const Color(0xFF10B981),
-            labelStyle: TextStyle(
-              color: isSelected ? const Color(0xFF10B981) : Colors.grey.shade600,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: BorderSide(
-                color: isSelected ? const Color(0xFF10B981) : Colors.grey.shade300,
+        child: Row(
+          children: List.generate(_statusFilters.length, (index) {
+            final filter = _statusFilters[index];
+            final isSelected = _statusFilter == filter;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: FilterChip(
+                label: Text(_getStatusLabel(filter)),
+                selected: isSelected,
+                onSelected: (selected) {
+                  setState(() {
+                    _statusFilter = selected ? filter : 'Tất cả';
+                  });
+                },
+                selectedColor: const Color(0xFF10B981).withOpacity(0.15),
+                checkmarkColor: const Color(0xFF10B981),
+                labelStyle: TextStyle(
+                  color: isSelected ? const Color(0xFF10B981) : const Color(0xFF64748B),
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  fontSize: 13,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(
+                    color: isSelected ? const Color(0xFF10B981) : const Color(0xFFE2E8F0),
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 4),
               ),
-            ),
-          );
-        },
+            );
+          }),
+        ),
       ),
     );
   }
@@ -282,13 +338,53 @@ class _FeedbacksViewState extends State<FeedbacksView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
-          const SizedBox(height: 16),
-          Text(_error ?? 'Lỗi không xác định'),
-          const SizedBox(height: 16),
-          ElevatedButton(
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFEE2E2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.error_outline,
+              size: 48,
+              color: const Color(0xFFDC2626),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Đã xảy ra lỗi',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              _error ?? 'Không thể tải dữ liệu',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF64748B),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
             onPressed: _loadFeedbacks,
-            child: const Text('Thử lại'),
+            icon: const Icon(Icons.refresh, size: 18),
+            label: const Text('Thử lại'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
         ],
       ),
@@ -300,11 +396,34 @@ class _FeedbacksViewState extends State<FeedbacksView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.feedback_outlined, size: 64, color: Colors.grey.shade300),
-          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.feedback_outlined,
+              size: 48,
+              color: const Color(0xFF94A3B8),
+            ),
+          ),
+          const SizedBox(height: 20),
           Text(
             'Không có phản hồi nào',
-            style: TextStyle(fontSize: 16, color: Colors.grey.shade500),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Danh sách phản hồi sẽ hiển thị tại đây',
+            style: const TextStyle(
+              fontSize: 14,
+              color: Color(0xFF64748B),
+            ),
           ),
         ],
       ),
@@ -325,6 +444,59 @@ class _FeedbacksViewState extends State<FeedbacksView> {
   }
 }
 
+class _ActionChip extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _ActionChip({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFF10B981).withOpacity(0.1)
+              : Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF10B981) : Colors.grey.shade300,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? const Color(0xFF10B981) : Colors.grey.shade600,
+              size: 24,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                color: isSelected ? const Color(0xFF10B981) : Colors.grey.shade600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _FeedbackCard extends StatelessWidget {
   final EnterpriseFeedback feedback;
   final VoidCallback onResolve;
@@ -338,6 +510,9 @@ class _FeedbackCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 400;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 0,
@@ -350,48 +525,16 @@ class _FeedbackCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(feedback.status).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    Icons.feedback,
-                    color: _getStatusColor(feedback.status),
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Phản hồi #${feedback.feedbackId}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        feedback.userName ?? 'N/A',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                _StatusBadge(status: feedback.status),
-              ],
-            ),
+            // Header Row
+            if (isMobile)
+              _buildMobileHeader()
+            else
+              _buildDesktopHeader(),
             const SizedBox(height: 16),
+
+            // Content
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.grey.shade50,
@@ -400,11 +543,16 @@ class _FeedbackCard extends StatelessWidget {
               child: Text(
                 feedback.content,
                 style: const TextStyle(fontSize: 14),
+                maxLines: 5,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
+
+            // Resolution
             if (feedback.resolution != null) ...[
               const SizedBox(height: 12),
               Container(
+                width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: const Color(0xFF10B981).withOpacity(0.1),
@@ -439,61 +587,199 @@ class _FeedbackCard extends StatelessWidget {
                 ),
               ),
             ],
+
+            // Timestamp
             if (feedback.createdAt != null) ...[
               const SizedBox(height: 12),
               Row(
                 children: [
                   Icon(Icons.access_time, size: 16, color: Colors.grey.shade400),
                   const SizedBox(width: 6),
-                  Text(
-                    _formatDate(feedback.createdAt!),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade400,
+                  Flexible(
+                    child: Text(
+                      _formatDate(feedback.createdAt!),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade400,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
             ],
+
+            // Action Buttons
             if (feedback.status == 'Pending') ...[
               const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: onReject,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFFEF4444),
-                        side: const BorderSide(color: Color(0xFFEF4444)),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text('Từ chối'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: onResolve,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF10B981),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text('Xử lý'),
-                    ),
-                  ),
-                ],
-              ),
+              _buildActionButtons(isMobile),
             ],
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDesktopHeader() {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: _getStatusColor(feedback.status).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            Icons.feedback,
+            color: _getStatusColor(feedback.status),
+            size: 22,
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Phản hồi #${feedback.feedbackId}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                feedback.userName ?? 'N/A',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey.shade600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+        Flexible(child: _StatusBadge(status: feedback.status)),
+      ],
+    );
+  }
+
+  Widget _buildMobileHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: _getStatusColor(feedback.status).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.feedback,
+                color: _getStatusColor(feedback.status),
+                size: 18,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                feedback.userName ?? 'N/A',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey.shade600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            _StatusBadge(status: feedback.status),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Phản hồi #${feedback.feedbackId}',
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButtons(bool isMobile) {
+    if (isMobile) {
+      return Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: onResolve,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF10B981),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Xử lý'),
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: onReject,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFFEF4444),
+                side: const BorderSide(color: Color(0xFFEF4444)),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Từ chối'),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: onReject,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFFEF4444),
+              side: const BorderSide(color: Color(0xFFEF4444)),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('Từ chối'),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: onResolve,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('Xử lý'),
+          ),
+        ),
+      ],
     );
   }
 
