@@ -70,6 +70,21 @@ class ApiService {
     }
   }
 
+  /// Lấy danh sách loại rác từ API
+  static Future<List<Map<String, dynamic>>> getWasteTypes() async {
+    try {
+      final response = await _dio.get(ApiConfig.wasteTypes);
+      final data = response.data;
+      if (data is List) {
+        return data.map((e) => e as Map<String, dynamic>).toList();
+      }
+      return [];
+    } on DioException {
+      // Trả về list rỗng nếu API chưa có, sẽ dùng default
+      return [];
+    }
+  }
+
   static Future<Response> post(String endpoint, {dynamic body}) async {
     try {
       final response = await _dio.post(endpoint, data: body);

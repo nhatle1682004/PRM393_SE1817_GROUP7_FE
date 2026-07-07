@@ -207,7 +207,7 @@ class _ProfileScreenState extends State<ProfileScreen> implements ProfileView {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -224,7 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> implements ProfileView {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xff10b981).withOpacity(0.3),
+                          color: const Color(0xff10b981).withValues(alpha: 0.3),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -300,7 +300,7 @@ class _ProfileScreenState extends State<ProfileScreen> implements ProfileView {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -390,13 +390,13 @@ class _ProfileScreenState extends State<ProfileScreen> implements ProfileView {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
           border: Border.all(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -405,7 +405,7 @@ class _ProfileScreenState extends State<ProfileScreen> implements ProfileView {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 24),
@@ -436,7 +436,7 @@ class _ProfileScreenState extends State<ProfileScreen> implements ProfileView {
             ),
             Icon(
               Icons.arrow_forward_ios,
-              color: color.withOpacity(0.5),
+              color: color.withValues(alpha: 0.5),
               size: 16,
             ),
           ],
@@ -453,7 +453,7 @@ class _ProfileScreenState extends State<ProfileScreen> implements ProfileView {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xff10b981).withOpacity(0.3),
+            color: const Color(0xff10b981).withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),

@@ -240,7 +240,7 @@ class _VerifyEmailFormState extends State<VerifyEmailForm> {
               onPressed: _isLoading ? null : _verifyOtp,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xff10b981),
-                disabledBackgroundColor: const Color(0xff10b981).withOpacity(0.7),
+                disabledBackgroundColor: const Color(0xff10b981).withValues(alpha: 0.7),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
               ),

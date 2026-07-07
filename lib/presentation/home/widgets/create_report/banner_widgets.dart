@@ -17,7 +17,7 @@ class MobileHeaderBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF10B981).withOpacity(0.3),
+            color: const Color(0xFF10B981).withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -56,7 +56,7 @@ class _RewardBadgeMobile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
       ),
       child: const Row(
@@ -95,7 +95,7 @@ class DesktopHeaderBanner extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -207,7 +207,7 @@ class RewardBadge extends StatelessWidget {
           colors: [Color(0xFFFFF7ED), Color(0xFFECFDF5)],
         ),
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: const Color(0xFFFBBF24).withOpacity(0.5)),
+        border: Border.all(color: const Color(0xFFFBBF24).withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

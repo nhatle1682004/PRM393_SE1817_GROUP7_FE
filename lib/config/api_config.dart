@@ -19,6 +19,18 @@ class ApiConfig {
 
   static String get baseUrl => 'http://$_host:$_port/api';
 
+  // Helper để ghép URL ảnh từ backend (ảnh được lưu trong wwwroot, không phải /api)
+  static String get imageBaseUrl => 'http://$_host:$_port';
+
+  // Ghép URL ảnh đầy đủ từ đường dẫn tương đối
+  static String getFullImageUrl(String? relativePath) {
+    if (relativePath == null || relativePath.isEmpty) return '';
+    if (relativePath.startsWith('http://') || relativePath.startsWith('https://')) {
+      return relativePath;
+    }
+    return '$imageBaseUrl$relativePath';
+  }
+
   // 1. AUTHENTICATION - api/auth
   
   /// Đăng nhập (email, password) -> trả về JWT
@@ -141,6 +153,9 @@ class ApiConfig {
   /// Thống kê dashboard cho Admin
   static const String dashboardAdmin = '/dashboard/admin';
 
+  /// Thống kê dashboard cho Enterprise
+  static const String dashboardEnterprise = '/dashboard/enterprise';
+
   // 10. NOTIFICATIONS
   
   /// Danh sách thông báo của user đang đăng nhập
@@ -181,4 +196,67 @@ class ApiConfig {
   
   /// Từ chối phản hồi (Reject - Admin)
   static String feedbackReject(int id) => '/feedbacks/$id/reject';
+
+  // ============ ENTERPRISE FEEDBACKS - api/enterprise/feedbacks ============
+  /// Lấy tất cả phản hồi (Enterprise)
+  static const String enterpriseFeedbacks = '/enterprise/feedbacks';
+
+  /// Chi tiết phản hồi
+  static String enterpriseFeedbackDetails(int id) => '/enterprise/feedbacks/$id';
+
+  /// Xử lý phản hồi (Resolve - Enterprise)
+  static String enterpriseFeedbackResolve(int id) => '/enterprise/feedbacks/$id/resolve';
+
+  /// Từ chối phản hồi (Reject - Enterprise)
+  static String enterpriseFeedbackReject(int id) => '/enterprise/feedbacks/$id/reject';
+
+  // ============ ENTERPRISE NOTIFICATIONS ============
+  /// Danh sách thông báo của Enterprise
+  static const String enterpriseNotifications = '/enterprise/notifications';
+
+  /// Đánh dấu thông báo đã đọc
+  static String enterpriseMarkNotificationRead(int id) => '/enterprise/notifications/$id/read';
+
+  /// Đánh dấu tất cả thông báo đã đọc
+  static const String enterpriseMarkAllNotificationsRead = '/enterprise/notifications/read-all';
+
+  // ============ ENTERPRISE COLLECTORS - api/enterprise/collectors ============
+  /// Lấy danh sách collectors của Enterprise
+  static const String enterpriseCollectors = '/enterprise/collectors';
+
+  /// Chi tiết collector của Enterprise
+  static String enterpriseCollector(int id) => '/enterprise/collectors/$id';
+
+  /// Cập nhật trạng thái sẵn sàng của collector
+  static String enterpriseCollectorAvailability(int id) => '/enterprise/collectors/$id/availability';
+
+  // ============ ENTERPRISE COLLECTION REQUESTS - api/enterprise/collection-requests ============
+  /// Danh sách yêu cầu thu gom của Enterprise
+  static const String enterpriseCollectionRequests = '/enterprise/collection-requests';
+
+  /// Chi tiết yêu cầu thu gom
+  static String enterpriseCollectionRequest(int id) => '/enterprise/collection-requests/$id';
+
+  // ============ ENTERPRISE ASSIGNMENTS - api/enterprise/assignments ============
+  /// Lấy danh sách phân công của Enterprise
+  static const String enterpriseAssignments = '/enterprise/assignments';
+
+  /// Gán collector cho yêu cầu thu gom
+  static const String enterpriseAssignCollector = '/enterprise/assignments';
+
+  /// Hủy phân công
+  static String enterpriseCancelAssignment(int id) => '/enterprise/assignments/$id/cancel';
+
+  // ============ ENTERPRISE REPORTS - api/enterprise/reports ============
+  /// Danh sách báo cáo của Enterprise
+  static const String enterpriseReports = '/enterprise/reports';
+
+  /// Chi tiết báo cáo
+  static String enterpriseReport(int id) => '/enterprise/reports/$id';
+
+  /// Chấp nhận báo cáo
+  static String enterpriseAcceptReport(int id) => '/enterprise/reports/$id/accept';
+
+  /// Từ chối báo cáo
+  static String enterpriseRejectReport(int id) => '/enterprise/reports/$id/reject';
 }

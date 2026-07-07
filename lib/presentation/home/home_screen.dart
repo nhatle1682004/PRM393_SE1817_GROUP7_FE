@@ -3,7 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:waste_collection_management_system/presentation/home/widgets/create_report_screen.dart';
 import 'package:waste_collection_management_system/presentation/login/login_screen.dart';
 import 'package:waste_collection_management_system/presentation/profile/profile_screen.dart';
+import 'package:waste_collection_management_system/presentation/rewards/rewards_screen.dart';
+import 'package:waste_collection_management_system/presentation/history/history_screen.dart';
+import 'package:waste_collection_management_system/presentation/home/citizen_notification_screen.dart';
 import 'package:waste_collection_management_system/services/auth_service.dart';
+import 'package:waste_collection_management_system/services/api_service.dart';
+import 'package:waste_collection_management_system/config/api_config.dart';
 import 'package:waste_collection_management_system/widgets/app_layout.dart';
 import '../../data/models/home_stats.dart';
 import 'home_contract.dart';
@@ -47,6 +52,33 @@ class _ProfileScreenContent extends StatelessWidget {
   }
 }
 
+class _RewardsScreenContent extends StatelessWidget {
+  const _RewardsScreenContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return const RewardsScreen();
+  }
+}
+
+class _HistoryScreenContent extends StatelessWidget {
+  const _HistoryScreenContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return const HistoryScreen();
+  }
+}
+
+class _NotificationScreenContent extends StatelessWidget {
+  const _NotificationScreenContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return const CitizenNotificationScreen();
+  }
+}
+
 // ============================================================
 // HOME SCREEN
 // ============================================================
@@ -64,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> implements HomeView {
   HomeStats _stats = HomeStats();
   bool _isLoading = false;
   String? _errorMessage;
+  List<CitizenNotificationItem> _notifications = [];
 
   static const _communityPhotos = [
     CommunityPhoto(assetPath: 'assets/images/community_1.png', label: 'Dọn rác Đà Nẵng'),
@@ -88,6 +121,44 @@ class _HomeScreenState extends State<HomeScreen> implements HomeView {
     super.initState();
     _presenter = HomePresenterImpl(this);
     _presenter.loadDashboardData();
+  }
+
+  Future<List<CitizenNotificationItem>> _loadNotifications() async {
+    try {
+      final response = await ApiService.get(ApiConfig.notifications);
+      final data = response.data;
+      if (data is List) {
+        _notifications = data
+            .map((e) => CitizenNotificationItem.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return _notifications;
+      }
+    } catch (_) {
+      // Ignore errors
+    }
+    return [];
+  }
+
+  Future<void> _markNotificationsAsRead(List<int> ids) async {
+    try {
+      for (final id in ids) {
+        await ApiService.put(ApiConfig.markNotificationRead(id));
+      }
+    } catch (_) {
+      // Ignore errors
+    }
+  }
+
+  Future<void> _markAllNotificationsAsRead() async {
+    try {
+      await ApiService.put(ApiConfig.notificationsReadAll);
+    } catch (_) {
+      // Ignore errors
+    }
+  }
+
+  void _handleNotificationTap() {
+    setState(() => _currentTabIndex = 5);
   }
 
   @override
@@ -140,6 +211,10 @@ class _HomeScreenState extends State<HomeScreen> implements HomeView {
         onLogout: _handleLogout,
         userName: _stats.userName.isNotEmpty ? _stats.userName : null,
         points: int.tryParse(_stats.totalPoints.replaceAll(',', '')) ?? 0,
+        onNotificationTap: _handleNotificationTap,
+        onLoadNotifications: _loadNotifications,
+        onMarkAsRead: _markNotificationsAsRead,
+        onMarkAllAsRead: _markAllNotificationsAsRead,
         child: _buildContent(isMobile),
       );
     }
@@ -151,9 +226,32 @@ class _HomeScreenState extends State<HomeScreen> implements HomeView {
         elevation: 0,
         title: const Text('Waste Collection', style: TextStyle(color: Color(0xff0f172a), fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Color(0xff475569)),
+        actions: [
+          _buildMobileNotificationBell(),
+          const SizedBox(width: 4),
+        ],
       ),
       drawer: _buildDrawer(),
       body: _buildContent(isMobile),
+    );
+  }
+
+  Widget _buildMobileNotificationBell() {
+    return GestureDetector(
+      onTap: _handleNotificationTap,
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Icon(
+          Icons.notifications_outlined,
+          color: Color(0xFF64748B),
+          size: 24,
+        ),
+      ),
     );
   }
 
@@ -186,7 +284,10 @@ class _HomeScreenState extends State<HomeScreen> implements HomeView {
 
     switch (_currentTabIndex) {
       case 1: return const CreateReportScreen();
+      case 2: return const _RewardsScreenContent();
+      case 3: return const _HistoryScreenContent();
       case 4: return const _ProfileScreenContent();
+      case 5: return const _NotificationScreenContent();
       default:
         return HomePage(
           points: int.tryParse(_stats.totalPoints.replaceAll(',', '')) ?? 0,
@@ -205,17 +306,17 @@ class _HomeScreenState extends State<HomeScreen> implements HomeView {
     return Drawer(
       child: Column(
         children: [
-          DrawerHeader(
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(16, 48, 16, 24),
             decoration: const BoxDecoration(color: Color(0xff2ecc71)),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.eco, color: Colors.white, size: 48),
-                  const SizedBox(height: 10),
-                  const Text('Waste Collection', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                ],
-              ),
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.eco, color: Colors.white, size: 48),
+                SizedBox(height: 10),
+                Text('Waste Collection', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+              ],
             ),
           ),
           _drawerItem(Icons.home, 'Trang chủ', 0),
@@ -365,7 +466,7 @@ class _EcoBannerState extends State<EcoBanner> with TickerProviderStateMixin {
           decoration: BoxDecoration(
             color: const Color(0xFF0F6E56),
             borderRadius: BorderRadius.circular(24),
-            boxShadow: [BoxShadow(color: const Color(0xFF0F6E56).withOpacity(0.2), blurRadius: 20, offset: const Offset(0, 8))],
+            boxShadow: [BoxShadow(color: const Color(0xFF0F6E56).withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 8))],
           ),
           padding: const EdgeInsets.all(32),
           child: isMobile 
@@ -401,7 +502,7 @@ class _EcoBannerState extends State<EcoBanner> with TickerProviderStateMixin {
         alignment: Alignment.center,
         children: [
           Container(width: 140, height: 140, decoration: const BoxDecoration(color: Color(0xFF085041), shape: BoxShape.circle)),
-          Container(width: 110, height: 110, decoration: BoxDecoration(color: const Color(0xFF0F6E56), shape: BoxShape.circle, border: Border.all(color: Colors.white.withOpacity(0.1)))),
+          Container(width: 110, height: 110, decoration: BoxDecoration(color: const Color(0xFF0F6E56), shape: BoxShape.circle, border: Border.all(color: Colors.white.withValues(alpha: 0.1)))),
           AnimatedBuilder(
             animation: _floatController,
             builder: (context, child) => Transform.translate(offset: Offset(0, -5 * math.sin(_floatController.value * math.pi)), child: child),
@@ -437,7 +538,7 @@ class _CommunityPhotoTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: Stack(fit: StackFit.expand, children: [
           Image.asset(photo.assetPath, fit: BoxFit.cover, errorBuilder: (c, e, s) => Container(color: Colors.grey.shade200, child: const Icon(Icons.image, color: Colors.grey))),
-          Positioned(bottom: 8, left: 8, child: Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: Colors.black.withOpacity(0.6), borderRadius: BorderRadius.circular(20)), child: Text(photo.label, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500)))),
+          Positioned(bottom: 8, left: 8, child: Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.6), borderRadius: BorderRadius.circular(20)), child: Text(photo.label, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500)))),
         ]),
       ),
     );
@@ -451,7 +552,7 @@ class _RewardsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade100), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))]),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade100), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))]),
       child: Row(children: [
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [Icon(Icons.card_giftcard, size: 20, color: Color(0xFF0F6E56)), SizedBox(width: 10), Expanded(child: Text('Tích điểm xanh, đổi quà sạch', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis, maxLines: 1))]),
@@ -493,19 +594,60 @@ class _StatsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 1.1,
-      children: [
-        _StatCard(title: 'Chờ duyệt', value: stats.pending, iconBg: const [Color(0xFFFBBF24), Color(0xFFF59E0B)], icon: Icons.access_time_rounded),
-        _StatCard(title: 'Đang xử lý', value: stats.processing, iconBg: const [Color(0xFF60A5FA), Color(0xFF2563EB)], icon: Icons.local_shipping_rounded),
-        _StatCard(title: 'Từ chối', value: stats.rejected, iconBg: const [Color(0xFFF87171), Color(0xFFDC2626)], icon: Icons.close_rounded),
-        _StatCard(title: 'Tổng cộng', value: stats.total, iconBg: const [Color(0xFF34D399), Color(0xFF059669)], icon: Icons.eco_rounded),
-      ],
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cardWidth = isMobile ? (constraints.maxWidth - 18) / 2 : (constraints.maxWidth - 36) / 4;
+
+        return Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            SizedBox(
+              width: isMobile ? cardWidth : (constraints.maxWidth - 36) / 4,
+              child: _StatCard(
+                title: 'Chờ duyệt',
+                value: stats.pending,
+                iconBg: const [Color(0xFFFBBF24), Color(0xFFF59E0B)],
+                icon: Icons.access_time_rounded,
+                isCompact: isMobile,
+              ),
+            ),
+            SizedBox(
+              width: isMobile ? cardWidth : (constraints.maxWidth - 36) / 4,
+              child: _StatCard(
+                title: 'Đang xử lý',
+                value: stats.processing,
+                iconBg: const [Color(0xFF60A5FA), Color(0xFF2563EB)],
+                icon: Icons.local_shipping_rounded,
+                isCompact: isMobile,
+              ),
+            ),
+            SizedBox(
+              width: isMobile ? cardWidth : (constraints.maxWidth - 36) / 4,
+              child: _StatCard(
+                title: 'Từ chối',
+                value: stats.rejected,
+                iconBg: const [Color(0xFFF87171), Color(0xFFDC2626)],
+                icon: Icons.close_rounded,
+                isCompact: isMobile,
+              ),
+            ),
+            SizedBox(
+              width: isMobile ? cardWidth : (constraints.maxWidth - 36) / 4,
+              child: _StatCard(
+                title: 'Tổng cộng',
+                value: stats.total,
+                iconBg: const [Color(0xFF34D399), Color(0xFF059669)],
+                icon: Icons.eco_rounded,
+                isCompact: isMobile,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -515,24 +657,30 @@ class _StatCard extends StatelessWidget {
   final int value;
   final List<Color> iconBg;
   final IconData icon;
+  final bool isCompact;
 
   const _StatCard({
     required this.title,
     required this.value,
     required this.iconBg,
     required this.icon,
+    this.isCompact = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final iconSize = isCompact ? 32.0 : 42.0;
+    final iconChildSize = isCompact ? 28.0 : 22.0;
+    final padding = isCompact ? 10.0 : 14.0;
+
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 20,
             offset: const Offset(0, 8),
             spreadRadius: -2,
@@ -541,10 +689,11 @@ class _StatCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 42,
-            height: 42,
+            width: iconSize,
+            height: iconSize,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -554,20 +703,20 @@ class _StatCard extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: iconBg.last.withOpacity(0.4),
+                  color: iconBg.last.withValues(alpha: 0.4),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                   spreadRadius: -1,
                 ),
               ],
             ),
-            child: Icon(icon, color: Colors.white, size: 22),
+            child: Icon(icon, color: Colors.white, size: iconChildSize),
           ),
-          const Spacer(),
+          SizedBox(height: isCompact ? 8 : 12),
           Text(
             title,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: isCompact ? 10 : 12,
               color: Colors.grey.shade600,
               fontWeight: FontWeight.w500,
             ),
@@ -575,10 +724,10 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             '$value',
-            style: const TextStyle(
-              fontSize: 20,
+            style: TextStyle(
+              fontSize: isCompact ? 16 : 20,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF1E293B),
+              color: const Color(0xFF1E293B),
               height: 1.1,
             ),
           ),

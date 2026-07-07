@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:waste_collection_management_system/presentation/login/login_screen.dart';
 import 'package:waste_collection_management_system/presentation/home/home_screen.dart';
+import 'package:waste_collection_management_system/presentation/admin/admin_screen.dart';
+import 'package:waste_collection_management_system/presentation/enterprise/enterprise_screen.dart';
 import 'package:waste_collection_management_system/services/storage_service.dart';
+import 'package:waste_collection_management_system/data/constants/app_roles.dart';
 import 'package:geolocator/geolocator.dart';
 
 void main() async {
@@ -40,7 +43,7 @@ class WasteCollectionApp extends StatefulWidget {
 
 class _WasteCollectionAppState extends State<WasteCollectionApp> {
   bool _isChecking = true;
-  bool _hasValidToken = false;
+  UserProfile? _userProfile;
 
   @override
   void initState() {
@@ -50,11 +53,12 @@ class _WasteCollectionAppState extends State<WasteCollectionApp> {
 
   Future<void> _checkAuthToken() async {
     final storage = StorageService();
-    final token = await storage.getToken();
+    await storage.getToken(); // Check token exists
+    final profile = await storage.getUserProfile();
     
     if (mounted) {
       setState(() {
-        _hasValidToken = token != null && token.isNotEmpty;
+        _userProfile = profile;
         _isChecking = false;
       });
     }
@@ -106,9 +110,22 @@ class _WasteCollectionAppState extends State<WasteCollectionApp> {
       );
     }
 
-    // Navigate based on token status
-    if (_hasValidToken) {
-      return const HomeScreen();
+    // Navigate based on token and user role
+    if (_userProfile != null) {
+      // Check user roleId and navigate accordingly
+      // RoleId: 1=Citizen, 2=Enterprise, 3=Collector, 4=Admin
+      switch (_userProfile!.roleId) {
+        case AppRoles.admin:
+          return const AdminScreen();
+        case AppRoles.enterprise:
+          return const EnterpriseScreen();
+        case AppRoles.collector:
+          // TODO: Create CollectorScreen - using HomeScreen as placeholder
+          return const HomeScreen();
+        case AppRoles.citizen:
+        default:
+          return const HomeScreen();
+      }
     }
     return const LoginScreen();
   }

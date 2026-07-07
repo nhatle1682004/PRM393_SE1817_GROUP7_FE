@@ -1,6 +1,7 @@
 import 'package:waste_collection_management_system/config/api_config.dart';
 import 'package:waste_collection_management_system/services/api_service.dart';
 import 'package:waste_collection_management_system/services/storage_service.dart';
+import 'package:waste_collection_management_system/data/constants/app_roles.dart';
 
 class AuthService {
   final StorageService _storage = StorageService();
@@ -15,6 +16,7 @@ class AuthService {
     );
 
     final data = response.data as Map<String, dynamic>;
+    
     final token = data['token']?.toString();
     final user = data['user'] as Map<String, dynamic>?;
 
@@ -42,8 +44,8 @@ class AuthService {
       userId: 0,
       fullName: fullName,
       email: email,
-      roleId: 1,
-      roleName: 'User',
+      roleId: AppRoles.citizen,  // Default role for new registration
+      roleName: AppRoles.getRoleName(AppRoles.citizen),
     ));
   }
 
@@ -78,6 +80,10 @@ class AuthService {
 
   Future<void> logout() async {
     await _storage.clear();
+  }
+
+  static Future<UserProfile?> getProfile() async {
+    return await StorageService().getUserProfile();
   }
 
   // TODO: cập nhật khi BE có endpoint resend OTP riêng

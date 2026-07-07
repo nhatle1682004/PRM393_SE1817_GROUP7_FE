@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:waste_collection_management_system/presentation/home/home_screen.dart';
+import 'package:waste_collection_management_system/presentation/admin/admin_screen.dart';
+import 'package:waste_collection_management_system/presentation/enterprise/enterprise_screen.dart';
 import 'package:waste_collection_management_system/presentation/register/register_screen.dart';
 import 'package:waste_collection_management_system/services/auth_service.dart';
+import 'package:waste_collection_management_system/services/storage_service.dart';
+import 'package:waste_collection_management_system/data/constants/app_roles.dart';
 
 class RightPanelForm extends StatefulWidget {
   const RightPanelForm({super.key});
@@ -29,6 +33,49 @@ class _RightPanelFormState extends State<RightPanelForm> {
   void _clearError() {
     if (_errorMessage != null) {
       setState(() => _errorMessage = null);
+    }
+  }
+
+  void _handleLogin() async {
+    if (_isLoading) return;
+    _clearError();
+    if (_formKey.currentState!.validate()) {
+      setState(() => _isLoading = true);
+      try {
+        await _authService.login(
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
+        
+        if (mounted) {
+          // Get profile to check role
+          final storage = StorageService();
+          final profile = await storage.getUserProfile();
+
+          // Route based on role
+          Widget nextScreen;
+          if (profile != null && profile.roleId == AppRoles.admin) {
+            nextScreen = const AdminScreen();
+          } else if (profile != null && profile.roleId == AppRoles.enterprise) {
+            nextScreen = const EnterpriseScreen();
+          } else {
+            nextScreen = const HomeScreen();
+          }
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => nextScreen),
+          );
+        }
+      } catch (e) {
+        setState(() {
+          _errorMessage = e.toString().replaceFirst('Exception: ', '');
+        });
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
     }
   }
 
@@ -101,6 +148,8 @@ class _RightPanelFormState extends State<RightPanelForm> {
             TextFormField(
               controller: _passwordController,
               obscureText: _obscurePassword,
+              textInputAction: TextInputAction.done,
+              onFieldSubmitted: (_) => _handleLogin(),
               validator: (value) {
                 if (value == null || value.isEmpty) return 'Vui lòng nhập mật khẩu';
                 return null;
@@ -131,37 +180,10 @@ class _RightPanelFormState extends State<RightPanelForm> {
               width: double.infinity,
               height: 52,
               child: ElevatedButton(
-                onPressed: _isLoading
-                    ? null
-                    : () async {
-                        if (_formKey.currentState!.validate()) {
-                          _clearError();
-                          setState(() => _isLoading = true);
-                          try {
-                            await _authService.login(
-                              _emailController.text.trim(),
-                              _passwordController.text,
-                            );
-                            if (mounted) {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => const HomeScreen()),
-                              );
-                            }
-                          } catch (e) {
-                            setState(() {
-                              _errorMessage = e.toString().replaceFirst('Exception: ', '');
-                            });
-                          } finally {
-                            if (mounted) {
-                              setState(() => _isLoading = false);
-                            }
-                          }
-                        }
-                      },
+                onPressed: _isLoading ? null : _handleLogin,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xff10b981),
-                  disabledBackgroundColor: const Color(0xff10b981).withOpacity(0.7),
+                  disabledBackgroundColor: const Color(0xff10b981).withValues(alpha: 0.7),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   elevation: 0,
                 ),

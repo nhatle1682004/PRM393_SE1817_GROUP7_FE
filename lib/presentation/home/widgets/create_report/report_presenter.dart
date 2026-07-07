@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:camera/camera.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../services/api_service.dart';
 import '../../../../config/api_config.dart';
+import '../../../../data/models/waste_type.dart';
 import 'report_contract.dart';
 
 class ReportPresenterImpl implements ReportPresenter {
@@ -14,20 +16,52 @@ class ReportPresenterImpl implements ReportPresenter {
   XFile? _webImageFile;
   double? _lat, _lng;
   final ImagePicker _imagePicker = ImagePicker();
+  List<WasteType> _wasteTypes = [];
 
-  ReportPresenterImpl(this._view);
+  ReportPresenterImpl(this._view) {
+    _loadWasteTypes();
+  }
+
+  Future<void> _loadWasteTypes() async {
+    try {
+      final data = await ApiService.getWasteTypes();
+      if (data.isNotEmpty) {
+        _wasteTypes = data.map((e) => WasteType.fromJson(e)).toList();
+      } else {
+        _wasteTypes = _getDefaultWasteTypes();
+      }
+      _view.onWasteTypesLoaded(_wasteTypes);
+    } catch (e) {
+      // API thất bại - vẫn cố gắng parse dữ liệu trả về
+      _wasteTypes = _getDefaultWasteTypes();
+      _view.onWasteTypesLoaded(_wasteTypes);
+    }
+  }
+
+  List<WasteType> _getDefaultWasteTypes() {
+    return [
+      WasteType(id: 1, name: 'Organic', nameVi: 'Hữu cơ', icon: Icons.eco, color: const Color(0xFFEF4444)),
+      WasteType(id: 2, name: 'Plastic', nameVi: 'Nhựa', icon: Icons.local_drink, color: const Color(0xFF3B82F6)),
+      WasteType(id: 3, name: 'Paper', nameVi: 'Giấy', icon: Icons.description, color: const Color(0xFFF59E0B)),
+      WasteType(id: 4, name: 'Metal', nameVi: 'Kim loại', icon: Icons.hardware, color: const Color(0xFF8B5CF6)),
+      WasteType(id: 5, name: 'Glass', nameVi: 'Thủy tinh', icon: Icons.wine_bar, color: const Color(0xFF10B981)),
+      WasteType(id: 6, name: 'E-Waste', nameVi: 'Điện tử', icon: Icons.memory, color: const Color(0xFF6366F1)),
+      WasteType(id: 7, name: 'Hazardous', nameVi: 'Nguy hại', icon: Icons.warning, color: const Color(0xFFDC2626)),
+      WasteType(id: 8, name: 'Other', nameVi: 'Khác', icon: Icons.more_horiz, color: const Color(0xFF6B7280)),
+    ];
+  }
 
   @override
-  void toggleWasteType(String type) {
+  void toggleWasteType(String typeNameVi) {
     bool isSelected;
-    if (_selectedTypes.contains(type)) {
-      _selectedTypes.remove(type);
+    if (_selectedTypes.contains(typeNameVi)) {
+      _selectedTypes.remove(typeNameVi);
       isSelected = false;
     } else {
-      _selectedTypes.add(type);
+      _selectedTypes.add(typeNameVi);
       isSelected = true;
     }
-    _view.onWasteTypeToggled(type, isSelected);
+    _view.onWasteTypeToggled(typeNameVi, isSelected);
   }
 
   @override
@@ -137,7 +171,7 @@ class ReportPresenterImpl implements ReportPresenter {
         return;
       }
 
-      _view.onSubmitting(true);
+      _view.onLocationLoading(true);
       final Position position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
@@ -146,14 +180,14 @@ class ReportPresenterImpl implements ReportPresenter {
       );
       _lat = position.latitude;
       _lng = position.longitude;
-      _view.onLocationUpdated(_lat!, _lng!);
+      _view.onLocationUpdated(_lat!, _lng!, null);
     } catch (e) {
       // Fallback to default location if GPS fails
       _lat = 10.776889;
       _lng = 106.700806;
-      _view.onLocationUpdated(_lat!, _lng!);
+      _view.onLocationUpdated(_lat!, _lng!, null);
     } finally {
-      _view.onSubmitting(false);
+      _view.onLocationLoading(false);
     }
   }
 
@@ -177,10 +211,15 @@ class ReportPresenterImpl implements ReportPresenter {
     _view.onSubmitting(true);
 
     try {
-      // Map waste type names to IDs (in real app, this should come from API)
-      final wasteTypeIds = _mapWasteTypeNamesToIds(_selectedTypes.toList());
+      // Chuyển đổi tên loại rác (đang ở dạng tiếng Việt) sang ID dựa trên dữ liệu đã tải
+      final wasteTypeIds = _selectedTypes.map((nameVi) {
+        final type = _wasteTypes.firstWhere(
+          (t) => t.nameVi == nameVi || t.name == nameVi,
+          orElse: () => _wasteTypes.first,
+        );
+        return type.id;
+      }).toList();
 
-      // Call API with multipart form data
       final response = await ApiService.uploadMultipart(
         ApiConfig.wasteReports,
         imageFile: _imageFile,
@@ -192,36 +231,63 @@ class ReportPresenterImpl implements ReportPresenter {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        _view.onSuccess("Báo cáo đã được gửi thành công!");
+        _selectedTypes.clear(); // Reset dữ liệu trong presenter
+        _imageFile = null;
+        _webImageFile = null;
+        _lat = null;
+        _lng = null;
+        
+        _view.onSuccess("Báo cáo của bạn đã được gửi thành công!");
       } else {
-        _view.onError("Gửi báo cáo thất bại");
+        _view.onError("Gửi báo cáo thất bại (${response.statusCode})");
       }
     } catch (e) {
-      _view.onError("Lỗi khi gửi báo cáo: ${e.toString()}");
+      print('Submit report error: $e');
+      _view.onError("Lỗi khi gửi báo cáo: $e");
     } finally {
       _view.onSubmitting(false);
     }
   }
 
   List<int> _mapWasteTypeNamesToIds(List<String> names) {
-    // This is a mapping based on common waste types
-    // In production, this should come from API or be configured
+    // Mapping theo thứ tự ID trong database backend
     final Map<String, int> wasteTypeMapping = {
-      'Nhựa': 1,
-      'Plastic': 1,
-      'Giấy': 2,
-      'Paper': 2,
-      'Kim loại': 3,
-      'Metal': 3,
-      'Thủy tinh': 4,
-      'Glass': 4,
-      'Hữu cơ': 5,
-      'Organic': 5,
+      'Hữu cơ': 1,
+      'Organic': 1,
+      'Nhựa': 2,
+      'Plastic': 2,
+      'Giấy': 3,
+      'Paper': 3,
+      'Kim loại': 4,
+      'Metal': 4,
+      'Thủy tinh': 5,
+      'Glass': 5,
       'Điện tử': 6,
       'E-Waste': 6,
+      'Electronic': 6,
+      'Nguy hại': 7,
+      'Hazardous': 7,
+      'Khác': 8,
+      'Other': 8,
     };
 
     return names.map((name) => wasteTypeMapping[name] ?? 1).toList();
+  }
+
+  @override
+  void onLocationSelected(double lat, double lng) {
+    _lat = lat;
+    _lng = lng;
+    _view.onLocationUpdated(_lat!, _lng!, null);
+  }
+
+  @override
+  void resetForm() {
+    _selectedTypes.clear();
+    _imageFile = null;
+    _webImageFile = null;
+    _lat = null;
+    _lng = null;
   }
 
   @override

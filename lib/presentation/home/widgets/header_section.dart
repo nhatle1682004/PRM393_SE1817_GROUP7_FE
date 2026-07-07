@@ -75,7 +75,7 @@ class _HeaderSectionState extends State<HeaderSection> {
         border: Border(bottom: BorderSide(color: const Color(0xffe2e8f0), width: 1)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xff0f172a).withOpacity(0.02),
+            color: const Color(0xff0f172a).withValues(alpha: 0.02),
             blurRadius: 12,
             offset: const Offset(0, 4),
           )

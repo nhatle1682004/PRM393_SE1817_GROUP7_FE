@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../../../data/models/waste_type.dart';
 
 class PhotoCard extends StatelessWidget {
   final bool isMobile;
@@ -8,6 +9,7 @@ class PhotoCard extends StatelessWidget {
   final Set<String> selectedTypes;
   final VoidCallback onPickImage;
   final void Function(String) onToggleWasteType;
+  final List<WasteType> wasteTypes;
 
   const PhotoCard({
     super.key,
@@ -17,6 +19,7 @@ class PhotoCard extends StatelessWidget {
     required this.selectedTypes,
     required this.onPickImage,
     required this.onToggleWasteType,
+    this.wasteTypes = const [],
   });
 
   @override
@@ -29,7 +32,7 @@ class PhotoCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +43,7 @@ class PhotoCard extends StatelessWidget {
           SizedBox(height: isMobile ? 16 : 24),
           _buildSectionTitle(Icons.category, 'Loại rác thải'),
           SizedBox(height: isMobile ? 12 : 16),
-          WasteTypeChips(selectedTypes: selectedTypes, onToggle: onToggleWasteType),
+          WasteTypeChips(selectedTypes: selectedTypes, onToggle: onToggleWasteType, wasteTypes: wasteTypes),
           const SizedBox(height: 6),
           Text('Chọn loại rác thải có trong hình ảnh', style: TextStyle(color: Colors.grey.shade500, fontSize: isMobile ? 11 : 12, fontStyle: FontStyle.italic)),
         ],
@@ -65,7 +68,7 @@ class PhotoCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF059669).withOpacity(0.3), width: 2, strokeAlign: BorderSide.strokeAlignInside),
+          border: Border.all(color: const Color(0xFF059669).withValues(alpha: 0.3), width: 2, strokeAlign: BorderSide.strokeAlignInside),
         ),
         child: hasImage ? _buildImagePreview() : _buildUploadPlaceholder(iconSize),
       ),
@@ -81,7 +84,7 @@ class PhotoCard extends StatelessWidget {
   );
 
   Widget _buildUploadPlaceholder(double iconSize) => Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-    Container(padding: EdgeInsets.all(isMobile ? 14 : 16), decoration: BoxDecoration(color: const Color(0xFF059669).withOpacity(0.1), shape: BoxShape.circle), child: Icon(Icons.cloud_upload_outlined, color: const Color(0xFF059669).withOpacity(0.7), size: iconSize)),
+    Container(padding: EdgeInsets.all(isMobile ? 14 : 16), decoration: BoxDecoration(color: const Color(0xFF059669).withValues(alpha: 0.1), shape: BoxShape.circle), child: Icon(Icons.cloud_upload_outlined, color: const Color(0xFF059669).withValues(alpha: 0.7), size: iconSize)),
     const SizedBox(height: 14),
     Text('Nhấn để tải lên hình ảnh', style: TextStyle(color: Colors.grey.shade500, fontSize: isMobile ? 14 : 15, fontWeight: FontWeight.w500)),
     const SizedBox(height: 6),
@@ -92,37 +95,52 @@ class PhotoCard extends StatelessWidget {
 class WasteTypeChips extends StatelessWidget {
   final Set<String> selectedTypes;
   final void Function(String) onToggle;
+  final List<WasteType> wasteTypes;
 
-  const WasteTypeChips({super.key, required this.selectedTypes, required this.onToggle});
-
-  static const _wasteTypes = [
-    ('Nhựa', Icons.local_drink, Color(0xFF3B82F6)),
-    ('Giấy', Icons.description, Color(0xFFF59E0B)),
-    ('Kim loại', Icons.hardware, Color(0xFF8B5CF6)),
-    ('Thủy tinh', Icons.wine_bar, Color(0xFF10B981)),
-    ('Hữu cơ', Icons.eco, Color(0xFFEF4444)),
-    ('Điện tử', Icons.memory, Color(0xFF6366F1)),
-  ];
+  const WasteTypeChips({
+    super.key,
+    required this.selectedTypes,
+    required this.onToggle,
+    this.wasteTypes = const [],
+  });
 
   @override
-  Widget build(BuildContext context) => Wrap(spacing: 10, runSpacing: 10, children: _wasteTypes.map((type) {
-    final isSelected = selectedTypes.contains(type.$1);
+  Widget build(BuildContext context) {
+    // Nếu chưa load xong hoặc list rỗng, hiển thị placeholder
+    if (wasteTypes.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Text(
+          'Đang tải loại rác...',
+          style: TextStyle(color: Colors.grey.shade500, fontStyle: FontStyle.italic),
+        ),
+      );
+    }
+    
+    // Dùng data từ API
+    return Wrap(spacing: 10, runSpacing: 10, children: wasteTypes.map((type) {
+      final isSelected = selectedTypes.contains(type.nameVi);
+      return _buildChip(type.nameVi, type.icon ?? Icons.delete_outline, type.color ?? const Color(0xFF6B7280), isSelected);
+    }).toList());
+  }
+
+  Widget _buildChip(String label, IconData icon, Color color, bool isSelected) {
     return GestureDetector(
-      onTap: () => onToggle(type.$1),
+      onTap: () => onToggle(label),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? type.$3.withOpacity(0.1) : const Color(0xFFF8FAFC),
+          color: isSelected ? color.withValues(alpha: 0.1) : const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? type.$3 : Colors.grey.shade300, width: isSelected ? 2 : 1),
+          border: Border.all(color: isSelected ? color : Colors.grey.shade300, width: isSelected ? 2 : 1),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(type.$2, color: isSelected ? type.$3 : Colors.grey.shade500, size: 18),
+          Icon(icon, color: isSelected ? color : Colors.grey.shade500, size: 18),
           const SizedBox(width: 8),
-          Text(type.$1, style: TextStyle(color: isSelected ? type.$3 : Colors.grey.shade600, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500, fontSize: 14)),
+          Text(label, style: TextStyle(color: isSelected ? color : Colors.grey.shade600, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500, fontSize: 14)),
         ]),
       ),
     );
-  }).toList());
+  }
 }

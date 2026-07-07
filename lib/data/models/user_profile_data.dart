@@ -102,15 +102,22 @@ class UserProfileData {
   String get roleName {
     switch (roleId) {
       case 1:
-        return 'User';
+        return 'Citizen';
       case 2:
-        return 'Admin';
-      case 3:
         return 'Collector';
+      case 3:
+        return 'Enterprise';
+      case 4:
+        return 'Admin';
       default:
         return 'Unknown';
     }
   }
+
+  bool get isCitizen => roleId == 1;
+  bool get isCollector => roleId == 2;
+  bool get isEnterprise => roleId == 3;
+  bool get isAdmin => roleId == 4;
 
   String get initials {
     if (fullName.isEmpty) return 'U';
