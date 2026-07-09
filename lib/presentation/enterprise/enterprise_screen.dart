@@ -464,12 +464,10 @@ class _EnterpriseScreenState extends State<EnterpriseScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF10B981), Color(0xFF059669)],
-              ),
+              color: const Color(0xFFDCFCE7),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.eco, color: Colors.white, size: 26),
+            child: const Icon(Icons.eco, color: Color(0xFF10B981), size: 26),
           ),
           const SizedBox(width: 14),
           const Expanded(
@@ -477,11 +475,11 @@ class _EnterpriseScreenState extends State<EnterpriseScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'EcoWaste',
+                  'Waste Collection',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF1A1A2E),
+                    color: Color(0xFF0F172A),
                     letterSpacing: -0.5,
                   ),
                 ),

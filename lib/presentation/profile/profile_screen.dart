@@ -164,6 +164,68 @@ class _ProfileScreenState extends State<ProfileScreen> implements ProfileView {
     );
   }
 
+  void _showEditProfileDialog() {
+    if (_profile == null) return;
+
+    final nameController = TextEditingController(text: _profile!.fullName);
+    final phoneController = TextEditingController(text: _profile!.phone ?? '');
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Chỉnh sửa thông tin', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'Họ và tên',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.person),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: phoneController,
+              decoration: const InputDecoration(
+                labelText: 'Số điện thoại',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.phone),
+              ),
+              keyboardType: TextInputType.phone,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Hủy bỏ', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final updated = _profile!.copyWith(
+                fullName: nameController.text.trim(),
+                phone: phoneController.text.trim(),
+              );
+              _presenter.updateProfile(updated);
+              Navigator.pop(dialogContext);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Đang cập nhật thông tin...')),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xff10b981),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Lưu thay đổi'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -446,33 +508,36 @@ class _ProfileScreenState extends State<ProfileScreen> implements ProfileView {
   }
 
   Widget _buildEditButton() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xff10b981),
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xff10b981).withValues(alpha: 0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.edit_outlined, color: Colors.white, size: 16),
-          SizedBox(width: 8),
-          Text(
-            'Chỉnh sửa',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
+    return GestureDetector(
+      onTap: _showEditProfileDialog,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xff10b981),
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xff10b981).withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.edit_outlined, color: Colors.white, size: 16),
+            SizedBox(width: 8),
+            Text(
+              'Chỉnh sửa',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

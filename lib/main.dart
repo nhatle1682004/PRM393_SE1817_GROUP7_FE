@@ -4,6 +4,7 @@ import 'package:waste_collection_management_system/presentation/login/login_scre
 import 'package:waste_collection_management_system/presentation/home/home_screen.dart';
 import 'package:waste_collection_management_system/presentation/admin/admin_screen.dart';
 import 'package:waste_collection_management_system/presentation/enterprise/enterprise_screen.dart';
+import 'package:waste_collection_management_system/presentation/collector/collector_screen.dart';
 import 'package:waste_collection_management_system/services/storage_service.dart';
 import 'package:waste_collection_management_system/data/constants/app_roles.dart';
 import 'package:geolocator/geolocator.dart';
@@ -120,8 +121,7 @@ class _WasteCollectionAppState extends State<WasteCollectionApp> {
         case AppRoles.enterprise:
           return const EnterpriseScreen();
         case AppRoles.collector:
-          // TODO: Create CollectorScreen - using HomeScreen as placeholder
-          return const HomeScreen();
+          return const CollectorScreen();
         case AppRoles.citizen:
         default:
           return const HomeScreen();

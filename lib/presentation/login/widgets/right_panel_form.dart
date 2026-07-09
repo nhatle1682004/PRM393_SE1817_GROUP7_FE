@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:waste_collection_management_system/presentation/home/home_screen.dart';
 import 'package:waste_collection_management_system/presentation/admin/admin_screen.dart';
 import 'package:waste_collection_management_system/presentation/enterprise/enterprise_screen.dart';
+import 'package:waste_collection_management_system/presentation/collector/collector_screen.dart';
 import 'package:waste_collection_management_system/presentation/register/register_screen.dart';
 import 'package:waste_collection_management_system/services/auth_service.dart';
 import 'package:waste_collection_management_system/services/storage_service.dart';
@@ -63,6 +64,9 @@ class _RightPanelFormState extends State<RightPanelForm> {
           } else if (profile != null && profile.roleId == AppRoles.enterprise) {
             debugPrint('Navigating to EnterpriseScreen');
             nextScreen = const EnterpriseScreen();
+          } else if (profile != null && profile.roleId == AppRoles.collector) {
+            debugPrint('Navigating to CollectorScreen');
+            nextScreen = const CollectorScreen();
           } else {
             debugPrint('Navigating to HomeScreen (default)');
             nextScreen = const HomeScreen();

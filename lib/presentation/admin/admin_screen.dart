@@ -281,8 +281,8 @@ class _AdminScreenState extends State<AdminScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Waste Admin',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                  'Waste Collection',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
                 ),
                 Text(
                   'Hệ thống quản lý',
@@ -395,8 +395,8 @@ class _AdminScreenState extends State<AdminScreen> {
                 ),
                 const SizedBox(height: 12),
                 const Text(
-                  'Waste Admin',
-                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  'Waste Collection',
+                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
                 ),
                 const Text(
                   'Hệ thống quản lý',

@@ -17,17 +17,26 @@ class _EnterpriseProfileViewState extends State<EnterpriseProfileView> implement
   late ProfilePresenter _presenter;
   UserProfileData? _profile;
   bool _isLoading = false;
+  bool _isEditing = false;
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _presenter = ProfilePresenterImpl(this);
     _presenter.loadProfile();
+    _nameController.addListener(() {
+      if (_isEditing) setState(() {});
+    });
   }
 
   @override
   void dispose() {
     _presenter.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -36,6 +45,9 @@ class _EnterpriseProfileViewState extends State<EnterpriseProfileView> implement
     if (mounted) {
       setState(() {
         _profile = profile;
+        _nameController.text = profile.fullName;
+        _phoneController.text = profile.phone ?? '';
+        _isEditing = false;
       });
     }
   }
@@ -246,9 +258,9 @@ class _EnterpriseProfileViewState extends State<EnterpriseProfileView> implement
                     ),
                   ),
                   const Divider(height: 1, color: Color(0xfff1f5f9)),
-                  _buildFormRow('Họ', 'Hoàng', isWide),
+                  _buildFormRow('Họ và tên', _profile?.fullName ?? '', isWide, controller: _nameController),
                   _buildDivider(),
-                  _buildFormRow('Tên', 'Lệ', isWide),
+                  _buildFormRow('Số điện thoại', _profile?.phone ?? 'Chưa cập nhật', isWide, controller: _phoneController),
                   _buildDivider(),
                   _buildFormRow('Email', _profile?.email ?? 'lehoang712004@gmail.com', isWide),
                 ],
@@ -281,6 +293,7 @@ class _EnterpriseProfileViewState extends State<EnterpriseProfileView> implement
   }
 
   Widget _buildDesktopAvatarSection() {
+    final displayName = _isEditing ? _nameController.text : (_profile?.fullName ?? 'hoang nhat le');
     return Row(
       children: [
         Container(
@@ -299,7 +312,7 @@ class _EnterpriseProfileViewState extends State<EnterpriseProfileView> implement
           ),
           child: Center(
             child: Text(
-              _getInitials(_profile?.fullName ?? 'hoang nhat le'),
+              _getInitials(displayName),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 32,
@@ -315,7 +328,7 @@ class _EnterpriseProfileViewState extends State<EnterpriseProfileView> implement
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _profile?.fullName ?? 'hoang nhat le',
+                displayName,
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -350,12 +363,12 @@ class _EnterpriseProfileViewState extends State<EnterpriseProfileView> implement
             ],
           ),
         ),
-        _buildEditButton(true),
       ],
     );
   }
 
   Widget _buildMobileAvatarSection() {
+    final displayName = _isEditing ? _nameController.text : (_profile?.fullName ?? 'hoang nhat le');
     return Column(
       children: [
         Container(
@@ -374,7 +387,7 @@ class _EnterpriseProfileViewState extends State<EnterpriseProfileView> implement
           ),
           child: Center(
             child: Text(
-              _getInitials(_profile?.fullName ?? 'hoang nhat le'),
+              _getInitials(displayName),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 26,
@@ -386,7 +399,7 @@ class _EnterpriseProfileViewState extends State<EnterpriseProfileView> implement
         ),
         const SizedBox(height: 16),
         Text(
-          _profile?.fullName ?? 'hoang nhat le',
+          displayName,
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -418,40 +431,54 @@ class _EnterpriseProfileViewState extends State<EnterpriseProfileView> implement
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        _buildEditButton(false),
       ],
     );
   }
 
   Widget _buildEditButton(bool isWide) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: isWide ? 18 : 14, vertical: isWide ? 10 : 8),
-      decoration: BoxDecoration(
-        color: const Color(0xff10b981),
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xff10b981).withValues(alpha: 0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.edit_outlined, color: Colors.white, size: isWide ? 16 : 14),
-          const SizedBox(width: 6),
-          Text(
-            'Chỉnh sửa',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: isWide ? 14 : 12,
+    return GestureDetector(
+      onTap: () {
+        if (_isEditing) {
+          if (_profile == null) return;
+          final updated = _profile!.copyWith(
+            fullName: _nameController.text.trim(),
+            phone: _phoneController.text.trim(),
+          );
+          _presenter.updateProfile(updated);
+        } else {
+          setState(() {
+            _isEditing = true;
+          });
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: isWide ? 18 : 14, vertical: isWide ? 10 : 8),
+        decoration: BoxDecoration(
+          color: const Color(0xff10b981),
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xff10b981).withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(_isEditing ? Icons.check_circle_outline : Icons.edit_outlined, color: Colors.white, size: isWide ? 16 : 14),
+            const SizedBox(width: 6),
+            Text(
+              _isEditing ? 'Cập nhật' : 'Chỉnh sửa',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: isWide ? 14 : 12,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -521,7 +548,7 @@ class _EnterpriseProfileViewState extends State<EnterpriseProfileView> implement
     );
   }
 
-  Widget _buildFormRow(String label, String value, bool isWide) {
+  Widget _buildFormRow(String label, String value, bool isWide, {TextEditingController? controller}) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: isWide ? 28 : 20, vertical: isWide ? 18 : 14),
       child: Row(
@@ -538,14 +565,28 @@ class _EnterpriseProfileViewState extends State<EnterpriseProfileView> implement
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                color: Color(0xff1e293b),
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: _isEditing && controller != null
+                ? TextField(
+                    controller: controller,
+                    style: const TextStyle(
+                      color: Color(0xff1e293b),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(vertical: 8),
+                      border: UnderlineInputBorder(),
+                    ),
+                  )
+                : Text(
+                    value,
+                    style: const TextStyle(
+                      color: Color(0xff1e293b),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
           ),
         ],
       ),
