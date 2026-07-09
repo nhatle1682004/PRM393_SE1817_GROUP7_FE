@@ -225,6 +225,31 @@ public sealed class CollectionRequestService : ICollectionRequestService
         return true;
     }
 
+    public async Task SoftDeleteCollectorAsync(int collectorId, int enterpriseId)
+    {
+        var collector = await _identityClient.GetCollectorAsync(collectorId);
+        if (collector == null || collector.EnterpriseId != enterpriseId)
+            throw new InvalidOperationException("Collector không tồn tại hoặc không thuộc quản lý của bạn");
+
+        // Kiểm tra xem có lịch thu gom nào chưa hoàn thành không
+        var openAssignmentsCount = await _uow.CollectorAssignments.CountOpenAssignmentsByCollectorAsync(collectorId);
+        if (openAssignmentsCount > 0)
+        {
+            throw new InvalidOperationException("Không thể tạm dừng nhân viên đang có lịch thu gom chưa hoàn thành.");
+        }
+
+        await _identityClient.SoftDeleteUserAsync(collectorId);
+    }
+
+    public async Task ReactivateCollectorAsync(int collectorId, int enterpriseId)
+    {
+        var collector = await _identityClient.GetCollectorAsync(collectorId);
+        if (collector == null || collector.EnterpriseId != enterpriseId)
+            throw new InvalidOperationException("Collector không tồn tại hoặc không thuộc quản lý của bạn");
+
+        await _identityClient.ReactivateUserAsync(collectorId);
+    }
+
     private async Task<PublicCollectionRequestDto> MapListDtoAsync(CollectionRequest request)
     {
         var report = await _wasteClient.GetReportAsync(request.ReportId);
@@ -301,7 +326,8 @@ public sealed class CollectionRequestService : ICollectionRequestService
         {
             var collector = await _identityClient.GetUserAsync(a.AssignedCollector);
             var assignedBy = await _identityClient.GetUserAsync(a.AssignedBy);
-            result.Add(new AssignmentHistoryDto
+
+            var historyItem = new AssignmentHistoryDto
             {
                 AssignmentId = a.AssignmentId,
                 AssignedCollector = a.AssignedCollector,
@@ -310,8 +336,36 @@ public sealed class CollectionRequestService : ICollectionRequestService
                 AssignedBy = a.AssignedBy,
                 AssignedByName = assignedBy?.FullName,
                 Status = a.Status,
-                AssignedAt = a.AssignedAt
-            });
+                AssignedAt = a.AssignedAt,
+                StartedAt = a.StartedAt,
+                ArrivedAt = a.ArrivedAt,
+                BeforeImageUrl = a.BeforeImageUrl
+            };
+
+            if (a.CollectionConfirmation != null)
+            {
+                historyItem.CompletedAt = a.CollectionConfirmation.ConfirmedAt;
+                historyItem.AfterImageUrl = a.CollectionConfirmation.AfterImageUrl;
+                historyItem.ConfirmationNote = a.CollectionConfirmation.Note;
+
+                if (a.CollectionConfirmation.CollectionDetails != null)
+                {
+                    var details = new List<CollectionDetailHistoryDto>();
+                    foreach (var d in a.CollectionConfirmation.CollectionDetails)
+                    {
+                        var wasteType = await _wasteClient.GetWasteTypeAsync(d.WasteTypeId);
+                        details.Add(new CollectionDetailHistoryDto
+                        {
+                            WasteTypeId = d.WasteTypeId,
+                            WasteTypeName = wasteType?.Name ?? "Unknown",
+                            ActualWeight = (decimal)d.ActualWeight
+                        });
+                    }
+                    historyItem.CollectionDetails = details;
+                }
+            }
+
+            result.Add(historyItem);
         }
         return result;
     }
