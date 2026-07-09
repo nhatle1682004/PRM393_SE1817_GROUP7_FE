@@ -164,11 +164,14 @@ class EnterpriseCollector {
   final String? email;
   final String? phone;
   final bool isAvailable;
+  final String status;
   final int warningCount;
   final DateTime? availabilityUpdatedAt;
   final DateTime? createdAt;
   final int completedCount;
   final int totalAssignments;
+
+  final int? managedDistrictId;
 
   EnterpriseCollector({
     required this.collectorId,
@@ -176,11 +179,13 @@ class EnterpriseCollector {
     this.email,
     this.phone,
     this.isAvailable = false,
+    this.status = 'Active',
     this.warningCount = 0,
     this.availabilityUpdatedAt,
     this.createdAt,
     this.completedCount = 0,
     this.totalAssignments = 0,
+    this.managedDistrictId,
   });
 
   factory EnterpriseCollector.fromJson(Map<String, dynamic>? json) {
@@ -198,6 +203,7 @@ class EnterpriseCollector {
       email: json['email'],
       phone: json['phone'] ?? json['phoneNumber'],
       isAvailable: json['isAvailable'] ?? false,
+      status: json['status'] ?? 'Active',
       warningCount: _toInt(json['warningCount']),
       availabilityUpdatedAt: json['availabilityUpdatedAt'] != null
           ? DateTime.tryParse(json['availabilityUpdatedAt'].toString())
@@ -207,6 +213,9 @@ class EnterpriseCollector {
           : null,
       completedCount: _toInt(json['completedCount']),
       totalAssignments: _toInt(json['totalAssignments']),
+      managedDistrictId: json['managedDistrictId'] is int 
+          ? json['managedDistrictId'] 
+          : int.tryParse(json['managedDistrictId']?.toString() ?? ''),
     );
   }
 
@@ -216,12 +225,92 @@ class EnterpriseCollector {
     'email': email,
     'phone': phone,
     'isAvailable': isAvailable,
+    'status': status,
     'warningCount': warningCount,
     'availabilityUpdatedAt': availabilityUpdatedAt?.toIso8601String(),
     'createdAt': createdAt?.toIso8601String(),
     'completedCount': completedCount,
     'totalAssignments': totalAssignments,
+    'managedDistrictId': managedDistrictId,
   };
+
+  EnterpriseCollector copyWith({
+    int? collectorId,
+    String? fullName,
+    String? email,
+    String? phone,
+    bool? isAvailable,
+    String? status,
+    int? warningCount,
+    DateTime? availabilityUpdatedAt,
+    DateTime? createdAt,
+    int? completedCount,
+    int? totalAssignments,
+    int? managedDistrictId,
+  }) {
+    return EnterpriseCollector(
+      collectorId: collectorId ?? this.collectorId,
+      fullName: fullName ?? this.fullName,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      isAvailable: isAvailable ?? this.isAvailable,
+      status: status ?? this.status,
+      warningCount: warningCount ?? this.warningCount,
+      availabilityUpdatedAt: availabilityUpdatedAt ?? this.availabilityUpdatedAt,
+      createdAt: createdAt ?? this.createdAt,
+      completedCount: completedCount ?? this.completedCount,
+      totalAssignments: totalAssignments ?? this.totalAssignments,
+      managedDistrictId: managedDistrictId ?? this.managedDistrictId,
+    );
+  }
+}
+
+class CreateCollectorRequest {
+  final String email;
+  final String password;
+  final String fullName;
+  final String phone;
+  final int? managedDistrictId;
+
+  CreateCollectorRequest({
+    required this.email,
+    required this.password,
+    required this.fullName,
+    required this.phone,
+    this.managedDistrictId,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'email': email,
+        'password': password,
+        'fullName': fullName,
+        'phone': phone,
+        'managedDistrictId': managedDistrictId,
+      };
+}
+
+class UpdateCollectorRequest {
+  final String fullName;
+  final String email;
+  final String phone;
+  final String status;
+  final int? managedDistrictId;
+
+  UpdateCollectorRequest({
+    required this.fullName,
+    required this.email,
+    required this.phone,
+    required this.status,
+    this.managedDistrictId,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'fullName': fullName,
+        'email': email,
+        'phone': phone,
+        'status': status,
+        'managedDistrictId': managedDistrictId,
+      };
 }
 
 // ============ COLLECTION REQUEST - matches CollectionRequestDto ============
@@ -404,6 +493,7 @@ class WasteReportInfo {
   final String? description;
   final String? status;
   final DateTime? createdAt;
+  final List<AiPredictionDto> aiPredictions;
 
   WasteReportInfo({
     required this.reportId,
@@ -418,6 +508,7 @@ class WasteReportInfo {
     this.description,
     this.status,
     this.createdAt,
+    this.aiPredictions = const [],
   });
 
   factory WasteReportInfo.fromJson(Map<String, dynamic>? json) {
@@ -450,12 +541,33 @@ class WasteReportInfo {
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'].toString())
           : null,
+      aiPredictions: json['aiPredictions'] != null
+          ? (json['aiPredictions'] as List).map((e) => AiPredictionDto.fromJson(e)).toList()
+          : [],
     );
   }
 
   String get location => (latitude != null && longitude != null)
       ? '${latitude!.toStringAsFixed(4)}, ${longitude!.toStringAsFixed(4)}'
       : 'Chưa có vị trí';
+}
+
+class AiPredictionDto {
+  final String? suggestedType;
+  final double? confidence;
+
+  AiPredictionDto({
+    this.suggestedType,
+    this.confidence,
+  });
+
+  factory AiPredictionDto.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return AiPredictionDto();
+    return AiPredictionDto(
+      suggestedType: json['suggestedType'],
+      confidence: (json['confidence'] as num?)?.toDouble(),
+    );
+  }
 }
 
 // ============ ASSIGNMENT - matches AssignmentDto ============
@@ -592,6 +704,13 @@ class AssignmentHistoryDto {
   final String? assignedByName;
   final String? status;
   final DateTime? assignedAt;
+  final DateTime? startedAt;
+  final DateTime? arrivedAt;
+  final DateTime? completedAt;
+  final String? beforeImageUrl;
+  final String? afterImageUrl;
+  final String? confirmationNote;
+  final List<CollectionDetailHistoryDto>? collectionDetails;
 
   AssignmentHistoryDto({
     required this.assignmentId,
@@ -602,6 +721,13 @@ class AssignmentHistoryDto {
     this.assignedByName,
     this.status,
     this.assignedAt,
+    this.startedAt,
+    this.arrivedAt,
+    this.completedAt,
+    this.beforeImageUrl,
+    this.afterImageUrl,
+    this.confirmationNote,
+    this.collectionDetails,
   });
 
   factory AssignmentHistoryDto.fromJson(Map<String, dynamic>? json) {
@@ -627,9 +753,37 @@ class AssignmentHistoryDto {
       assignedBy: _toInt(json['assignedBy']),
       assignedByName: json['assignedByName'],
       status: json['status'],
-      assignedAt: json['assignedAt'] != null
-          ? DateTime.tryParse(json['assignedAt'].toString())
+      assignedAt: json['assignedAt'] != null ? DateTime.tryParse(json['assignedAt'].toString()) : null,
+      startedAt: json['startedAt'] != null ? DateTime.tryParse(json['startedAt'].toString()) : null,
+      arrivedAt: json['arrivedAt'] != null ? DateTime.tryParse(json['arrivedAt'].toString()) : null,
+      completedAt: json['completedAt'] != null ? DateTime.tryParse(json['completedAt'].toString()) : null,
+      beforeImageUrl: json['beforeImageUrl'],
+      afterImageUrl: json['afterImageUrl'],
+      confirmationNote: json['confirmationNote'],
+      collectionDetails: json['collectionDetails'] != null
+          ? (json['collectionDetails'] as List).map((e) => CollectionDetailHistoryDto.fromJson(e)).toList()
           : null,
+    );
+  }
+}
+
+class CollectionDetailHistoryDto {
+  final int wasteTypeId;
+  final String? wasteTypeName;
+  final double actualWeight;
+
+  CollectionDetailHistoryDto({
+    required this.wasteTypeId,
+    this.wasteTypeName,
+    required this.actualWeight,
+  });
+
+  factory CollectionDetailHistoryDto.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return CollectionDetailHistoryDto(wasteTypeId: 0, actualWeight: 0);
+    return CollectionDetailHistoryDto(
+      wasteTypeId: json['wasteTypeId'] ?? 0,
+      wasteTypeName: json['wasteTypeName'],
+      actualWeight: (json['actualWeight'] ?? 0).toDouble(),
     );
   }
 }
@@ -741,6 +895,7 @@ class CancelAssignmentResponse {
 class EnterpriseReport {
   final int reportId;
   final int? requestId;
+  final int? assignmentId;
   final String submittedByName;
   final List<String> wasteTypeNames;
   final String status;
@@ -751,10 +906,12 @@ class EnterpriseReport {
   final DateTime? createdAt;
   final String? assignedCollectorName;
   final int? assignedCollectorId;
+  final String? estimatedSize;
 
   EnterpriseReport({
     required this.reportId,
     this.requestId,
+    this.assignmentId,
     required this.submittedByName,
     this.wasteTypeNames = const [],
     required this.status,
@@ -765,6 +922,7 @@ class EnterpriseReport {
     this.createdAt,
     this.assignedCollectorName,
     this.assignedCollectorId,
+    this.estimatedSize,
   });
 
   factory EnterpriseReport.fromJson(Map<String, dynamic>? json) {
@@ -791,6 +949,7 @@ class EnterpriseReport {
     return EnterpriseReport(
       reportId: _toInt(json['reportId'] ?? json['id']),
       requestId: json['requestId'] ?? json['RequestId'],
+      assignmentId: json['assignmentId'] ?? json['AssignmentId'],
       submittedByName: json['submittedByName'] ?? json['citizenName'] ?? json['userName'] ?? '',
       wasteTypeNames: json['wasteTypeNames'] != null
           ? (json['wasteTypeNames'] as List).map((e) => e?.toString() ?? '').toList()
@@ -810,12 +969,14 @@ class EnterpriseReport {
           : null,
       assignedCollectorName: json['assignedCollectorName'] ?? json['collectorName'],
       assignedCollectorId: json['assignedCollectorId'] ?? json['collectorId'],
+      estimatedSize: json['estimatedSize'] ?? json['EstimatedSize'],
     );
   }
 
   EnterpriseReport copyWith({
     int? reportId,
     int? requestId,
+    int? assignmentId,
     String? submittedByName,
     List<String>? wasteTypeNames,
     String? status,
@@ -826,10 +987,12 @@ class EnterpriseReport {
     DateTime? createdAt,
     String? assignedCollectorName,
     int? assignedCollectorId,
+    String? estimatedSize,
   }) {
     return EnterpriseReport(
       reportId: reportId ?? this.reportId,
       requestId: requestId ?? this.requestId,
+      assignmentId: assignmentId ?? this.assignmentId,
       submittedByName: submittedByName ?? this.submittedByName,
       wasteTypeNames: wasteTypeNames ?? this.wasteTypeNames,
       status: status ?? this.status,
@@ -840,6 +1003,7 @@ class EnterpriseReport {
       createdAt: createdAt ?? this.createdAt,
       assignedCollectorName: assignedCollectorName ?? this.assignedCollectorName,
       assignedCollectorId: assignedCollectorId ?? this.assignedCollectorId,
+      estimatedSize: estimatedSize ?? this.estimatedSize,
     );
   }
 }
