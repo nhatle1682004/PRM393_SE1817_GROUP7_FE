@@ -93,16 +93,66 @@ class EnterpriseApiService {
     }
   }
 
-  static Future<EnterpriseCollector> updateCollectorAvailability(
+  static Future<void> updateCollectorAvailability(
     int collectorId,
     bool isAvailable,
   ) async {
     try {
-      final response = await ApiService.put(
+      await ApiService.put(
         ApiConfig.enterpriseCollectorAvailability(collectorId),
         body: {'isAvailable': isAvailable},
       );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<EnterpriseCollector> createCollector(CreateCollectorRequest request) async {
+    try {
+      final response = await ApiService.post(
+        ApiConfig.enterpriseCollectors,
+        body: request.toJson(),
+      );
       return EnterpriseCollector.fromJson(response.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<EnterpriseCollector> updateCollector(
+    int id,
+    UpdateCollectorRequest request,
+  ) async {
+    try {
+      final response = await ApiService.put(
+        ApiConfig.enterpriseCollector(id),
+        body: request.toJson(),
+      );
+      return EnterpriseCollector.fromJson(response.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<void> softDeleteCollector(int id) async {
+    try {
+      await ApiService.put(ApiConfig.enterpriseCollectorSoftDelete(id));
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<void> reactivateCollector(int id) async {
+    try {
+      await ApiService.put(ApiConfig.enterpriseCollectorReactivate(id));
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<void> deleteCollector(int id) async {
+    try {
+      await ApiService.delete(ApiConfig.enterpriseCollector(id));
     } catch (e) {
       rethrow;
     }
@@ -156,7 +206,7 @@ class EnterpriseApiService {
   static Future<CancelAssignmentResponse> cancelAssignment(int assignmentId) async {
     try {
       final response = await ApiService.put(
-        ApiConfig.enterpriseAssignmentDetail(assignmentId),
+        ApiConfig.cancelAssignment(assignmentId),
       );
       return CancelAssignmentResponse.fromJson(response.data);
     } catch (e) {
@@ -164,15 +214,15 @@ class EnterpriseApiService {
     }
   }
 
-  // Gán lại collector cho phân công
+  // Gán lại collector cho phân công (Mới: dùng PUT /api/assignments/{id})
   static Future<CollectorAssignmentResponse> reassignCollector(
     int assignmentId,
     int newCollectorId,
   ) async {
     try {
       final response = await ApiService.put(
-        ApiConfig.enterpriseAssignmentDetail(assignmentId),
-        body: {'collectorId': newCollectorId},
+        ApiConfig.assignmentDetails(assignmentId),
+        body: {'newCollectorId': newCollectorId},
       );
       return CollectorAssignmentResponse.fromJson(response.data);
     } catch (e) {
@@ -215,18 +265,6 @@ class EnterpriseApiService {
   static Future<EnterpriseReport> rejectReport(int reportId) async {
     try {
       final response = await ApiService.put(ApiConfig.enterpriseRejectReport(reportId));
-      return EnterpriseReport.fromJson(response.data);
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  static Future<EnterpriseReport> assignReport(int reportId, int collectorId) async {
-    try {
-      final response = await ApiService.put(
-        ApiConfig.enterpriseAssignReport(reportId),
-        body: {'collectorId': collectorId},
-      );
       return EnterpriseReport.fromJson(response.data);
     } catch (e) {
       rethrow;

@@ -101,6 +101,7 @@ class ApiService {
     required double latitude,
     required double longitude,
     String? description,
+    String? estimatedSize,
     required List<int> wasteTypeIds,
   }) async {
     try {
@@ -126,6 +127,7 @@ class ApiService {
         'Latitude': latitude,
         'Longitude': longitude,
         if (description != null && description.isNotEmpty) 'Description': description,
+        if (estimatedSize != null && estimatedSize.isNotEmpty) 'EstimatedSize': estimatedSize,
         'WasteTypeIds': wasteTypeIds,
       });
 
@@ -165,41 +167,51 @@ class ApiService {
       final statusCode = error.response?.statusCode;
       final data = error.response?.data;
 
-      // Thử đọc message từ nhiều dạng response
-      if (data is Map && data.containsKey('message')) {
-        return data['message'];
-      }
-      if (data is Map && data.containsKey('Message')) {
-        return data['Message'];
-      }
+      // 1. Thử đọc message từ nhiều dạng response JSON
+      if (data is Map) {
+        if (data.containsKey('message')) return data['message'].toString();
+        if (data.containsKey('Message')) return data['Message'].toString();
+        if (data.containsKey('error')) return data['error'].toString();
+        if (data.containsKey('Error')) return data['Error'].toString();
+        if (data.containsKey('detail')) return data['detail'].toString();
 
-      // Với lỗi validation của FluentValidation, BE trả dạng dictionary errors
-      if (data is Map && data.containsKey('errors')) {
-        final errors = data['errors'] as Map<String, dynamic>;
-        if (errors.isNotEmpty) {
-          final firstField = errors.keys.first;
-          final firstError = errors[firstField];
-          if (firstError is List && firstError.isNotEmpty) {
-            return firstError[0].toString();
+        // Với lỗi validation của FluentValidation, BE trả dạng dictionary errors
+        if (data.containsKey('errors')) {
+          final errors = data['errors'] as Map<String, dynamic>;
+          if (errors.isNotEmpty) {
+            final firstField = errors.keys.first;
+            final firstError = errors[firstField];
+            if (firstError is List && firstError.isNotEmpty) {
+              return firstError[0].toString();
+            }
+            return firstError.toString();
           }
         }
       }
 
-      // Fallback: hiển thị status code rõ ràng
-      if (statusCode == 400) return 'Yêu cầu không hợp lệ';
-      if (statusCode == 401) return 'Không được xác thực';
-      if (statusCode == 403) return 'Không có quyền truy cập';
-      if (statusCode == 404) return 'Không tìm thấy';
-      if (statusCode == 409) return 'Xung đột dữ liệu';
+      // 2. Nếu data là string (ví dụ lỗi từ IIS/Kestrel dạng text)
+      if (data is String && data.isNotEmpty && data.length < 200) {
+        return data;
+      }
+
+      // 3. Fallback: hiển thị status code rõ ràng
+      if (statusCode == 400) return 'Yêu cầu không hợp lệ (400)';
+      if (statusCode == 401) return 'Phiên đăng nhập hết hạn (401)';
+      if (statusCode == 403) return 'Bạn không có quyền thực hiện (403)';
+      if (statusCode == 404) return 'Không tìm thấy endpoint (404)';
+      if (statusCode == 405) return 'Phương thức POST không được hỗ trợ (405). BE chưa cài đặt API tạo.';
+      if (statusCode == 409) return 'Dữ liệu đã tồn tại (409)';
+      if (statusCode == 500) return 'Lỗi hệ thống máy chủ (500)';
+      
       if (statusCode != null) return 'Lỗi máy chủ ($statusCode)';
-      return 'Server error';
+      return 'Lỗi không xác định từ máy chủ';
     } else {
       if (error.type == DioExceptionType.connectionTimeout ||
           error.type == DioExceptionType.receiveTimeout) {
         return 'Hết thời gian kết nối. Vui lòng thử lại.';
       }
       if (error.type == DioExceptionType.connectionError) {
-        return 'Không thể kết nối máy chủ. Kiểm tra mạng.';
+        return 'Không thể kết nối máy chủ. Kiểm tra mạng hoặc Backend đang tắt.';
       }
       return error.message ?? 'Lỗi kết nối không xác định';
     }

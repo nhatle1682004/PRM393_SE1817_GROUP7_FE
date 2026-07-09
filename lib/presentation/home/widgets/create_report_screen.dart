@@ -8,6 +8,7 @@ import 'create_report/banner_widgets.dart';
 import 'create_report/photo_card.dart';
 import 'create_report/location_card.dart';
 import 'create_report/form_widgets.dart';
+import 'create_report/estimated_size_card.dart';
 import '../../../../data/models/waste_type.dart';
 
 class CreateReportScreen extends StatefulWidget {
@@ -23,6 +24,7 @@ class _CreateReportScreenState extends State<CreateReportScreen> implements Repo
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
   final Set<String> _selectedTypes = {};
+  String? _selectedSize;
   double? _lat, _lng;
   String? _currentAddress;
   bool _isSubmitting = false;
@@ -137,6 +139,7 @@ class _CreateReportScreenState extends State<CreateReportScreen> implements Repo
       _descController.clear();
       _notesController.clear();
       _selectedTypes.clear();
+      _selectedSize = null;
       _lat = null;
       _lng = null;
       _currentAddress = null;
@@ -268,9 +271,11 @@ class _CreateReportScreenState extends State<CreateReportScreen> implements Repo
     const SizedBox(height: 16),
     DescriptionCard(isMobile: true, controller: _descController),
     const SizedBox(height: 16),
+    EstimatedSizeCard(isMobile: true, selectedSize: _selectedSize, onSizeSelected: (size) => setState(() => _selectedSize = size)),
+    const SizedBox(height: 16),
     DescriptionCard(isMobile: true, controller: _notesController, hintText: 'Thêm ghi chú khác (nếu có)...', title: 'Ghi chú thêm', icon: Icons.note_add),
     const SizedBox(height: 24),
-    SubmitButton(isSubmitting: _isSubmitting, onPressed: () => _presenter.submitReport(_descController.text)),
+    SubmitButton(isSubmitting: _isSubmitting, onPressed: () => _presenter.submitReport(_descController.text, _selectedSize)),
   ]);
 
   Widget _buildTabletLayout() => Column(children: [
@@ -289,9 +294,11 @@ class _CreateReportScreenState extends State<CreateReportScreen> implements Repo
       )),
     ]),
     const SizedBox(height: 16),
+    EstimatedSizeCard(isMobile: false, selectedSize: _selectedSize, onSizeSelected: (size) => setState(() => _selectedSize = size)),
+    const SizedBox(height: 16),
     DescriptionCard(isMobile: false, controller: _descController),
     const SizedBox(height: 24),
-    SubmitButton(isSubmitting: _isSubmitting, onPressed: () => _presenter.submitReport(_descController.text)),
+    SubmitButton(isSubmitting: _isSubmitting, onPressed: () => _presenter.submitReport(_descController.text, _selectedSize)),
   ]);
 
   Widget _buildDesktopLayout() => Column(children: [
@@ -310,9 +317,11 @@ class _CreateReportScreenState extends State<CreateReportScreen> implements Repo
       )),
     ]),
     const SizedBox(height: 20),
+    EstimatedSizeCard(isMobile: false, selectedSize: _selectedSize, onSizeSelected: (size) => setState(() => _selectedSize = size)),
+    const SizedBox(height: 20),
     DescriptionCard(isMobile: false, controller: _descController),
     const SizedBox(height: 24),
-    SubmitButton(isSubmitting: _isSubmitting, onPressed: () => _presenter.submitReport(_descController.text)),
+    SubmitButton(isSubmitting: _isSubmitting, onPressed: () => _presenter.submitReport(_descController.text, _selectedSize)),
   ]);
 }
 

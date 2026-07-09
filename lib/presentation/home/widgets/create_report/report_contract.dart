@@ -25,7 +25,7 @@ abstract class ReportPresenter {
   void onWebImageCaptured(XFile file);
   void getCurrentLocation();
   void onLocationSelected(double lat, double lng);
-  void submitReport(String description);
+  void submitReport(String description, String? estimatedSize);
   void resetForm();
   void dispose();
 }

@@ -5,11 +5,13 @@ import 'package:waste_collection_management_system/services/enterprise_api_servi
 
 class CollectionProgressView extends StatefulWidget {
   final int requestId;
+  final int? reportId; // Added reportId
   final VoidCallback onRefresh;
 
   const CollectionProgressView({
     super.key,
     required this.requestId,
+    this.reportId, // Added reportId
     required this.onRefresh,
   });
 
@@ -60,7 +62,7 @@ class _CollectionProgressViewState extends State<CollectionProgressView> {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          'Tiến độ xử lý #${widget.requestId}',
+          'Tiến độ xử lý #${_detail?.report?.reportId ?? widget.reportId ?? widget.requestId}',
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: Colors.white,

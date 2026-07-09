@@ -228,9 +228,18 @@ class ApiConfig {
   /// Cập nhật trạng thái sẵn sàng của collector
   static String enterpriseCollectorAvailability(int id) => '/enterprise/collectors/$id/availability';
 
+  /// Vô hiệu hóa tài khoản collector (Enterprise)
+  static String enterpriseCollectorSoftDelete(int id) => '/enterprise/collectors/$id/soft-delete';
+
+  /// Kích hoạt lại tài khoản collector (Enterprise)
+  static String enterpriseCollectorReactivate(int id) => '/enterprise/collectors/$id/reactivate';
+
   // ============ ENTERPRISE COLLECTION REQUESTS - api/collection-requests (Enterprise) ============
   /// Danh sách yêu cầu thu gom của Enterprise
   static const String enterpriseCollectionRequests = '/collection-requests';
+
+  /// Danh sách yêu cầu chưa được gán nhân viên
+  static const String enterpriseUnassignedRequests = '/collection-requests/unassigned';
 
   /// Chi tiết yêu cầu thu gom
   static String enterpriseCollectionRequest(int id) => '/collection-requests/$id';
@@ -242,8 +251,8 @@ class ApiConfig {
   /// Chi tiết / gán lại collector / hủy phân công
   static String enterpriseAssignmentDetail(int id) => '/enterprise/assignments/$id';
 
-  /// Gán collector cho yêu cầu thu gom
-  static const String enterpriseAssignCollector = '/enterprise/assignments';
+  /// Gán collector cho yêu cầu thu gom (Mới: dùng chung /api/assignments)
+  static const String enterpriseAssignCollector = '/assignments';
 
   // ============ ENTERPRISE REPORTS - api/waste-reports (Enterprise) ============
   /// Danh sách báo cáo (Enterprise get all pending reports)
@@ -260,7 +269,4 @@ class ApiConfig {
 
   /// Từ chối báo cáo
   static String enterpriseRejectReport(int id) => '/waste-reports/$id/reject';
-
-  /// Phân công nhân viên cho báo cáo
-  static String enterpriseAssignReport(int id) => '/waste-reports/$id/assign';
 }

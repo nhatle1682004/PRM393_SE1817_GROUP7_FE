@@ -27,15 +27,15 @@ class ReportItem {
   final String wasteType;
   final String reporter;
   final String time;
-  final String wasteLevel; // Cao, Trung bình, Thấp
-  final String status;     // Đã duyệt, Từ chối, Chờ duyệt
+  final String? estimatedSize; // Thay đổi để khớp với BE: SMALL, MEDIUM, LARGE, HUGE
+  final String status;
 
   ReportItem({
     required this.id,
     required this.wasteType,
     required this.reporter,
     required this.time,
-    required this.wasteLevel,
+    this.estimatedSize,
     required this.status,
   });
 }
@@ -50,7 +50,7 @@ class ReportListScreen extends StatefulWidget {
 class _ReportListScreenState extends State<ReportListScreen> {
   // 1. Tạo danh sách dữ liệu giả lập (30 dòng)
   final List<ReportItem> _allReports = List.generate(30, (index) {
-    final levels = ['Cao', 'Trung bình', 'Thấp'];
+    final sizes = ['SMALL', 'MEDIUM', 'LARGE', 'HUGE'];
     final statuses = ['Đã duyệt', 'Từ chối', 'Chờ duyệt'];
     final types = ['Rác thải sinh hoạt', 'Rác thải nhựa', 'Rác thải điện tử', 'Rác thải y tế'];
     
@@ -59,7 +59,7 @@ class _ReportListScreenState extends State<ReportListScreen> {
       wasteType: types[index % types.length],
       reporter: 'Nguyễn Văn ${String.fromCharCode(65 + (index % 26))}',
       time: '2024-07-${(index % 28) + 1} 09:15',
-      wasteLevel: levels[index % 3],
+      estimatedSize: sizes[index % 4],
       status: statuses[index % 3],
     );
   });
@@ -94,6 +94,17 @@ class _ReportListScreenState extends State<ReportListScreen> {
         ),
       ),
     );
+  }
+
+  String _mapEstimatedSize(String? size) {
+    if (size == null) return 'N/A';
+    switch (size.toUpperCase()) {
+      case 'SMALL': return 'Thấp';
+      case 'MEDIUM': return 'Trung bình';
+      case 'LARGE':
+      case 'HUGE': return 'Cao';
+      default: return 'N/A';
+    }
   }
 
   Color _getWasteLevelColor(String level) {
@@ -169,12 +180,14 @@ class _ReportListScreenState extends State<ReportListScreen> {
                               ReportItem item = entry.value;
                               int displayStt = ((_currentPage - 1) * _itemsPerPage) + index + 1;
                               
+                              String levelLabel = _mapEstimatedSize(item.estimatedSize);
+
                               return DataRow(cells: [
                                 DataCell(Text(displayStt.toString())),
                                 DataCell(Text(item.wasteType)),
                                 DataCell(Text(item.reporter)),
                                 DataCell(Text(item.time)),
-                                DataCell(_buildBadge(item.wasteLevel, _getWasteLevelColor(item.wasteLevel))),
+                                DataCell(_buildBadge(levelLabel, _getWasteLevelColor(levelLabel))),
                                 DataCell(_buildBadge(item.status, _getStatusColor(item.status))),
                               ]);
                             }).toList(),

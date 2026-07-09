@@ -192,7 +192,7 @@ class ReportPresenterImpl implements ReportPresenter {
   }
 
   @override
-  void submitReport(String description) async {
+  void submitReport(String description, String? estimatedSize) async {
     if (_selectedTypes.isEmpty) {
       _view.onError("Vui lòng chọn ít nhất một loại rác");
       return;
@@ -227,6 +227,7 @@ class ReportPresenterImpl implements ReportPresenter {
         latitude: _lat!,
         longitude: _lng!,
         description: description,
+        estimatedSize: estimatedSize,
         wasteTypeIds: wasteTypeIds,
       );
 

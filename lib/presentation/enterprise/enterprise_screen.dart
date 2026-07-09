@@ -7,7 +7,6 @@ import 'package:waste_collection_management_system/data/models/enterprise_models
 import 'package:waste_collection_management_system/services/enterprise_api_service.dart';
 import 'package:waste_collection_management_system/presentation/enterprise/widgets/collectors_view.dart';
 import 'package:waste_collection_management_system/presentation/enterprise/widgets/collection_requests_view.dart';
-import 'package:waste_collection_management_system/presentation/enterprise/widgets/assignments_view.dart';
 import 'package:waste_collection_management_system/presentation/enterprise/widgets/reports_view.dart';
 import 'package:waste_collection_management_system/presentation/enterprise/widgets/feedbacks_view.dart';
 import 'package:waste_collection_management_system/presentation/enterprise/widgets/notifications_view.dart';
@@ -33,13 +32,12 @@ class _EnterpriseScreenState extends State<EnterpriseScreen> {
 
   final List<_EnterpriseMenuItem> _menuItems = [
     _EnterpriseMenuItem(Icons.grid_view_outlined, Icons.grid_view_rounded, 'Trang tổng quan', 0),
-    _EnterpriseMenuItem(Icons.local_shipping_outlined, Icons.local_shipping_rounded, 'Yêu cầu thu gom', 1),
+    _EnterpriseMenuItem(Icons.pending_actions_rounded, Icons.pending_actions_rounded, 'Tiến độ xử lý', 1),
     _EnterpriseMenuItem(Icons.badge_outlined, Icons.badge_rounded, 'Nhân viên', 2),
-    _EnterpriseMenuItem(Icons.assignment_ind_outlined, Icons.assignment_ind_rounded, 'Phân công', 3),
-    _EnterpriseMenuItem(Icons.bar_chart_outlined, Icons.bar_chart_rounded, 'Báo cáo', 4),
-    _EnterpriseMenuItem(Icons.forum_outlined, Icons.forum_rounded, 'Phản hồi', 5),
-    _EnterpriseMenuItem(Icons.notifications_none_rounded, Icons.notifications_rounded, 'Thông báo', 6),
-    _EnterpriseMenuItem(Icons.account_circle_outlined, Icons.account_circle_rounded, 'Hồ sơ', 7),
+    _EnterpriseMenuItem(Icons.bar_chart_outlined, Icons.bar_chart_rounded, 'Báo cáo', 3),
+    _EnterpriseMenuItem(Icons.forum_outlined, Icons.forum_rounded, 'Phản hồi', 4),
+    _EnterpriseMenuItem(Icons.notifications_none_rounded, Icons.notifications_rounded, 'Thông báo', 5),
+    _EnterpriseMenuItem(Icons.account_circle_outlined, Icons.account_circle_rounded, 'Hồ sơ', 6),
   ];
 
   @override
@@ -84,7 +82,7 @@ class _EnterpriseScreenState extends State<EnterpriseScreen> {
     debugPrint('_onReportAccepted called with requestId: $requestId');
     setState(() {
       _pendingAssignmentReportId = requestId;
-      _currentIndex = 3; // Chuyển sang tab Phân công
+      _currentIndex = 1; // Chuyển sang tab Tiến độ xử lý
     });
   }
 
@@ -159,7 +157,7 @@ class _EnterpriseScreenState extends State<EnterpriseScreen> {
         onMarkSingleRead: _markSingleAsRead,
         onViewAll: () {
           Navigator.pop(context);
-          _onMenuTap(6);
+          _onMenuTap(5);
         },
       ),
     );
@@ -179,7 +177,7 @@ class _EnterpriseScreenState extends State<EnterpriseScreen> {
         onMarkSingleRead: _markSingleAsRead,
         onViewAll: () {
           Navigator.pop(context);
-          _onMenuTap(6);
+          _onMenuTap(5);
         },
       ),
     );
@@ -356,7 +354,7 @@ class _EnterpriseScreenState extends State<EnterpriseScreen> {
         ],
         onSelected: (value) {
           if (value == 'logout') _handleLogout();
-          if (value == 'profile') _onMenuTap(7);
+          if (value == 'profile') _onMenuTap(6);
         },
       );
     }
@@ -395,7 +393,7 @@ class _EnterpriseScreenState extends State<EnterpriseScreen> {
 
   Widget _buildNotificationBell(int unreadCount) {
     return GestureDetector(
-      onTap: () => _onMenuTap(6), // Chuyển trực tiếp sang tab Thông báo
+      onTap: () => _onMenuTap(5), // Chuyển trực tiếp sang tab Thông báo
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
@@ -774,19 +772,10 @@ class _EnterpriseScreenState extends State<EnterpriseScreen> {
       child: switch (_currentIndex) {
         1 => const CollectionRequestsView(),
         2 => const CollectorsView(),
-        3 => AssignmentsView(
-          pendingRequestId: _pendingAssignmentReportId,
-          onAssignmentComplete: () {
-            setState(() {
-              _currentIndex = 4; // Quay về trang Báo cáo
-              _pendingAssignmentReportId = null; // Clear pending
-            });
-          },
-        ),
-        4 => ReportsView(onReportAccepted: _onReportAccepted),
-        5 => const FeedbacksView(),
-        6 => NotificationsView(onRefreshParent: _loadNotifications),
-        7 => const EnterpriseProfileView(),
+        3 => ReportsView(onReportAccepted: _onReportAccepted),
+        4 => const FeedbacksView(),
+        5 => NotificationsView(onRefreshParent: _loadNotifications),
+        6 => const EnterpriseProfileView(),
         _ => const SizedBox.shrink(),
       },
     );
@@ -1046,7 +1035,7 @@ class _EnterpriseScreenState extends State<EnterpriseScreen> {
                 value: (_stats?.pendingReports ?? 0).toString(),
                 label: 'Chờ duyệt',
                 color: const Color(0xFFF59E0B),
-                onTap: () => _onMenuTap(4),
+                onTap: () => _onMenuTap(3),
               ),
             ],
           );
@@ -1080,7 +1069,7 @@ class _EnterpriseScreenState extends State<EnterpriseScreen> {
                 value: (_stats?.pendingReports ?? 0).toString(),
                 label: 'Chờ duyệt',
                 color: const Color(0xFFF59E0B),
-                onTap: () => _onMenuTap(4),
+                onTap: () => _onMenuTap(3),
               ),
             ),
           ],
@@ -1332,7 +1321,7 @@ class _EnterpriseScreenState extends State<EnterpriseScreen> {
               ),
               const Spacer(),
               TextButton(
-                onPressed: () => _onMenuTap(4),
+                onPressed: () => _onMenuTap(3),
                 child: const Text('Xem tất cả', style: TextStyle(fontSize: 13)),
               ),
             ],

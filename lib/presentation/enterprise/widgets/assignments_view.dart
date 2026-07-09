@@ -202,6 +202,66 @@ class _AssignmentsViewState extends State<AssignmentsView> {
     }
   }
 
+  Future<void> _reassignAssignment(EnterpriseAssignment assignment) async {
+    _currentDialogRequestId = assignment.requestId;
+    int? localSelectedId;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return _AssignCollectorDialog(
+            requestId: assignment.requestId,
+            collectors: _collectors.where((c) => c.isAvailable).toList(),
+            isLoadingCollectors: _isLoadingCollectors,
+            selectedCollectorId: localSelectedId,
+            onCollectorSelected: (id) {
+              setDialogState(() {
+                localSelectedId = id;
+              });
+            },
+            onAssign: (collectorId) async {
+              Navigator.pop(dialogContext);
+              
+              setState(() => _isAssigning = true);
+
+              try {
+                await EnterpriseApiService.reassignCollector(
+                  assignment.assignmentId,
+                  collectorId,
+                );
+
+                await _loadAssignments();
+
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Gán lại nhân viên thành công'),
+                      backgroundColor: Color(0xFF10B981),
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                }
+              } on Exception catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Lỗi: ${e.toString()}'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              } finally {
+                if (mounted) setState(() => _isAssigning = false);
+              }
+            },
+          );
+        },
+      ),
+    );
+  }
+
   Future<void> _cancelAssignment(EnterpriseAssignment assignment) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -369,6 +429,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
         return _AssignmentCard(
           assignment: assignment,
           onCancel: () => _cancelAssignment(assignment),
+          onReassign: () => _reassignAssignment(assignment),
         );
       },
     );
@@ -490,10 +551,12 @@ class _AssignmentsViewState extends State<AssignmentsView> {
 class _AssignmentCard extends StatelessWidget {
   final EnterpriseAssignment assignment;
   final VoidCallback onCancel;
+  final VoidCallback onReassign;
 
   const _AssignmentCard({
     required this.assignment,
     required this.onCancel,
+    required this.onReassign,
   });
 
   @override
@@ -543,24 +606,43 @@ class _AssignmentCard extends StatelessWidget {
               ),
             ],
             
-            // Cancel Button
+            // Cancel and Reassign Buttons
             if (assignment.status?.toLowerCase() == 'pending') ...[
               const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: onCancel,
-                  icon: const Icon(Icons.cancel),
-                  label: const Text('Hủy phân công'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFEF4444),
-                    side: const BorderSide(color: Color(0xFFEF4444)),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: onReassign,
+                      icon: const Icon(Icons.person_add_alt_1, size: 18),
+                      label: const Text('Gán lại'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF10B981),
+                        side: const BorderSide(color: Color(0xFF10B981)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: onCancel,
+                      icon: const Icon(Icons.cancel, size: 18),
+                      label: const Text('Hủy'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFEF4444),
+                        side: const BorderSide(color: Color(0xFFEF4444)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ],
