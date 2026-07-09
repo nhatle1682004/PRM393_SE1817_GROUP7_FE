@@ -14,5 +14,16 @@ namespace WasteReportService.Application.DTOs.WasteReport
         public string? EstimatedSize { get; set; }
         public string Status { get; set; } = string.Empty;
         public DateTime? CreatedAt { get; set; }
+        public int? RequestId { get; set; }
+        public int? AssignmentId { get; set; }
+        public int? CollectorId { get; set; }
+        public string? CollectorName { get; set; }
+        public List<AiPredictionDto> AiPredictions { get; set; } = new();
+    }
+
+    public class AiPredictionDto
+    {
+        public string? SuggestedType { get; set; }
+        public decimal? Confidence { get; set; }
     }
 }

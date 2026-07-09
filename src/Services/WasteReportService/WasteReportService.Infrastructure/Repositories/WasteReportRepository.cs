@@ -18,6 +18,7 @@ public sealed class WasteReportRepository : IWasteReportRepository
 
     public Task<WasteReport?> GetByIdAsync(int reportId) => _context.WasteReports
         .Include(x => x.WasteTypes)
+        .Include(x => x.AiWastePredictions)
         .FirstOrDefaultAsync(x => x.ReportId == reportId);
 
     public async Task<bool> TrySetStatusToAcceptedAsync(int reportId)

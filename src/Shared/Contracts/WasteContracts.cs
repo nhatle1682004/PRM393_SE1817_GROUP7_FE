@@ -15,6 +15,13 @@ public sealed class WasteReportDto
     public string? EstimatedSize { get; set; }
     public string? Status { get; set; }
     public DateTime? CreatedAt { get; set; }
+    public List<AiPredictionDto> AiPredictions { get; set; } = new();
+}
+
+public sealed class AiPredictionDto
+{
+    public string? SuggestedType { get; set; }
+    public decimal? Confidence { get; set; }
 }
 
 public sealed class WasteTypeDto

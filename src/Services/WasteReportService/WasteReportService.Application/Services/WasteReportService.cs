@@ -74,7 +74,7 @@ public sealed class WasteReportService : IWasteReportService
         await _engagementClient.CreateNotificationAsync(new CreateNotificationRequest
         {
             UserId = userId,
-            Content = "Your waste report has been submitted successfully and is pending approval."
+            Content = "Báo cáo rác của bạn đã được gửi thành công và đang chờ phê duyệt."
         });
 
         var enterprise = await _identityClient.GetEnterpriseByDistrictAsync(districtId.Value);
@@ -83,7 +83,7 @@ public sealed class WasteReportService : IWasteReportService
             await _engagementClient.CreateNotificationAsync(new CreateNotificationRequest
             {
                 UserId = enterprise.EnterpriseId,
-                Content = "A new waste report (Pending) has been submitted in your managed district."
+                Content = "Một báo cáo rác mới (Đang chờ) vừa được gửi trong khu vực bạn quản lý."
             });
         }
 
@@ -125,7 +125,7 @@ public sealed class WasteReportService : IWasteReportService
             await _engagementClient.CreateNotificationAsync(new CreateNotificationRequest
             {
                 UserId = report.SubmittedBy,
-                Content = $"Your waste report #{reportId} has been accepted and is waiting for collection."
+                Content = $"Báo cáo rác #{reportId} của bạn đã được chấp nhận và đang chờ thu gom."
             });
         }
         catch (Exception ex)
@@ -154,7 +154,7 @@ public sealed class WasteReportService : IWasteReportService
         await _engagementClient.CreateNotificationAsync(new CreateNotificationRequest
         {
             UserId = report.SubmittedBy,
-            Content = $"Your waste report #{reportId} has been rejected."
+            Content = $"Báo cáo rác #{reportId} của bạn đã bị từ chối."
         });
 
         return new WasteReportStatusResponseDto { Id = report.ReportId, Status = report.Status };
@@ -274,7 +274,12 @@ public sealed class WasteReportService : IWasteReportService
             Description = report.Description,
             EstimatedSize = report.EstimatedSize,
             Status = report.Status,
-            CreatedAt = report.CreatedAt
+            CreatedAt = report.CreatedAt,
+            AiPredictions = report.AiWastePredictions.Select(p => new Contracts.AiPredictionDto
+            {
+                SuggestedType = p.SuggestedType,
+                Confidence = p.Confidence
+            }).ToList()
         };
     }
 
@@ -354,7 +359,7 @@ public sealed class WasteReportService : IWasteReportService
     private async Task<DTOs.WasteReport.WasteReportDto> MapToDtoAsync(WasteReport report)
     {
         var user = await _identityClient.GetUserAsync(report.SubmittedBy);
-        return new DTOs.WasteReport.WasteReportDto
+        var dto = new DTOs.WasteReport.WasteReportDto
         {
             ReportId = report.ReportId,
             SubmittedBy = report.SubmittedBy,
@@ -367,8 +372,36 @@ public sealed class WasteReportService : IWasteReportService
             Description = report.Description,
             EstimatedSize = report.EstimatedSize,
             Status = report.Status ?? string.Empty,
-            CreatedAt = report.CreatedAt
+            CreatedAt = report.CreatedAt,
+            AiPredictions = report.AiWastePredictions.Select(p => new DTOs.WasteReport.AiPredictionDto
+            {
+                SuggestedType = p.SuggestedType,
+                Confidence = p.Confidence
+            }).ToList()
         };
+
+        try
+        {
+            var collectionInfo = await _collectionClient.GetFeedbackContextAsync(report.ReportId);
+            if (collectionInfo != null)
+            {
+                dto.RequestId = collectionInfo.RequestId;
+                dto.AssignmentId = collectionInfo.AssignmentId;
+                dto.CollectorId = collectionInfo.CollectorId;
+
+                if (dto.CollectorId.HasValue)
+                {
+                    var collector = await _identityClient.GetUserAsync(dto.CollectorId.Value);
+                    dto.CollectorName = collector?.FullName;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch collection/collector info for report {ReportId}", report.ReportId);
+        }
+
+        return dto;
     }
 
     private static Contracts.WasteReportDto MapToInternalDto(WasteReport report)
