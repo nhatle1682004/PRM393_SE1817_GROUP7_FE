@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:waste_collection_management_system/config/api_config.dart';
 import 'package:waste_collection_management_system/data/models/enterprise_models.dart';
 import 'package:waste_collection_management_system/services/enterprise_api_service.dart';
+import 'package:waste_collection_management_system/presentation/enterprise/widgets/collection_progress_view.dart';
 
 class CollectionRequestsView extends StatefulWidget {
   const CollectionRequestsView({super.key});
@@ -11,6 +13,7 @@ class CollectionRequestsView extends StatefulWidget {
 
 class _CollectionRequestsViewState extends State<CollectionRequestsView> {
   List<EnterpriseCollectionRequest> _requests = [];
+  List<EnterpriseCollector> _collectors = [];
   bool _isLoading = true;
   String? _error;
   String _statusFilter = 'Tất cả';
@@ -19,20 +22,24 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
   @override
   void initState() {
     super.initState();
-    _loadRequests();
+    _loadData();
   }
 
-  Future<void> _loadRequests() async {
+  Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
       _error = null;
     });
 
     try {
-      final requests = await EnterpriseApiService.getCollectionRequests();
+      final results = await Future.wait([
+        EnterpriseApiService.getCollectionRequests(),
+        EnterpriseApiService.getCollectors(),
+      ]);
       if (mounted) {
         setState(() {
-          _requests = requests;
+          _requests = results[0] as List<EnterpriseCollectionRequest>;
+          _collectors = (results[1] as List<EnterpriseCollector>).where((c) => c.isAvailable).toList();
           _isLoading = false;
         });
       }
@@ -44,6 +51,10 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
         });
       }
     }
+  }
+
+  Future<void> _loadRequests() async {
+    await _loadData();
   }
 
   List<EnterpriseCollectionRequest> get _filteredRequests {
@@ -65,20 +76,37 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(
-          bottom: BorderSide(color: const Color(0xFFE2E8F0)),
+          bottom: BorderSide(color: Color(0xFFE2E8F0)),
         ),
       ),
       child: Row(
         children: [
-          Text(
-            '${_filteredRequests.length} yêu cầu',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF64748B),
+          const Text(
+            'TIẾN ĐỘ XỬ LÝ',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF1E293B),
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFF10B981).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '${_filteredRequests.length} yêu cầu',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF10B981),
+              ),
             ),
           ),
           const Spacer(),
@@ -169,21 +197,34 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
         return _RequestCard(
           request: request,
           onTap: () => _showRequestDetail(request),
+          onAssign: () => _showAssignDialog(request),
         );
       },
     );
   }
 
-  void _showRequestDetail(EnterpriseCollectionRequest request) {
-    showModalBottomSheet(
+  void _showAssignDialog(EnterpriseCollectionRequest request) {
+    showDialog(
       context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      builder: (context) => _AssignCollectorDialog(
+        request: request,
+        collectors: _collectors,
+        onAssigned: () {
+          _loadData();
+        },
       ),
-      builder: (context) => _RequestDetailSheet(
-        requestId: request.requestId,
-        onRefresh: _loadRequests,
+    );
+  }
+
+  void _showRequestDetail(EnterpriseCollectionRequest request) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CollectionProgressView(
+          requestId: request.requestId,
+          reportId: request.reportId, // Pass reportId to progress view
+          onRefresh: _loadRequests,
+        ),
       ),
     );
   }
@@ -304,211 +345,206 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
 class _RequestCard extends StatelessWidget {
   final EnterpriseCollectionRequest request;
   final VoidCallback onTap;
+  final VoidCallback? onAssign;
 
   const _RequestCard({
     required this.request,
     required this.onTap,
+    this.onAssign,
   });
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 400;
-
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         side: BorderSide(color: Colors.grey.shade200),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (isMobile)
-                _buildMobileHeader()
-              else
-                _buildDesktopHeader(),
-              const SizedBox(height: 12),
-              
-              // Location chip
-              _buildInfoChip(Icons.location_on, request.location),
-              
-              // Collector
-              if (request.assignedCollectorName != null) ...[
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(Icons.person, size: 16, color: Colors.grey.shade500),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        'NV: ${request.assignedCollectorName}',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade600,
+              _buildModernHeader(),
+              const SizedBox(height: 16),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildImagePreview(request.reportImageUrl),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildInfoRow(Icons.location_on_rounded, request.location, color: Colors.redAccent),
+                        const SizedBox(height: 8),
+                        _buildCollectorInfo(context),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            const Icon(Icons.access_time_rounded, size: 14, color: Colors.grey),
+                            const SizedBox(width: 6),
+                            Text(
+                              request.createdAt != null ? _formatDate(request.createdAt!) : 'N/A',
+                              style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                            ),
+                          ],
                         ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ],
-              
-              // Timestamp
-              if (request.createdAt != null) ...[
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(Icons.access_time, size: 16, color: Colors.grey.shade400),
-                    const SizedBox(width: 6),
-                    Flexible(
-                      child: Text(
-                        _formatDate(request.createdAt!),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade400,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildModernHeader() {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            '#${request.reportId}',
+            style: const TextStyle(
+              fontWeight: FontWeight.w800,
+              fontSize: 13,
+              color: Color(0xFF475569),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            request.wasteTypeName ?? 'N/A',
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1E293B),
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        _StatusBadge(status: request.status ?? 'Pending'),
+      ],
+    );
+  }
+
+  Widget _buildImagePreview(String? imageUrl) {
+    final fullUrl = ApiConfig.getFullImageUrl(imageUrl);
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(11),
+        child: (imageUrl != null && imageUrl.isNotEmpty)
+            ? Image.network(
+                fullUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported_rounded, color: Colors.grey, size: 20),
+              )
+            : const Icon(Icons.image_rounded, color: Colors.grey, size: 20),
+      ),
+    );
+  }
+
+  Widget _buildCollectorInfo(BuildContext context) {
+    final hasCollector = request.assignedCollectorName != null;
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: hasCollector ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: hasCollector ? const Color(0xFFBBF7D0) : const Color(0xFFFECACA),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            hasCollector ? Icons.person_rounded : Icons.person_off_rounded,
+            size: 16,
+            color: hasCollector ? const Color(0xFF15803D) : const Color(0xFFB91C1C),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              hasCollector ? 'NV: ${request.assignedCollectorName}' : 'Chưa phân công',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: hasCollector ? const Color(0xFF15803D) : const Color(0xFFB91C1C),
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (!hasCollector && onAssign != null)
+            GestureDetector(
+              onTap: onAssign,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFB91C1C),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Text(
+                  'Gán NV',
+                  style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text, {Color? color}) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: color ?? Colors.grey.shade600),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildDesktopHeader() {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: _getStatusColor(request.status).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(
-            Icons.local_shipping,
-            color: _getStatusColor(request.status),
-            size: 22,
-          ),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Yêu cầu #${request.requestId}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                request.wasteTypeName ?? 'N/A',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey.shade600,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-        Flexible(child: _StatusBadge(status: request.status ?? 'Pending')),
-      ],
-    );
+    return const SizedBox.shrink();
   }
 
   Widget _buildMobileHeader() {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: _getStatusColor(request.status).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            Icons.local_shipping,
-            color: _getStatusColor(request.status),
-            size: 18,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Yêu cầu #${request.requestId}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Flexible(child: _StatusBadge(status: request.status ?? 'Pending')),
-                ],
-              ),
-              const SizedBox(height: 2),
-              Text(
-                request.wasteTypeName ?? 'N/A',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
+    return const SizedBox.shrink();
   }
 
   Widget _buildInfoChip(IconData icon, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: Colors.grey.shade600),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade700,
-              ),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-          ),
-        ],
-      ),
-    );
+    return const SizedBox.shrink();
   }
 
   Color _getStatusColor(String? status) {
@@ -529,6 +565,89 @@ class _RequestCard extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+  }
+}
+
+class _AssignCollectorDialog extends StatefulWidget {
+  final EnterpriseCollectionRequest request;
+  final List<EnterpriseCollector> collectors;
+  final VoidCallback onAssigned;
+
+  const _AssignCollectorDialog({
+    required this.request,
+    required this.collectors,
+    required this.onAssigned,
+  });
+
+  @override
+  State<_AssignCollectorDialog> createState() => _AssignCollectorDialogState();
+}
+
+class _AssignCollectorDialogState extends State<_AssignCollectorDialog> {
+  int? _selectedCollectorId;
+  bool _isSubmitting = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Gán nhân viên cho #${widget.request.reportId}'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: widget.collectors.isEmpty
+            ? const Text('Hiện không có nhân viên nào sẵn sàng để gán việc.')
+            : ListView.builder(
+                shrinkWrap: true,
+                itemCount: widget.collectors.length,
+                itemBuilder: (context, index) {
+                  final collector = widget.collectors[index];
+                  return RadioListTile<int>(
+                    title: Text(collector.fullName ?? 'N/A'),
+                    subtitle: Text('Hoàn thành: ${collector.completedCount} việc'),
+                    value: collector.collectorId,
+                    groupValue: _selectedCollectorId,
+                    onChanged: (val) => setState(() => _selectedCollectorId = val),
+                    activeColor: const Color(0xFF10B981),
+                  );
+                },
+              ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Hủy', style: TextStyle(color: Colors.grey)),
+        ),
+        ElevatedButton(
+          onPressed: (_selectedCollectorId == null || _isSubmitting)
+              ? null
+              : _handleAssign,
+          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
+          child: _isSubmitting
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+              : const Text('Xác nhận', style: TextStyle(color: Colors.white)),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _handleAssign() async {
+    setState(() => _isSubmitting = true);
+    try {
+      await EnterpriseApiService.assignCollector(AssignCollectorRequest(
+        requestId: widget.request.requestId,
+        collectorId: _selectedCollectorId!,
+      ));
+      if (mounted) {
+        Navigator.pop(context);
+        widget.onAssigned();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 }
 
