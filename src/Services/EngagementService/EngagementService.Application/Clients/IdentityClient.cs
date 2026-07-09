@@ -15,6 +15,8 @@ public sealed class IdentityClient : IIdentityClient
 
     public Task<UserDto?> GetUserAsync(int userId) => GetOrNullAsync<UserDto>($"/internal/identity/users/{userId}");
 
+    public Task<EnterpriseProfileDto?> GetEnterpriseAsync(int enterpriseId) => GetOrNullAsync<EnterpriseProfileDto>($"/internal/identity/enterprises/{enterpriseId}");
+
     public async Task<int> AddPointsAsync(int userId, int points, string reason)
     {
         var response = await _httpClient.PutAsJsonAsync($"/internal/identity/users/{userId}/points/add", new PointAdjustmentRequest { Points = points, Reason = reason });

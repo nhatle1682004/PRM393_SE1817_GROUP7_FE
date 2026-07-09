@@ -44,6 +44,13 @@ public sealed class UserRepository : IUserRepository
         .Where(u => u.Role.RoleName == roleName)
         .ToListAsync();
 
+    public async Task<IEnumerable<User>> GetCollectorsByEnterpriseAsync(int enterpriseId) => await _context.Users
+        .Include(u => u.Role)
+        .Include(u => u.CollectorProfile)
+        .Include(u => u.EnterpriseProfile)
+        .Where(u => u.Role.RoleName == "Collector" && u.CollectorProfile != null && u.CollectorProfile.EnterpriseId == enterpriseId)
+        .ToListAsync();
+
     public Task AddAsync(User user) => _context.Users.AddAsync(user).AsTask();
     public void Update(User user) => _context.Users.Update(user);
     public void Delete(User user) => _context.Users.Remove(user);

@@ -23,6 +23,7 @@ public sealed class WasteReportsController : ControllerBase
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
         public string? Description { get; set; }
+        public string? EstimatedSize { get; set; }
         public List<int> WasteTypeIds { get; set; } = new();
     }
 
@@ -46,6 +47,13 @@ public sealed class WasteReportsController : ControllerBase
         }
 
         return Ok(await _service.GetAllAsync(userId));
+    }
+
+    [HttpGet("district/{districtId:int}")]
+    [Authorize(Roles = "Enterprise")]
+    public async Task<IActionResult> GetByDistrict(int districtId)
+    {
+        return Ok(await _service.GetByDistrictAsync(districtId));
     }
 
     [HttpGet("{id:int}")]
@@ -83,6 +91,7 @@ public sealed class WasteReportsController : ControllerBase
                 Latitude = form.Latitude,
                 Longitude = form.Longitude,
                 Description = form.Description,
+                EstimatedSize = form.EstimatedSize,
                 WasteTypeIds = form.WasteTypeIds
             });
             return CreatedAtAction(nameof(Create), new { id = created.Id }, created);
@@ -109,6 +118,7 @@ public sealed class WasteReportsController : ControllerBase
                 Latitude = form.Latitude,
                 Longitude = form.Longitude,
                 Description = form.Description,
+                EstimatedSize = form.EstimatedSize,
                 WasteTypeIds = form.WasteTypeIds
             });
             return Ok(updated);

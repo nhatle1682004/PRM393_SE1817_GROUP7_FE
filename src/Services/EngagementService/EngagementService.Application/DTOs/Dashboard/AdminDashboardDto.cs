@@ -73,6 +73,7 @@ namespace EngagementService.Application.DTOs.Dashboard
         public int ReportId { get; set; }
         public string SubmittedByName { get; set; } = null!;
         public string? Description { get; set; }
+        public string? EstimatedSize { get; set; }
         public string? Status { get; set; }
         public List<string> WasteTypeNames { get; set; } = new();
         public DateTime? CreatedAt { get; set; }

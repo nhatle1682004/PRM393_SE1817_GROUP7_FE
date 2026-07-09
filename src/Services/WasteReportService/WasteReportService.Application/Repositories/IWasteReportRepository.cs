@@ -8,6 +8,8 @@ public interface IWasteReportRepository
     Task<WasteReport?> GetByIdAsync(int reportId);
     Task<IEnumerable<WasteReport>> GetAllAsync();
     Task<IEnumerable<WasteReport>> GetByUserIdAsync(int userId);
+    Task<IEnumerable<WasteReport>> GetByDistrictIdAsync(int districtId);
     Task<IEnumerable<WasteReport>> FindPotentialDuplicatesAsync(List<int> wasteTypeIds, decimal latitude, decimal longitude, decimal latDelta, decimal lonDelta, int? excludeReportId = null);
+    Task<bool> TrySetStatusToAcceptedAsync(int reportId);
     void Update(WasteReport entity);
 }

@@ -245,6 +245,7 @@ public sealed class AssignmentService : IAssignmentService
             Latitude = report?.Latitude,
             Longitude = report?.Longitude,
             ReportDescription = report?.Description,
+            EstimatedSize = report?.EstimatedSize,
             ReportStatus = report?.Status,
             CitizenId = report?.SubmittedBy ?? 0,
             CitizenName = citizen?.FullName
@@ -287,6 +288,7 @@ public sealed class AssignmentService : IAssignmentService
             Latitude = report == null ? 0 : (double)report.Latitude,
             Longitude = report == null ? 0 : (double)report.Longitude,
             Description = report?.Description,
+            EstimatedSize = report?.EstimatedSize,
             ReportStatus = report?.Status,
             ReportCreatedAt = report?.CreatedAt,
             CitizenName = citizen?.FullName,

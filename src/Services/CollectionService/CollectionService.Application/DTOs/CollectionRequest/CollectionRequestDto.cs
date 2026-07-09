@@ -19,6 +19,7 @@ namespace CollectionService.Application.DTOs.CollectionRequest
         public decimal? Latitude { get; set; }
         public decimal? Longitude { get; set; }
         public string? ReportDescription { get; set; }
+        public string? EstimatedSize { get; set; }
         public string? ReportStatus { get; set; }
         public DateTime? ReportCreatedAt { get; set; }
 

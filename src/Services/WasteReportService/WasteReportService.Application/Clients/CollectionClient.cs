@@ -18,4 +18,10 @@ public sealed class CollectionClient : ICollectionClient
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<CollectionRequestDto>();
     }
+
+    public async Task DeleteRequestByReportIdAsync(int reportId)
+    {
+        var response = await _httpClient.DeleteAsync($"/internal/collection/requests/by-report/{reportId}");
+        response.EnsureSuccessStatusCode();
+    }
 }

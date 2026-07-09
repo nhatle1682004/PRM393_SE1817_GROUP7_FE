@@ -81,6 +81,16 @@ public sealed class CollectionRequestService : ICollectionRequestService
         return ToContract(entity);
     }
 
+    public async Task DeleteByReportIdAsync(int reportId)
+    {
+        var request = await _uow.CollectionRequests.GetByReportIdAsync(reportId);
+        if (request != null)
+        {
+            _uow.CollectionRequests.Delete(request);
+            await _uow.SaveChangesAsync();
+        }
+    }
+
     public async Task<CollectionFeedbackContextDto?> GetFeedbackContextByReportAsync(int reportId)
     {
         var request = await _uow.CollectionRequests.GetByReportIdAsync(reportId);
@@ -142,6 +152,20 @@ public sealed class CollectionRequestService : ICollectionRequestService
             CompletedAssignments = completed.Count,
             TopCollectors = top
         };
+    }
+
+    public async Task<IEnumerable<PublicCollectionRequestDto>> GetUnassignedRequestsAsync(int enterpriseId)
+    {
+        var requests = await _uow.CollectionRequests.GetByEnterpriseIdAsync(enterpriseId);
+        var unassigned = requests.Where(r =>
+            r.Status == "Pending" &&
+            (r.CollectorAssignments == null || !r.CollectorAssignments.Any(a => a.Status != "Cancelled"))
+        );
+
+        var result = new List<PublicCollectionRequestDto>();
+        foreach (var request in unassigned)
+            result.Add(await MapListDtoAsync(request));
+        return result;
     }
 
     public async Task<IEnumerable<CollectorDtoLocal>> GetCollectorsByEnterpriseAsync(int enterpriseId)
@@ -222,6 +246,7 @@ public sealed class CollectionRequestService : ICollectionRequestService
             Latitude = report?.Latitude,
             Longitude = report?.Longitude,
             ReportDescription = report?.Description,
+            EstimatedSize = report?.EstimatedSize,
             ReportStatus = report?.Status,
             ReportCreatedAt = report?.CreatedAt,
             CurrentAssignmentId = currentAssignment?.AssignmentId,

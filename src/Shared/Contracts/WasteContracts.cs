@@ -12,6 +12,7 @@ public sealed class WasteReportDto
     public decimal Longitude { get; set; }
     public int? DistrictId { get; set; }
     public string? Description { get; set; }
+    public string? EstimatedSize { get; set; }
     public string? Status { get; set; }
     public DateTime? CreatedAt { get; set; }
 }
@@ -55,6 +56,7 @@ public sealed class RecentReportDto
     public int ReportId { get; set; }
     public string SubmittedByName { get; set; } = string.Empty;
     public string? Description { get; set; }
+    public string? EstimatedSize { get; set; }
     public string? Status { get; set; }
     public List<string> WasteTypeNames { get; set; } = new();
     public DateTime? CreatedAt { get; set; }

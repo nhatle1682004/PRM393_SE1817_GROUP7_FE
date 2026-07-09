@@ -9,6 +9,7 @@ public sealed class WasteReport
     public decimal Longitude { get; set; }
     public string? Description { get; set; }
     public string? Status { get; set; }
+    public string? EstimatedSize { get; set; }
     public DateTime? CreatedAt { get; set; }
     public int? DistrictId { get; set; }
     public District? District { get; set; }

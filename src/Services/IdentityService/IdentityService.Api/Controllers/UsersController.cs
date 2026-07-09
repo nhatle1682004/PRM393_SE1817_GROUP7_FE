@@ -23,13 +23,27 @@ public sealed class UsersController : ControllerBase
     [Authorize(Roles = "Admin,Enterprise")]
     public async Task<IActionResult> GetCollectors()
     {
-        var allUsers = await _userService.GetAllAsync();
-        return Ok(allUsers.Where(u => string.Equals(u.RoleName, "Collector", StringComparison.OrdinalIgnoreCase)));
-    }
+        if (!TryGetUserId(out var currentUserId))
+            return Unauthorized();
 
-    [HttpGet]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetAllUsers() => Ok(await _userService.GetAllAsync());
+        var currentUser = await _userService.GetByIdAsync(currentUserId);
+        if (currentUser == null) return NotFound();
+
+        // Admin can see all collectors
+        if (string.Equals(currentUser.RoleName, "Admin", StringComparison.OrdinalIgnoreCase))
+        {
+            var allUsers = await _userService.GetAllAsync();
+            return Ok(allUsers.Where(u => string.Equals(u.RoleName, "Collector", StringComparison.OrdinalIgnoreCase)));
+        }
+
+        // Enterprise can only see their own collectors
+        if (string.Equals(currentUser.RoleName, "Enterprise", StringComparison.OrdinalIgnoreCase))
+        {
+            return Ok(await _userService.GetCollectorsByEnterpriseAsUserDtoAsync(currentUser.UserId));
+        }
+
+        return Forbid();
+    }
 
     [HttpGet("{id:int}")]
     [Authorize]
@@ -37,66 +51,6 @@ public sealed class UsersController : ControllerBase
     {
         var user = await _userService.GetByIdAsync(id);
         return user == null ? NotFound(new { message = "User not found" }) : Ok(user);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequestDto request)
-    {
-        try
-        {
-            var result = await _userService.CreateUserAsync(request);
-            return CreatedAtAction(nameof(CreateUser), new { id = result.UserId }, result);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("exists"))
-        {
-            return Conflict(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to create user: {Email}", request.Email);
-            return StatusCode(500, new { message = "Internal server error" });
-        }
-    }
-
-    [HttpPut("{id:int}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequestDto request)
-    {
-        try
-        {
-            return Ok(await _userService.UpdateUserAsync(id, request));
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("exists"))
-        {
-            return Conflict(new { message = ex.Message });
-        }
-    }
-
-    [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteUser(int id)
-    {
-        try
-        {
-            await _userService.DeleteUserAsync(id);
-            return NoContent();
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
-        {
-            return NotFound(new { message = ex.Message });
-        }
     }
 
     [HttpPut("me/availability")]
@@ -117,34 +71,6 @@ public sealed class UsersController : ControllerBase
         catch (UnauthorizedAccessException ex)
         {
             return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
-        }
-    }
-
-    [HttpPut("{id:int}/deactivate")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeactivateUser(int id)
-    {
-        try
-        {
-            return Ok(await _userService.SoftDeleteUserAsync(id));
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
-        {
-            return NotFound(new { message = ex.Message });
-        }
-    }
-
-    [HttpPut("{id:int}/activate")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> ActivateUser(int id)
-    {
-        try
-        {
-            return Ok(await _userService.ReactivateUserAsync(id));
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
-        {
-            return NotFound(new { message = ex.Message });
         }
     }
 

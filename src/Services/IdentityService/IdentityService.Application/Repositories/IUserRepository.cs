@@ -12,6 +12,7 @@ public interface IUserRepository
     Task<bool> PhoneExistsExceptAsync(string phone, int excludeUserId);
     Task<IEnumerable<User>> GetAllAsync();
     Task<IEnumerable<User>> GetUsersByRoleAsync(string roleName);
+    Task<IEnumerable<User>> GetCollectorsByEnterpriseAsync(int enterpriseId);
     Task AddAsync(User user);
     void Update(User user);
     void Delete(User user);

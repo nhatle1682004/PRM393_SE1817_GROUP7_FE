@@ -8,7 +8,7 @@ public interface IAuthService
     Task RegisterCitizenAsync(RegisterRequestDto request);
     Task<User> VerifyOtpAndCreateUserAsync(string email, string otp);
     User? Authenticate(string email, string password);
-    string GenerateJwtToken(User user);
+    Task<string> GenerateJwtToken(User user);
     Task ForgotPasswordAsync(ForgotPasswordRequestDto request);
     Task ResetPasswordAsync(ResetPasswordRequestDto request);
 }

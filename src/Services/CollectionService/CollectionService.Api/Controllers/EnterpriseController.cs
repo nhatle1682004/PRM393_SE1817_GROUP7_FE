@@ -68,6 +68,13 @@ public sealed class EnterpriseController : ControllerBase
         return Ok(await _collectionService.GetCollectionRequestsByEnterpriseAsync(enterpriseId));
     }
 
+    [HttpGet("collection-requests/unassigned")]
+    public async Task<IActionResult> GetUnassignedRequests()
+    {
+        var enterpriseId = GetUserId();
+        return Ok(await _collectionService.GetUnassignedRequestsAsync(enterpriseId));
+    }
+
     [HttpGet("collection-requests/{requestId:int}")]
     public async Task<IActionResult> GetCollectionRequest(int requestId)
     {
@@ -95,6 +102,10 @@ public sealed class EnterpriseController : ControllerBase
             return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
         }
         catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
         {
             return BadRequest(new { message = ex.Message });
         }

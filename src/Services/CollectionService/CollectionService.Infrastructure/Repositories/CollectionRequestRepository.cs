@@ -38,4 +38,5 @@ public sealed class CollectionRequestRepository : ICollectionRequestRepository
         .ToListAsync();
 
     public void Update(CollectionRequest entity) => _context.CollectionRequests.Update(entity);
+    public void Delete(CollectionRequest entity) => _context.CollectionRequests.Remove(entity);
 }

@@ -1,6 +1,7 @@
 using IdentityService.Application.Repositories;
 using IdentityService.Domain.Entities;
 using IdentityService.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace IdentityService.Infrastructure.Repositories;
 
@@ -17,6 +18,8 @@ public sealed class IdentityUnitOfWork : IIdentityUnitOfWork
     public IUserRepository Users { get; }
     public IQueryable<Role> Roles => _context.Roles;
     public IQueryable<EnterpriseProfile> EnterpriseProfiles => _context.EnterpriseProfiles;
+    public Task<EnterpriseProfile?> GetEnterpriseProfileByUserIdAsync(int userId)
+        => Task.FromResult(_context.EnterpriseProfiles.Include(e => e.Enterprise).FirstOrDefault(e => e.Enterprise.UserId == userId));
     public IQueryable<CollectorProfile> CollectorProfiles => _context.CollectorProfiles;
     public void AddEnterpriseProfile(EnterpriseProfile profile) => _context.EnterpriseProfiles.Add(profile);
     public void AddCollectorProfile(CollectorProfile profile) => _context.CollectorProfiles.Add(profile);

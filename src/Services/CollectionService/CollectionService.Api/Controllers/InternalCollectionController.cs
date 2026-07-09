@@ -21,6 +21,13 @@ public sealed class InternalCollectionController : ControllerBase
         return Ok(await _requestService.CreateFromReportAsync(request));
     }
 
+    [HttpDelete("requests/by-report/{reportId:int}")]
+    public async Task<IActionResult> DeleteByReport(int reportId)
+    {
+        await _requestService.DeleteByReportIdAsync(reportId);
+        return NoContent();
+    }
+
     [HttpGet("feedback-context/by-report/{reportId:int}")]
     public async Task<IActionResult> GetFeedbackContext(int reportId)
     {

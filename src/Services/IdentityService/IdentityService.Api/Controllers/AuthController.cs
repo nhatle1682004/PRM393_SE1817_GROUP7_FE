@@ -1,5 +1,6 @@
 using IdentityService.Application.DTOs.Auth;
 using IdentityService.Application.DTOs.User;
+using IdentityService.Application.Repositories;
 using IdentityService.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,13 @@ public sealed class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
     private readonly IUserService _userService;
+    private readonly IIdentityUnitOfWork _uow;
 
-    public AuthController(IAuthService authService, IUserService userService)
+    public AuthController(IAuthService authService, IUserService userService, IIdentityUnitOfWork uow)
     {
         _authService = authService;
         _userService = userService;
+        _uow = uow;
     }
 
     public sealed class LoginRequest
@@ -26,18 +29,36 @@ public sealed class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginRequest request)
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var user = _authService.Authenticate(request.Email, request.Password);
         if (user == null)
             return Unauthorized(new { message = "Incorrect email or password." });
 
-        var token = _authService.GenerateJwtToken(user);
+        var token = await _authService.GenerateJwtToken(user);
+
+        int? managedDistrictId = null;
+        int? enterpriseId = null;
+        if (user.RoleId == 2)
+        {
+            var profile = await _uow.GetEnterpriseProfileByUserIdAsync(user.UserId);
+            managedDistrictId = profile?.ManagedDistrictId;
+            enterpriseId = profile?.EnterpriseId;
+        }
+
         return Ok(new
         {
             message = "Login successful",
             token,
-            user = new { user.UserId, user.FullName, user.Email, user.RoleId }
+            user = new UserDto
+            {
+                UserId = user.UserId,
+                FullName = user.FullName,
+                Email = user.Email,
+                RoleName = user.Role?.RoleName ?? string.Empty,
+                ManagedDistrictId = managedDistrictId,
+                EnterpriseId = enterpriseId
+            }
         });
     }
 

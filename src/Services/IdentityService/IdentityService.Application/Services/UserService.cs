@@ -284,8 +284,14 @@ public sealed class UserService : IUserService
 
     public async Task<IEnumerable<CollectorProfileDto>> GetCollectorsByEnterpriseAsync(int enterpriseId)
     {
-        var collectors = await _uow.Users.GetUsersByRoleAsync("Collector");
-        return collectors.Where(c => c.CollectorProfile?.EnterpriseId == enterpriseId).Select(MapCollector);
+        var collectors = await _uow.Users.GetCollectorsByEnterpriseAsync(enterpriseId);
+        return collectors.Select(MapCollector);
+    }
+
+    public async Task<IEnumerable<UserResponseDto>> GetCollectorsByEnterpriseAsUserDtoAsync(int enterpriseId)
+    {
+        var collectors = await _uow.Users.GetCollectorsByEnterpriseAsync(enterpriseId);
+        return collectors.Select(MapToDto);
     }
 
     public async Task<int> AddPointsAsync(int userId, int points)
@@ -350,6 +356,12 @@ public sealed class UserService : IUserService
                 Count = regs.GetValueOrDefault(m)
             }).ToList()
         };
+    }
+
+    public Task<int> GetCollectorRoleIdAsync()
+    {
+        var collectorRole = _uow.Roles.FirstOrDefault(r => string.Equals(r.RoleName, "Collector", StringComparison.OrdinalIgnoreCase));
+        return Task.FromResult(collectorRole?.RoleId ?? 0);
     }
 
     private static UserResponseDto MapToDto(User user) => new()

@@ -1,3 +1,4 @@
+using EngagementService.Application.Clients;
 using EngagementService.Application.DTOs.Feedback;
 using EngagementService.Application.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -11,10 +12,12 @@ namespace EngagementService.Api.Controllers;
 public sealed class FeedbacksController : ControllerBase
 {
     private readonly IFeedbackService _feedbackService;
+    private readonly IIdentityClient _identityClient;
 
-    public FeedbacksController(IFeedbackService feedbackService)
+    public FeedbacksController(IFeedbackService feedbackService, IIdentityClient identityClient)
     {
         _feedbackService = feedbackService;
+        _identityClient = identityClient;
     }
 
     public sealed class CreateFeedbackForm
@@ -53,48 +56,85 @@ public sealed class FeedbacksController : ControllerBase
     public async Task<IActionResult> GetFeedbacksByReport(int reportId) => Ok(await _feedbackService.GetFeedbacksByReportIdAsync(reportId));
 
     [HttpGet]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetAllFeedbacks() => Ok(await _feedbackService.GetAllFeedbacksAsync());
+    [Authorize(Roles = "Admin,Enterprise")]
+    public async Task<IActionResult> GetAllFeedbacks()
+    {
+        var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+        int? districtId = null;
+
+        if (string.Equals(role, "Enterprise", StringComparison.OrdinalIgnoreCase))
+        {
+            // Enterprise users should only see feedbacks for reports in their managed district
+            if (!TryGetUserId(out var enterpriseId))
+                return Unauthorized(new { message = "Invalid or missing UserId claim" });
+
+            var enterprise = await _identityClient.GetEnterpriseAsync(enterpriseId);
+            if (enterprise == null)
+                return NotFound(new { message = "Enterprise profile not found" });
+
+            districtId = enterprise.ManagedDistrictId;
+        }
+
+        return Ok(await _feedbackService.GetAllFeedbacksAsync(districtId));
+    }
 
     [HttpGet("{id:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Enterprise")]
     public async Task<IActionResult> GetFeedbackDetail(int id)
     {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized(new { message = "Invalid or missing UserId claim" });
         try
         {
-            return Ok(await _feedbackService.GetFeedbackDetailAsync(id));
+            return Ok(await _feedbackService.GetFeedbackDetailAsync(id, userId));
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
         {
             return NotFound(new { message = ex.Message });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
         }
     }
 
     [HttpPut("{id:int}/resolve")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Enterprise")]
     public async Task<IActionResult> ResolveFeedback(int id, [FromBody] ResolveFeedbackDto dto)
     {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized(new { message = "Invalid or missing UserId claim" });
         try
         {
-            return Ok(await _feedbackService.ResolveFeedbackAsync(id, dto));
+            return Ok(await _feedbackService.ResolveFeedbackAsync(id, dto, userId));
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
         {
             return NotFound(new { message = ex.Message });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
         }
     }
 
     [HttpPut("{id:int}/reject")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Enterprise")]
     public async Task<IActionResult> RejectFeedback(int id)
     {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized(new { message = "Invalid or missing UserId claim" });
         try
         {
-            return Ok(await _feedbackService.RejectFeedbackAsync(id));
+            return Ok(await _feedbackService.RejectFeedbackAsync(id, userId));
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
         {
             return NotFound(new { message = ex.Message });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
         }
     }
 

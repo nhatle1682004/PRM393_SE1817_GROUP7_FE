@@ -20,6 +20,16 @@ public sealed class WasteReportRepository : IWasteReportRepository
         .Include(x => x.WasteTypes)
         .FirstOrDefaultAsync(x => x.ReportId == reportId);
 
+    public async Task<bool> TrySetStatusToAcceptedAsync(int reportId)
+    {
+        var rowsAffected = await _context.Database.ExecuteSqlRawAsync(
+            @"UPDATE waste.waste_reports 
+              SET status = 'Accepted' 
+              WHERE report_id = {0} AND status = 'Pending'", 
+            reportId);
+        return rowsAffected > 0;
+    }
+
     public async Task<IEnumerable<WasteReport>> GetAllAsync() => await _context.WasteReports
         .Include(x => x.WasteTypes)
         .OrderByDescending(x => x.CreatedAt)
@@ -28,6 +38,12 @@ public sealed class WasteReportRepository : IWasteReportRepository
     public async Task<IEnumerable<WasteReport>> GetByUserIdAsync(int userId) => await _context.WasteReports
         .Include(x => x.WasteTypes)
         .Where(x => x.SubmittedBy == userId)
+        .OrderByDescending(x => x.CreatedAt)
+        .ToListAsync();
+
+    public async Task<IEnumerable<WasteReport>> GetByDistrictIdAsync(int districtId) => await _context.WasteReports
+        .Include(x => x.WasteTypes)
+        .Where(x => x.DistrictId == districtId)
         .OrderByDescending(x => x.CreatedAt)
         .ToListAsync();
 

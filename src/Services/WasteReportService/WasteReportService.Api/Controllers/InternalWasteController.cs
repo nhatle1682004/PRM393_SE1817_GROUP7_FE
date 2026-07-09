@@ -24,6 +24,12 @@ public sealed class InternalWasteController : ControllerBase
         return report == null ? NotFound(new { message = "Waste report not found" }) : Ok(report);
     }
 
+    [HttpGet("reports/by-district/{districtId:int}")]
+    public async Task<IActionResult> GetReportsByDistrict(int districtId)
+    {
+        return Ok(await _wasteReportService.GetInternalByDistrictAsync(districtId));
+    }
+
     [HttpPut("reports/{id:int}/status")]
     public async Task<IActionResult> UpdateStatus(int id, [FromBody] WasteReportStatusUpdateRequest request)
     {

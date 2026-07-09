@@ -29,6 +29,7 @@ namespace CollectionService.Application.DTOs.Assignment
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public string? Description { get; set; }
+        public string? EstimatedSize { get; set; }
 
         public string? ReportStatus { get; set; }
         public DateTime? ReportCreatedAt { get; set; }

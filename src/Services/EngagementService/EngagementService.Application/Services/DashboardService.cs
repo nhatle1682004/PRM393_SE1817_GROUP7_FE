@@ -52,10 +52,16 @@ public sealed class DashboardService : IDashboardService
             WasteTypeDistribution = waste?.WasteTypeDistribution.Select(x => new WasteTypeDistributionDto { Name = x.Name, Count = x.Count }).ToList() ?? new(),
             ReportStatusDistribution = waste?.ReportStatusDistribution.Select(x => new StatusCountDto { Status = x.Status, Count = x.Count }).ToList() ?? new(),
             TopCollectors = collection?.TopCollectors.Select(x => new TopCollectorDto { UserId = x.UserId, FullName = x.FullName, CompletedCount = x.CompletedCount }).ToList() ?? new(),
-            RecentReports = waste?.RecentReports.Select(x => new RecentReportDto { ReportId = x.ReportId, SubmittedByName = x.SubmittedByName, Description = x.Description, Status = x.Status, WasteTypeNames = x.WasteTypeNames, CreatedAt = x.CreatedAt }).ToList() ?? new()
+            RecentReports = waste?.RecentReports.Select(x => new RecentReportDto { ReportId = x.ReportId, SubmittedByName = x.SubmittedByName, Description = x.Description, EstimatedSize = x.EstimatedSize, Status = x.Status, WasteTypeNames = x.WasteTypeNames, CreatedAt = x.CreatedAt }).ToList() ?? new()
         };
 
         _cache.Set(cacheKey, dto, TimeSpan.FromSeconds(30));
         return dto;
+    }
+
+    public async Task<AdminDashboardDto> GetEnterpriseDashboardAsync(int enterpriseId)
+    {
+        // Placeholder for enterprise-specific dashboard
+        return await GetAdminDashboardAsync(DateTime.UtcNow.Year);
     }
 }

@@ -90,13 +90,17 @@ public sealed class AuthService : IAuthService
         return user.Status == "Active" ? user : null;
     }
 
-    public string GenerateJwtToken(User user)
+    public async Task<string> GenerateJwtToken(User user)
     {
         var jwtSettings = _configuration.GetSection("Jwt");
         var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
         var roleName = user.Role?.RoleName ?? _uow.Roles.FirstOrDefault(r => r.RoleId == user.RoleId)?.RoleName ?? string.Empty;
 
-        var claims = new[]
+        var enterpriseProfile = user.RoleId == 2 ? await _uow.GetEnterpriseProfileByUserIdAsync(user.UserId) : null;
+        var managedDistrictId = enterpriseProfile?.ManagedDistrictId;
+        var enterpriseId = enterpriseProfile?.EnterpriseId;
+
+        var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Email),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
@@ -105,6 +109,10 @@ public sealed class AuthService : IAuthService
             new Claim("RoleId", user.RoleId.ToString()),
             new Claim(ClaimTypes.Role, roleName)
         };
+        if (managedDistrictId.HasValue)
+            claims.Add(new Claim("ManagedDistrictId", managedDistrictId.Value.ToString()));
+        if (enterpriseId.HasValue)
+            claims.Add(new Claim("EnterpriseId", enterpriseId.Value.ToString()));
 
         var token = new JwtSecurityToken(
             issuer: jwtSettings["Issuer"],

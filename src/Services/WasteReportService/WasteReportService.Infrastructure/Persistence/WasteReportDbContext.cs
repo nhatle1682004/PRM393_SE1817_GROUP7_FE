@@ -28,6 +28,7 @@ public sealed class WasteReportDbContext : DbContext
             entity.Property(e => e.Latitude).HasPrecision(10, 7).HasColumnName("latitude");
             entity.Property(e => e.Longitude).HasPrecision(10, 7).HasColumnName("longitude");
             entity.Property(e => e.Description).HasMaxLength(500).HasColumnName("description");
+            entity.Property(e => e.EstimatedSize).HasMaxLength(20).HasColumnName("estimated_size");
             entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Pending").HasColumnName("status");
             entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone").HasDefaultValueSql("CURRENT_TIMESTAMP").HasColumnName("created_at");
             entity.Property(e => e.DistrictId).HasColumnName("district_id");

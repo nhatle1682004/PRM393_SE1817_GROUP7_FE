@@ -20,8 +20,10 @@ public interface IUserService
     Task<EnterpriseProfileDto?> GetEnterpriseByDistrictAsync(int districtId);
     Task<CollectorProfileDto?> GetCollectorProfileAsync(int collectorId);
     Task<IEnumerable<CollectorProfileDto>> GetCollectorsByEnterpriseAsync(int enterpriseId);
+    Task<IEnumerable<UserResponseDto>> GetCollectorsByEnterpriseAsUserDtoAsync(int enterpriseId);
     Task<int> AddPointsAsync(int userId, int points);
     Task<int> DeductPointsAsync(int userId, int points);
     Task<CollectorProfileDto> AddCollectorWarningAsync(int collectorId, int points);
     Task<IdentityDashboardStatsDto> GetDashboardStatsAsync(int year);
+    Task<int> GetCollectorRoleIdAsync();
 }

@@ -10,4 +10,5 @@ public interface ICollectionRequestRepository
     Task<IEnumerable<CollectionRequest>> GetByEnterpriseIdAsync(int enterpriseId);
     Task<IEnumerable<CollectionRequest>> GetAllAsync();
     void Update(CollectionRequest entity);
+    void Delete(CollectionRequest entity);
 }

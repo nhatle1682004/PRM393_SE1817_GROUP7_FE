@@ -75,9 +75,26 @@ public sealed class FeedbackService : IFeedbackService
         return result;
     }
 
-    public async Task<IEnumerable<FeedbackResponseDto>> GetAllFeedbacksAsync()
+    public async Task<IEnumerable<FeedbackResponseDto>> GetAllFeedbacksAsync(int? districtId = null, int? requesterId = null)
     {
-        var feedbacks = _uow.Feedbacks.OrderByDescending(f => f.CreatedAt).ToList();
+        IEnumerable<Feedback> feedbacks;
+
+        if (districtId.HasValue)
+        {
+            // For Enterprise: Get reports from their district, then filter feedbacks
+            var reportsInDistrict = await _wasteClient.GetReportsByDistrictAsync(districtId.Value);
+            var reportIds = reportsInDistrict.Select(r => r.ReportId).ToHashSet();
+
+            feedbacks = _uow.Feedbacks
+                .Where(f => f.ReportId.HasValue && reportIds.Contains(f.ReportId.Value))
+                .OrderByDescending(f => f.CreatedAt)
+                .ToList();
+        }
+        else
+        {
+            feedbacks = _uow.Feedbacks.OrderByDescending(f => f.CreatedAt).ToList();
+        }
+
         var result = new List<FeedbackResponseDto>();
         foreach (var f in feedbacks)
         {
@@ -87,10 +104,11 @@ public sealed class FeedbackService : IFeedbackService
         return result;
     }
 
-    public async Task<FeedbackDetailDto> GetFeedbackDetailAsync(int feedbackId)
+    public async Task<FeedbackDetailDto> GetFeedbackDetailAsync(int feedbackId, int? requesterId = null)
     {
         var feedback = _uow.Feedbacks.FirstOrDefault(f => f.FeedbackId == feedbackId) ?? throw new InvalidOperationException("Feedback not found");
         var user = await _identityClient.GetUserAsync(feedback.UserId);
+
         var report = feedback.ReportId.HasValue ? await _wasteClient.GetReportAsync(feedback.ReportId.Value) : null;
         var detail = new FeedbackDetailDto
         {
@@ -148,7 +166,7 @@ public sealed class FeedbackService : IFeedbackService
         return detail;
     }
 
-    public async Task<FeedbackResponseDto> ResolveFeedbackAsync(int feedbackId, ResolveFeedbackDto dto)
+    public async Task<FeedbackResponseDto> ResolveFeedbackAsync(int feedbackId, ResolveFeedbackDto dto, int? requesterId = null)
     {
         var feedback = _uow.Feedbacks.FirstOrDefault(f => f.FeedbackId == feedbackId) ?? throw new InvalidOperationException("Feedback not found");
         if (!string.Equals(feedback.Status, "Pending", StringComparison.OrdinalIgnoreCase)
@@ -253,13 +271,14 @@ public sealed class FeedbackService : IFeedbackService
             throw;
         }
 
-        var user = await _identityClient.GetUserAsync(feedback.UserId);
-        return MapToResponse(feedback, user?.FullName ?? "Unknown");
+        var resolvedUser = await _identityClient.GetUserAsync(feedback.UserId);
+        return MapToResponse(feedback, resolvedUser?.FullName ?? "Unknown");
     }
 
-    public async Task<FeedbackResponseDto> RejectFeedbackAsync(int feedbackId)
+    public async Task<FeedbackResponseDto> RejectFeedbackAsync(int feedbackId, int? requesterId = null)
     {
         var feedback = _uow.Feedbacks.FirstOrDefault(f => f.FeedbackId == feedbackId) ?? throw new InvalidOperationException("Feedback not found");
+
         await _notificationService.CreateAsync(new CreateNotificationRequest
         {
             UserId = feedback.UserId,

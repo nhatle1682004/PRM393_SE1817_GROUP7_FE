@@ -62,6 +62,7 @@ public sealed class WasteReportService : IWasteReportService
             Longitude = dto.Longitude,
             DistrictId = districtId.Value,
             Description = dto.Description,
+            EstimatedSize = dto.EstimatedSize,
             Status = "Pending",
             CreatedAt = nowUtc,
             WasteTypes = wasteTypes
@@ -105,19 +106,19 @@ public sealed class WasteReportService : IWasteReportService
             throw new InvalidOperationException("Report district is missing");
         if (enterprise.ManagedDistrictId != report.DistrictId.Value)
             throw new UnauthorizedAccessException("You can only accept reports in your managed district.");
-        if (!string.Equals(report.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+
+        var updated = await _uow.WasteReports.TrySetStatusToAcceptedAsync(reportId);
+        if (!updated)
             throw new InvalidOperationException("Only Pending reports can be accepted");
 
-        await _collectionClient.CreateFromReportAsync(new CreateCollectionRequestFromReportRequest
+        report = await _uow.WasteReports.GetByIdAsync(reportId) ?? throw new InvalidOperationException("WasteReport not found");
+
+        var collectionRequest = await _collectionClient.CreateFromReportAsync(new CreateCollectionRequestFromReportRequest
         {
             ReportId = reportId,
             EnterpriseId = enterpriseId,
             Status = "Pending"
         });
-
-        report.Status = "Accepted";
-        _uow.WasteReports.Update(report);
-        await _uow.SaveChangesAsync();
 
         try
         {
@@ -132,7 +133,12 @@ public sealed class WasteReportService : IWasteReportService
             _logger.LogError(ex, "Failed to create accepted notification for waste report {ReportId}", reportId);
         }
 
-        return new WasteReportStatusResponseDto { Id = report.ReportId, Status = report.Status };
+        return new WasteReportStatusResponseDto 
+        { 
+            Id = report.ReportId, 
+            Status = "Accepted",
+            RequestId = collectionRequest?.RequestId
+        };
     }
 
     public async Task<WasteReportStatusResponseDto> RejectAsync(int reportId)
@@ -164,6 +170,22 @@ public sealed class WasteReportService : IWasteReportService
         foreach (var report in reports)
             result.Add(await MapToDtoAsync(report));
         return result;
+    }
+
+    public async Task<IEnumerable<DTOs.WasteReport.WasteReportDto>> GetByDistrictAsync(int districtId)
+    {
+        var reports = await _uow.WasteReports.GetByDistrictIdAsync(districtId);
+
+        var result = new List<DTOs.WasteReport.WasteReportDto>();
+        foreach (var report in reports)
+            result.Add(await MapToDtoAsync(report));
+        return result;
+    }
+
+    public async Task<IEnumerable<Contracts.WasteReportDto>> GetInternalByDistrictAsync(int districtId)
+    {
+        var reports = await _uow.WasteReports.GetByDistrictIdAsync(districtId);
+        return reports.Select(MapToInternalDto);
     }
 
     public async Task<DTOs.WasteReport.WasteReportDto?> GetByIdAsync(int reportId, int? userId)
@@ -206,6 +228,7 @@ public sealed class WasteReportService : IWasteReportService
         report.Latitude = dto.Latitude;
         report.Longitude = dto.Longitude;
         report.Description = dto.Description;
+        report.EstimatedSize = dto.EstimatedSize;
         report.DistrictId = districtId.Value;
         report.WasteTypes.Clear();
         foreach (var wt in newWasteTypes)
@@ -249,6 +272,7 @@ public sealed class WasteReportService : IWasteReportService
             Longitude = report.Longitude,
             DistrictId = report.DistrictId,
             Description = report.Description,
+            EstimatedSize = report.EstimatedSize,
             Status = report.Status,
             CreatedAt = report.CreatedAt
         };
@@ -258,6 +282,19 @@ public sealed class WasteReportService : IWasteReportService
     {
         var report = await _uow.WasteReports.GetByIdAsync(reportId) ?? throw new InvalidOperationException("WasteReport not found");
         report.Status = status;
+        _uow.WasteReports.Update(report);
+        await _uow.SaveChangesAsync();
+    }
+
+    public async Task ResetStatusAsync(int reportId)
+    {
+        var report = await _uow.WasteReports.GetByIdAsync(reportId) ?? throw new InvalidOperationException("WasteReport not found");
+
+        // Only allow resetting if not already pending
+        if (string.Equals(report.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        report.Status = "Pending";
         _uow.WasteReports.Update(report);
         await _uow.SaveChangesAsync();
     }
@@ -282,6 +319,7 @@ public sealed class WasteReportService : IWasteReportService
                 ReportId = recentReport.ReportId,
                 SubmittedByName = submitter?.FullName ?? "Unknown",
                 Description = recentReport.Description,
+                EstimatedSize = recentReport.EstimatedSize,
                 Status = recentReport.Status,
                 WasteTypeNames = recentReport.WasteTypes.Select(w => w.Name).ToList(),
                 CreatedAt = recentReport.CreatedAt
@@ -327,7 +365,27 @@ public sealed class WasteReportService : IWasteReportService
             Latitude = report.Latitude,
             Longitude = report.Longitude,
             Description = report.Description,
+            EstimatedSize = report.EstimatedSize,
             Status = report.Status ?? string.Empty,
+            CreatedAt = report.CreatedAt
+        };
+    }
+
+    private static Contracts.WasteReportDto MapToInternalDto(WasteReport report)
+    {
+        return new Contracts.WasteReportDto
+        {
+            ReportId = report.ReportId,
+            SubmittedBy = report.SubmittedBy,
+            SubmittedByName = null,
+            WasteTypeIds = report.WasteTypes.Select(w => w.WasteTypeId).ToList(),
+            WasteTypeNames = report.WasteTypes.Select(w => w.Name).ToList(),
+            ImageUrl = report.ImageUrl,
+            Latitude = report.Latitude,
+            Longitude = report.Longitude,
+            Description = report.Description,
+            EstimatedSize = report.EstimatedSize,
+            Status = report.Status,
             CreatedAt = report.CreatedAt
         };
     }
