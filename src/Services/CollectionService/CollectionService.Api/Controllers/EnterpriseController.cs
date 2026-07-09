@@ -60,6 +60,44 @@ public sealed class EnterpriseController : ControllerBase
         }
     }
 
+    [HttpPut("collectors/{collectorId:int}/soft-delete")]
+    public async Task<IActionResult> SoftDeleteCollector(int collectorId)
+    {
+        var enterpriseId = GetUserId();
+        try
+        {
+            await _collectionService.SoftDeleteCollectorAsync(collectorId, enterpriseId);
+            return Ok(new { message = "Đã tạm dừng hoạt động nhân viên" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+        }
+    }
+
+    [HttpPut("collectors/{collectorId:int}/reactivate")]
+    public async Task<IActionResult> ReactivateCollector(int collectorId)
+    {
+        var enterpriseId = GetUserId();
+        try
+        {
+            await _collectionService.ReactivateCollectorAsync(collectorId, enterpriseId);
+            return Ok(new { message = "Đã kích hoạt lại hoạt động nhân viên" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+        }
+    }
+
     // ============ COLLECTION REQUESTS ============
     [HttpGet("collection-requests")]
     public async Task<IActionResult> GetCollectionRequests()

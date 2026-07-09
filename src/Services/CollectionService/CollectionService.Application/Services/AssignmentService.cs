@@ -56,7 +56,7 @@ public sealed class AssignmentService : IAssignmentService
         await _engagementClient.CreateNotificationAsync(new CreateNotificationRequest
         {
             UserId = dto.CollectorId,
-            Content = $"You have been assigned to collect waste for request #{requestId}."
+            Content = $"Bạn đã được phân công thu gom rác cho yêu cầu #{requestId}."
         });
 
         var enterprise = await _identityClient.GetUserAsync(enterpriseId);

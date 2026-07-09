@@ -45,7 +45,12 @@ public sealed class EnterpriseCollectorsController : ControllerBase
     public async Task<IActionResult> CreateCollector([FromBody] CreateUserRequestDto request)
     {
         var enterpriseId = GetEnterpriseId();
+        if (enterpriseId <= 0)
+            return Unauthorized(new { message = "Không thể xác định thông tin công ty từ Token" });
+
         var collectorRoleId = await _userService.GetCollectorRoleIdAsync();
+        if (collectorRoleId <= 0)
+            return StatusCode(500, new { message = "Hệ thống chưa cấu hình vai trò Collector (RoleId 3)" });
 
         // Enforce role and enterprise
         request.RoleId = collectorRoleId;
@@ -67,7 +72,7 @@ public sealed class EnterpriseCollectorsController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to create collector for enterprise {EnterpriseId}", enterpriseId);
-            return StatusCode(500, new { message = "Internal server error" });
+            return StatusCode(500, new { message = $"Lỗi hệ thống: {ex.Message}", detail = ex.InnerException?.Message });
         }
     }
 
@@ -120,5 +125,29 @@ public sealed class EnterpriseCollectorsController : ControllerBase
         {
             return NotFound(new { message = ex.Message });
         }
+    }
+
+    [HttpPut("{id:int}/soft-delete")]
+    public async Task<IActionResult> SoftDeleteCollector(int id)
+    {
+        var enterpriseId = GetEnterpriseId();
+        var collector = await _userService.GetByIdAsync(id);
+
+        if (collector == null || collector.EnterpriseId != enterpriseId || !string.Equals(collector.RoleName, "Collector", StringComparison.OrdinalIgnoreCase))
+            return NotFound(new { message = "Collector not found or does not belong to your enterprise" });
+
+        return Ok(await _userService.SoftDeleteUserAsync(id));
+    }
+
+    [HttpPut("{id:int}/reactivate")]
+    public async Task<IActionResult> ReactivateCollector(int id)
+    {
+        var enterpriseId = GetEnterpriseId();
+        var collector = await _userService.GetByIdAsync(id);
+
+        if (collector == null || collector.EnterpriseId != enterpriseId || !string.Equals(collector.RoleName, "Collector", StringComparison.OrdinalIgnoreCase))
+            return NotFound(new { message = "Collector not found or does not belong to your enterprise" });
+
+        return Ok(await _userService.ReactivateUserAsync(id));
     }
 }

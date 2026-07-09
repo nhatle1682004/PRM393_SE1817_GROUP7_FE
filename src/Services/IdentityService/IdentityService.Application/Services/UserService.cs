@@ -64,6 +64,13 @@ public sealed class UserService : IUserService
         }
         else if (string.Equals(role.RoleName, "Collector", StringComparison.OrdinalIgnoreCase))
         {
+            if (!request.EnterpriseId.HasValue)
+                throw new ArgumentException("EnterpriseId is required for Collector");
+
+            var enterpriseProfile = await _uow.GetEnterpriseProfileByUserIdAsync(request.EnterpriseId.Value);
+            if (enterpriseProfile == null)
+                throw new InvalidOperationException("Tài khoản doanh nghiệp của bạn chưa hoàn thiện hồ sơ (EnterpriseProfile), không thể tạo nhân viên trực thuộc.");
+
             _uow.AddCollectorProfile(new CollectorProfile
             {
                 CollectorId = user.UserId,
@@ -360,7 +367,7 @@ public sealed class UserService : IUserService
 
     public Task<int> GetCollectorRoleIdAsync()
     {
-        var collectorRole = _uow.Roles.FirstOrDefault(r => string.Equals(r.RoleName, "Collector", StringComparison.OrdinalIgnoreCase));
+        var collectorRole = _uow.Roles.FirstOrDefault(r => r.RoleName.ToLower() == "collector");
         return Task.FromResult(collectorRole?.RoleId ?? 0);
     }
 

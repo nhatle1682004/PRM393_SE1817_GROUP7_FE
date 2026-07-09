@@ -24,4 +24,9 @@ public sealed class CollectionClient : ICollectionClient
         var response = await _httpClient.DeleteAsync($"/internal/collection/requests/by-report/{reportId}");
         response.EnsureSuccessStatusCode();
     }
+
+    public async Task<CollectionFeedbackContextDto?> GetFeedbackContextAsync(int reportId)
+    {
+        return await _httpClient.GetFromJsonAsync<CollectionFeedbackContextDto>($"/internal/collection/feedback-context/by-report/{reportId}");
+    }
 }

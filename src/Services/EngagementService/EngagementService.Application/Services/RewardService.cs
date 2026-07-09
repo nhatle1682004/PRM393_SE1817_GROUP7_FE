@@ -107,7 +107,7 @@ public sealed class RewardService : IRewardService
             RewardId = reward.RewardId,
             Type = "Redeemed",
             Points = -reward.Points,
-            Description = $"Redeemed voucher: {reward.Name}",
+            Description = $"Đã đổi voucher: {reward.Name}",
             CreatedAt = redeemedAt,
             Status = "Pending",
             SourceType = sourceType,
@@ -120,7 +120,7 @@ public sealed class RewardService : IRewardService
         int remaining;
         try
         {
-            remaining = await _identityClient.DeductPointsAsync(userId, reward.Points, $"Redeemed voucher: {reward.Name}");
+            remaining = await _identityClient.DeductPointsAsync(userId, reward.Points, $"Đã đổi voucher: {reward.Name}");
         }
         catch (Exception ex)
         {
@@ -138,7 +138,7 @@ public sealed class RewardService : IRewardService
             await _notificationService.CreateAsync(new CreateNotificationRequest
             {
                 UserId = userId,
-                Content = $"You have successfully redeemed voucher '{reward.Name}' for {reward.Points} points."
+                Content = $"Bạn đã đổi thành công voucher '{reward.Name}' lấy {reward.Points} điểm."
             });
         }
         catch (Exception ex)

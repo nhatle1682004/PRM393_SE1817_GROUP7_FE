@@ -291,10 +291,10 @@ public sealed class CollectionService : ICollectionService
                 ReportId = report.ReportId,
                 Points = pointsEarned,
                 Type = "Earned",
-                Description = $"Earned points for waste collection (Request #{assignment.RequestId})",
+                Description = $"Nhận điểm từ việc thu gom rác (Yêu cầu #{assignment.RequestId})",
                 AdjustUserPoints = true,
                 CreateNotification = true,
-                NotificationContent = $"Your reported waste has been successfully collected! You have earned {pointsEarned} reward points.",
+                NotificationContent = $"Rác bạn báo cáo đã được thu gom thành công! Bạn nhận được {pointsEarned} điểm thưởng.",
                 SourceType = "Collection",
                 ReferenceId = assignment.RequestId.ToString()
             });

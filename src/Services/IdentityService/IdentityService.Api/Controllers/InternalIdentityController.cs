@@ -73,6 +73,18 @@ public sealed class InternalIdentityController : ControllerBase
         return Ok(await _userService.UpdateCollectorAvailabilityAsync(id, isAvailable));
     }
 
+    [HttpPut("users/{id:int}/soft-delete")]
+    public async Task<IActionResult> SoftDeleteUser(int id)
+    {
+        return Ok(await _userService.SoftDeleteUserAsync(id));
+    }
+
+    [HttpPut("users/{id:int}/reactivate")]
+    public async Task<IActionResult> ReactivateUser(int id)
+    {
+        return Ok(await _userService.ReactivateUserAsync(id));
+    }
+
     [HttpGet("dashboard/{year:int}")]
     public async Task<IActionResult> GetDashboardStats(int year)
     {

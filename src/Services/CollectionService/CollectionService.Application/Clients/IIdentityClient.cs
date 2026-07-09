@@ -8,4 +8,6 @@ public interface IIdentityClient
     Task<CollectorProfileDto?> GetCollectorAsync(int collectorId);
     Task<IEnumerable<CollectorProfileDto>> GetCollectorsByEnterpriseAsync(int enterpriseId);
     Task UpdateCollectorAvailabilityAsync(int collectorId, bool isAvailable);
+    Task SoftDeleteUserAsync(int userId);
+    Task ReactivateUserAsync(int userId);
 }

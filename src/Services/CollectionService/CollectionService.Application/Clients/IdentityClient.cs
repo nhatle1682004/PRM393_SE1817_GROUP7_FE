@@ -24,6 +24,18 @@ public sealed class IdentityClient : IIdentityClient
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task SoftDeleteUserAsync(int userId)
+    {
+        var response = await _httpClient.PutAsync($"/internal/identity/users/{userId}/soft-delete", null);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task ReactivateUserAsync(int userId)
+    {
+        var response = await _httpClient.PutAsync($"/internal/identity/users/{userId}/reactivate", null);
+        response.EnsureSuccessStatusCode();
+    }
+
     private async Task<T?> GetOrNullAsync<T>(string url)
     {
         var response = await _httpClient.GetAsync(url);

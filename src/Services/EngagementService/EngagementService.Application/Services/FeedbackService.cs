@@ -214,10 +214,10 @@ public sealed class FeedbackService : IFeedbackService
                 var collector = await _identityClient.AddCollectorWarningAsync(context.CollectorId.Value, points, dto.AdminNote);
                 var autoDeactivated = (collector?.WarningCount ?? 0) >= WarningThreshold;
                 var collectorMsg = action == "reassign"
-                    ? $"You received a warning (+{points} pts, total: {collector?.WarningCount}/{WarningThreshold}) for report #{reportId}. Your assignment has been cancelled due to a valid citizen complaint."
-                    : $"You received a warning (+{points} pt, total: {collector?.WarningCount}/{WarningThreshold}) for report #{reportId}. Reason: {dto.AdminNote}";
+                    ? $"Bạn nhận được một cảnh báo (+{points} điểm, tổng: {collector?.WarningCount}/{WarningThreshold}) cho báo cáo #{reportId}. Phân công của bạn đã bị hủy do phản hồi hợp lệ từ người dân."
+                    : $"Bạn nhận được một cảnh báo (+{points} điểm, tổng: {collector?.WarningCount}/{WarningThreshold}) cho báo cáo #{reportId}. Lý do: {dto.AdminNote}";
                 if (autoDeactivated)
-                    collectorMsg += " Your account has been DEACTIVATED due to reaching the warning threshold.";
+                    collectorMsg += " Tài khoản của bạn đã bị VÔ HIỆU HÓA do đạt ngưỡng cảnh báo.";
                 await CreateNotificationBestEffortAsync(context.CollectorId.Value, collectorMsg);
             }
 
@@ -225,14 +225,14 @@ public sealed class FeedbackService : IFeedbackService
             {
                 await CreateNotificationBestEffortAsync(
                     context.EnterpriseId.Value,
-                    $"Report #{reportId} needs to be reassigned to a new collector. The previous assignment was cancelled due to a valid citizen complaint.");
+                    $"Báo cáo #{reportId} cần được phân công lại cho nhân viên mới. Phân công trước đó đã bị hủy do phản hồi hợp lệ từ người dân.");
             }
 
             await CreateNotificationBestEffortAsync(
                 citizenId,
                 action == "reassign"
-                    ? $"Your complaint about report #{reportId} has been resolved. The report will be reassigned to a new collector. You earned +10 reward points!"
-                    : $"Your complaint about report #{reportId} has been resolved. The collector has been warned. You earned +10 reward points!");
+                    ? $"Phản hồi của bạn về báo cáo #{reportId} đã được giải quyết. Báo cáo sẽ được phân công lại cho nhân viên khác. Bạn nhận được +10 điểm thưởng!"
+                    : $"Phản hồi của bạn về báo cáo #{reportId} đã được giải quyết. Nhân viên đã bị cảnh cáo. Bạn nhận được +10 điểm thưởng!");
 
             await _rewardService.CreateTransactionAsync(new CreateRewardTransactionRequest
             {
@@ -240,7 +240,7 @@ public sealed class FeedbackService : IFeedbackService
                 ReportId = reportId > 0 ? reportId : null,
                 Points = ComplaintRewardPoints,
                 Type = "Earned",
-                Description = $"Reward for valid complaint on report #{reportId}",
+                Description = $"Thưởng cho phản hồi hợp lệ về báo cáo #{reportId}",
                 AdjustUserPoints = true,
                 CreateNotification = false,
                 SourceType = "ComplaintReward",
@@ -282,7 +282,7 @@ public sealed class FeedbackService : IFeedbackService
         await _notificationService.CreateAsync(new CreateNotificationRequest
         {
             UserId = feedback.UserId,
-            Content = $"Your complaint about report #{feedback.ReportId} has been reviewed and was found to be invalid."
+            Content = $"Phản hồi của bạn về báo cáo #{feedback.ReportId} đã được xem xét và không được chấp nhận."
         });
         feedback.Status = "Rejected";
         _uow.UpdateFeedback(feedback);
@@ -312,10 +312,10 @@ public sealed class FeedbackService : IFeedbackService
             ReportId = reportId,
             Points = -totalEarned,
             Type = "Reversed",
-            Description = $"Points reversed due to complaint on report #{reportId}",
+            Description = $"Hoàn tác điểm do có phản hồi về báo cáo #{reportId}",
             AdjustUserPoints = true,
             CreateNotification = true,
-            NotificationContent = $"Your {totalEarned} reward points for report #{reportId} have been reversed due to a valid complaint. The report will be reassigned.",
+            NotificationContent = $"Số điểm thưởng {totalEarned} của báo cáo #{reportId} đã bị thu hồi do có phản hồi hợp lệ. Báo cáo sẽ được phân công lại.",
             SourceType = "ComplaintReversal",
             ReferenceId = reportId.ToString()
         });

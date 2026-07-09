@@ -19,4 +19,6 @@ public interface ICollectionRequestService
     Task<IEnumerable<global::CollectionService.Application.DTOs.Assignment.CollectorDto>> GetCollectorsByEnterpriseAsync(int enterpriseId);
     Task<global::CollectionService.Application.DTOs.Assignment.CollectorDto?> GetCollectorDetailAsync(int collectorId, int enterpriseId);
     Task<bool> UpdateCollectorAvailabilityAsync(int collectorId, int enterpriseId, bool isAvailable);
+    Task SoftDeleteCollectorAsync(int collectorId, int enterpriseId);
+    Task ReactivateCollectorAsync(int collectorId, int enterpriseId);
 }
