@@ -62,37 +62,59 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
             Card(
               elevation: 4,
               shadowColor: Colors.black12,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF10B981), width: 2.5),
+                  border: Border.all(
+                    color: const Color(0xFF10B981),
+                    width: 2.5,
+                  ),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal, // Chống tràn ngang trên Mobile
+                    scrollDirection:
+                        Axis.horizontal, // Chống tràn ngang trên Mobile
                     physics: const BouncingScrollPhysics(),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         minWidth: constraints.maxWidth - 4,
                       ),
                       child: DataTable(
-                        headingRowColor: WidgetStateProperty.all(const Color(0xFFF0FDF4)),
+                        headingRowColor: WidgetStateProperty.all(
+                          const Color(0xFFF0FDF4),
+                        ),
                         dataRowMaxHeight: 80,
                         headingRowHeight: 56,
                         horizontalMargin: 20,
                         columnSpacing: 24,
                         columns: const [
                           DataColumn(label: Text('STT', style: _headerStyle)),
-                          DataColumn(label: Text('Hình ảnh', style: _headerStyle)),
-                          DataColumn(label: Text('Loại rác', style: _headerStyle)),
-                          DataColumn(label: Text('Người báo cáo', style: _headerStyle)),
-                          DataColumn(label: Text('Thời gian', style: _headerStyle)),
-                          DataColumn(label: Text('Mức độ', style: _headerStyle)),
-                          DataColumn(label: Text('Trạng thái', style: _headerStyle)),
-                          DataColumn(label: Text('Hành động', style: _headerStyle)),
+                          DataColumn(
+                            label: Text('Hình ảnh', style: _headerStyle),
+                          ),
+                          DataColumn(
+                            label: Text('Loại rác', style: _headerStyle),
+                          ),
+                          DataColumn(
+                            label: Text('Người báo cáo', style: _headerStyle),
+                          ),
+                          DataColumn(
+                            label: Text('Thời gian', style: _headerStyle),
+                          ),
+                          DataColumn(
+                            label: Text('Mức độ', style: _headerStyle),
+                          ),
+                          DataColumn(
+                            label: Text('Trạng thái', style: _headerStyle),
+                          ),
+                          DataColumn(
+                            label: Text('Hành động', style: _headerStyle),
+                          ),
                         ],
                         rows: widget.reports.asMap().entries.map((entry) {
                           return _buildDataRow(entry.value, entry.key);
@@ -103,12 +125,12 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Thanh điều hướng phân trang mới (Căn giữa)
             _buildPaginationControls(),
-            
+
             const SizedBox(height: 16),
           ],
         );
@@ -122,27 +144,53 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
     final String statusLower = report.status.trim().toLowerCase();
     final bool isPending = statusLower == 'pending';
     final bool isAccepted = statusLower == 'accepted';
-    final int displayStt = ((widget.currentPage - 1) * widget.itemsPerPage) + index + 1;
+    final int displayStt =
+        ((widget.currentPage - 1) * widget.itemsPerPage) + index + 1;
 
     // Lấy mức độ từ estimatedSize của BE
     String level = _mapEstimatedSize(report.estimatedSize);
 
     return DataRow(
       cells: [
-        DataCell(Text('#${report.reportId}', style: const TextStyle(color: Color(0xFF595959), fontSize: 13))),
-        DataCell(_buildImageCell(report.imageUrl)),
-        DataCell(ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 160),
-          child: Text(
-            report.wasteTypeNames.join(', '),
-            style: const TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF0D2B1E)),
-            overflow: TextOverflow.ellipsis,
+        DataCell(
+          Text(
+            '#${report.reportId}',
+            style: const TextStyle(color: Color(0xFF595959), fontSize: 13),
           ),
-        )),
-        DataCell(Text(report.submittedByName, style: const TextStyle(color: Color(0xFF434343)))),
-        DataCell(Text(_formatDate(report.createdAt), style: const TextStyle(fontSize: 13, color: Color(0xFF8C8C8C)))),
+        ),
+        DataCell(_buildImageCell(report.imageUrl)),
+        DataCell(
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 160),
+            child: Text(
+              report.wasteTypeNames.join(', '),
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF0D2B1E),
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+        DataCell(
+          Text(
+            report.submittedByName,
+            style: const TextStyle(color: Color(0xFF434343)),
+          ),
+        ),
+        DataCell(
+          Text(
+            _formatDate(report.createdAt),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF8C8C8C)),
+          ),
+        ),
         DataCell(_buildBadge(level, _getLevelColor(level))),
-        DataCell(_buildBadge(_getStatusLabel(report.status), _getStatusColor(report.status))),
+        DataCell(
+          _buildBadge(
+            _getStatusLabel(report.status),
+            _getStatusColor(report.status),
+          ),
+        ),
         DataCell(_buildActionCell(report, step, isPending, isAccepted)),
       ],
     );
@@ -165,15 +213,19 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
             ? Image.network(
                 fullUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.image_not_supported, color: Colors.grey, size: 24),
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.image_not_supported,
+                  color: Colors.grey,
+                  size: 24,
+                ),
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
                   return const Center(
                     child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2)),
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
                   );
                 },
               )
@@ -185,11 +237,15 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
   String _mapEstimatedSize(String? size) {
     if (size == null || size.isEmpty) return 'N/A';
     switch (size.toUpperCase()) {
-      case 'SMALL': return 'Thấp';
-      case 'MEDIUM': return 'Trung bình';
+      case 'SMALL':
+        return 'Thấp';
+      case 'MEDIUM':
+        return 'Trung bình';
       case 'LARGE':
-      case 'HUGE': return 'Cao';
-      default: return size;
+      case 'HUGE':
+        return 'Cao';
+      default:
+        return size;
     }
   }
 
@@ -203,30 +259,42 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
       ),
       child: Text(
         text,
-        style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 11),
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.bold,
+          fontSize: 11,
+        ),
       ),
     );
   }
 
   Color _getLevelColor(String level) {
     switch (level) {
-      case 'Cao': return Colors.red;
-      case 'Trung bình': return Colors.orange;
-      case 'Thấp': return Colors.green;
-      default: return Colors.grey;
+      case 'Cao':
+        return Colors.red;
+      case 'Trung bình':
+        return Colors.orange;
+      case 'Thấp':
+        return Colors.green;
+      default:
+        return Colors.grey;
     }
   }
 
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Accepted':
-      case 'Collected': 
-      case 'Đã duyệt': return const Color(0xFF10B981);
+      case 'Collected':
+      case 'Đã duyệt':
+        return const Color(0xFF10B981);
       case 'Rejected':
-      case 'Từ chối': return Colors.red;
+      case 'Từ chối':
+        return Colors.red;
       case 'Pending':
-      case 'Chờ duyệt': return Colors.amber;
-      default: return Colors.grey;
+      case 'Chờ duyệt':
+        return Colors.amber;
+      default:
+        return Colors.grey;
     }
   }
 
@@ -254,12 +322,16 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
                 color: const Color(0xFF10B981).withOpacity(0.3),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
-              )
+              ),
             ],
           ),
           child: Text(
             '${widget.currentPage}',
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
           ),
         ),
         const SizedBox(width: 16),
@@ -272,7 +344,11 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
     );
   }
 
-  Widget _buildNavButton({required IconData icon, required bool isDisabled, required VoidCallback onTap}) {
+  Widget _buildNavButton({
+    required IconData icon,
+    required bool isDisabled,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: isDisabled ? null : onTap,
       child: Opacity(
@@ -290,7 +366,12 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
     );
   }
 
-  Widget _buildActionCell(EnterpriseReport report, int step, bool isPending, bool isAccepted) {
+  Widget _buildActionCell(
+    EnterpriseReport report,
+    int step,
+    bool isPending,
+    bool isAccepted,
+  ) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -298,17 +379,26 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
         children: [
           // Nút Xem chi tiết với hình con mắt
           IconButton(
-            icon: const Icon(Icons.visibility_outlined, color: Color(0xFF10B981), size: 22),
+            icon: const Icon(
+              Icons.visibility_outlined,
+              color: Color(0xFF10B981),
+              size: 22,
+            ),
             onPressed: () => _showDetailDialog(report),
             tooltip: 'Xem chi tiết báo cáo',
           ),
-          
+
           if (isPending) ...[
             if (step == 0) ...[
               TextButton(
                 onPressed: () => _setStep(report.reportId, 1),
-                style: TextButton.styleFrom(foregroundColor: const Color(0xFFE1251B)),
-                child: const Text('Từ chối', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFFE1251B),
+                ),
+                child: const Text(
+                  'Từ chối',
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                ),
               ),
               const SizedBox(width: 4),
               ElevatedButton(
@@ -317,10 +407,18 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
                   backgroundColor: const Color(0xFF00B074),
                   foregroundColor: Colors.white,
                   elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                child: const Text('Duyệt', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                child: const Text(
+                  'Duyệt',
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                ),
               ),
             ] else if (step == 1) ...[
               SizedBox(
@@ -332,15 +430,27 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
                   decoration: InputDecoration(
                     hintText: 'Lý do...',
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                   ),
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.check_circle, color: Color(0xFFE1251B), size: 20),
+                icon: const Icon(
+                  Icons.check_circle,
+                  color: Color(0xFFE1251B),
+                  size: 20,
+                ),
                 onPressed: () {
-                  widget.onReject(report.reportId, _rejectControllers[report.reportId]?.text ?? '');
+                  widget.onReject(
+                    report.reportId,
+                    _rejectControllers[report.reportId]?.text ?? '',
+                  );
                   _setStep(report.reportId, 0);
                 },
               ),
@@ -349,7 +459,14 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
                 onPressed: () => _setStep(report.reportId, 0),
               ),
             ] else if (step == 2) ...[
-              const Text('Gán NV?', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF00B074))),
+              const Text(
+                'Gán NV?',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF00B074),
+                ),
+              ),
               TextButton(
                 onPressed: () {
                   widget.onAccept(report.reportId, null);
@@ -364,7 +481,9 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   minimumSize: const Size(30, 24),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
                 ),
                 child: const Text('C', style: TextStyle(fontSize: 10)),
               ),
@@ -375,7 +494,9 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
                 onPressed: () => _showAssignmentDialog(report),
                 icon: const Icon(Icons.person_add, size: 16),
                 label: const Text('Gán NV', style: TextStyle(fontSize: 12)),
-                style: TextButton.styleFrom(foregroundColor: const Color(0xFF10B981)),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF10B981),
+                ),
               )
             else
               TextButton.icon(
@@ -403,7 +524,10 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
             Expanded(
               child: Text(
                 'Dữ liệu chi tiết báo cáo #${report.reportId}',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -431,8 +555,15 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.image_not_supported, size: 50, color: Colors.grey),
-                            Text('Không thể tải hình ảnh', style: TextStyle(color: Colors.grey)),
+                            Icon(
+                              Icons.image_not_supported,
+                              size: 50,
+                              color: Colors.grey,
+                            ),
+                            Text(
+                              'Không thể tải hình ảnh',
+                              style: TextStyle(color: Colors.grey),
+                            ),
                           ],
                         ),
                       ),
@@ -440,30 +571,51 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
                   ),
                   const SizedBox(height: 20),
                 ],
-                
+
                 const Text('THÔNG TIN HỆ THỐNG', style: _sectionHeaderStyle),
                 const Divider(),
                 _buildDetailRow('Report ID', report.reportId.toString()),
-                _buildDetailRow('Request ID', report.requestId?.toString() ?? 'N/A'),
+                _buildDetailRow(
+                  'Request ID',
+                  report.requestId?.toString() ?? 'N/A',
+                ),
                 _buildDetailRow('Trạng thái (Raw)', report.status),
-                
+
                 const SizedBox(height: 16),
                 const Text('NỘI DUNG BÁO CÁO', style: _sectionHeaderStyle),
                 const Divider(),
                 _buildDetailRow('Loại rác', report.wasteTypeNames.join(', ')),
                 _buildDetailRow('Người báo cáo', report.submittedByName),
-                _buildDetailRow('Thời gian tạo', _formatDateTime(report.createdAt)),
-                _buildDetailRow('Mức độ rác', '${_mapEstimatedSize(report.estimatedSize)} (${report.estimatedSize ?? "N/A"})'),
-                _buildDetailRow('Mô tả', report.description ?? 'Không có mô tả'),
-                
+                _buildDetailRow(
+                  'Thời gian tạo',
+                  _formatDateTime(report.createdAt),
+                ),
+                _buildDetailRow(
+                  'Mức độ rác',
+                  '${_mapEstimatedSize(report.estimatedSize)} (${report.estimatedSize ?? "N/A"})',
+                ),
+                _buildDetailRow(
+                  'Mô tả',
+                  report.description ?? 'Không có mô tả',
+                ),
+
                 const SizedBox(height: 16),
                 const Text('VỊ TRÍ & PHÂN CÔNG', style: _sectionHeaderStyle),
                 const Divider(),
                 _buildDetailRow('Vĩ độ (Lat)', report.latitude.toString()),
                 _buildDetailRow('Kinh độ (Long)', report.longitude.toString()),
-                _buildDetailRow('Tọa độ Google Maps', '${report.latitude},${report.longitude}'),
-                _buildDetailRow('Nhân viên phụ trách', report.assignedCollectorName ?? 'Chưa phân công'),
-                _buildDetailRow('ID Nhân viên', report.assignedCollectorId?.toString() ?? 'N/A'),
+                _buildDetailRow(
+                  'Tọa độ Google Maps',
+                  '${report.latitude},${report.longitude}',
+                ),
+                _buildDetailRow(
+                  'Nhân viên phụ trách',
+                  report.assignedCollectorName ?? 'Chưa phân công',
+                ),
+                _buildDetailRow(
+                  'ID Nhân viên',
+                  report.assignedCollectorId?.toString() ?? 'N/A',
+                ),
               ],
             ),
           ),
@@ -474,7 +626,9 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF10B981),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             child: const Text('Đóng'),
           ),
@@ -519,7 +673,7 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
   String _formatDateTime(DateTime? dt) {
     if (dt == null) return '-';
     return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year} '
-           '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+        '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
   }
 
   static const _sectionHeaderStyle = TextStyle(
@@ -531,16 +685,25 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
 
   void _showAssignmentDialog(EnterpriseReport report) {
     int? selectedCollectorId;
+    final assignableCollectors = widget.collectors
+        .where(
+          (collector) => collector.collectorId != report.assignedCollectorId,
+        )
+        .toList();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Phân công thu gom', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Phân công thu gom',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (report.assignedCollectorName != null && report.assignedCollectorName!.isNotEmpty) ...[
+            if (report.assignedCollectorName != null &&
+                report.assignedCollectorName!.isNotEmpty) ...[
               Padding(
                 padding: const EdgeInsets.only(bottom: 12.0, left: 4.0),
                 child: RichText(
@@ -550,37 +713,64 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
                       const TextSpan(text: 'Nhân viên hiện tại: '),
                       TextSpan(
                         text: report.assignedCollectorName,
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.orange),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
             ],
+            if (assignableCollectors.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(
+                  'Hiá»‡n khÃ´ng cÃ³ nhÃ¢n viÃªn nÃ o sáºµn sÃ ng Ä‘á»ƒ gÃ¡n viá»‡c.',
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
+              ),
             DropdownButtonFormField<int>(
               decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 labelText: 'Chọn nhân viên',
               ),
-              items: widget.collectors.map((c) => DropdownMenuItem(
-                value: c.collectorId,
-                child: Text(c.fullName ?? 'Nhân viên #${c.collectorId}'),
-              )).toList(),
-              onChanged: (val) => selectedCollectorId = val,
+              items: assignableCollectors
+                  .map(
+                    (c) => DropdownMenuItem(
+                      value: c.collectorId,
+                      child: Text(c.fullName ?? 'Nhân viên #${c.collectorId}'),
+                    ),
+                  )
+                  .toList(),
+              onChanged: assignableCollectors.isEmpty
+                  ? null
+                  : (val) => selectedCollectorId = val,
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy'),
+          ),
           ElevatedButton(
-            onPressed: () {
-              if (selectedCollectorId != null) {
-                widget.onAccept(report.reportId, selectedCollectorId);
-                Navigator.pop(context);
-                _setStep(report.reportId, 0);
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00B074), foregroundColor: Colors.white),
+            onPressed: assignableCollectors.isEmpty
+                ? null
+                : () {
+                    if (selectedCollectorId != null) {
+                      widget.onAccept(report.reportId, selectedCollectorId);
+                      Navigator.pop(context);
+                      _setStep(report.reportId, 0);
+                    }
+                  },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF00B074),
+              foregroundColor: Colors.white,
+            ),
             child: const Text('Xác nhận'),
           ),
         ],
@@ -590,11 +780,16 @@ class _ReportsTableWidgetState extends State<ReportsTableWidget> {
 
   String _getStatusLabel(String status) {
     switch (status) {
-      case 'Pending': return 'Chờ duyệt';
-      case 'Accepted': return 'Đã duyệt';
-      case 'Rejected': return 'Từ chối';
-      case 'Collected': return 'Đã thu gom';
-      default: return status;
+      case 'Pending':
+        return 'Chờ duyệt';
+      case 'Accepted':
+        return 'Đã duyệt';
+      case 'Rejected':
+        return 'Từ chối';
+      case 'Collected':
+        return 'Đã thu gom';
+      default:
+        return status;
     }
   }
 

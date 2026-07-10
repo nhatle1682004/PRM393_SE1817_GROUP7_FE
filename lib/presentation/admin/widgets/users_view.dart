@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:waste_collection_management_system/config/api_config.dart';
+import 'package:waste_collection_management_system/data/constants/app_roles.dart';
 import 'package:waste_collection_management_system/data/models/admin_user.dart';
+import 'package:waste_collection_management_system/data/models/district_model.dart';
 import 'package:waste_collection_management_system/services/admin_api_service.dart';
+import 'package:waste_collection_management_system/services/api_service.dart';
 
 class UsersView extends StatefulWidget {
   final VoidCallback onRefresh;
@@ -18,7 +22,13 @@ class _UsersViewState extends State<UsersView> {
   String _searchQuery = '';
   String _selectedRole = 'All';
 
-  final List<String> _roles = ['All', 'Admin', 'Citizen', 'Collector', 'Enterprise'];
+  final List<String> _roles = [
+    'All',
+    'Admin',
+    'Citizen',
+    'Collector',
+    'Enterprise',
+  ];
 
   @override
   void initState() {
@@ -52,9 +62,11 @@ class _UsersViewState extends State<UsersView> {
 
   List<AdminUser> get _filteredUsers {
     return _users.where((user) {
-      final matchesSearch = user.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+      final matchesSearch =
+          user.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           user.email.toLowerCase().contains(_searchQuery.toLowerCase());
-      final matchesRole = _selectedRole == 'All' || user.roleName == _selectedRole;
+      final matchesRole =
+          _selectedRole == 'All' || user.roleName == _selectedRole;
       return matchesSearch && matchesRole;
     }).toList();
   }
@@ -67,9 +79,7 @@ class _UsersViewState extends State<UsersView> {
     return Column(
       children: [
         _buildToolbar(isMobile),
-        Expanded(
-          child: _buildContent(isMobile),
-        ),
+        Expanded(child: _buildContent(isMobile)),
       ],
     );
   }
@@ -115,7 +125,9 @@ class _UsersViewState extends State<UsersView> {
                   backgroundColor: const Color(0xFF10B981),
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.all(isMobile ? 12 : 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ],
@@ -137,10 +149,9 @@ class _UsersViewState extends State<UsersView> {
         child: DropdownButton<String>(
           value: _selectedRole,
           isDense: true,
-          items: _roles.map((role) => DropdownMenuItem(
-            value: role,
-            child: Text(role),
-          )).toList(),
+          items: _roles
+              .map((role) => DropdownMenuItem(value: role, child: Text(role)))
+              .toList(),
           onChanged: (value) {
             if (value != null) {
               setState(() => _selectedRole = value);
@@ -153,7 +164,9 @@ class _UsersViewState extends State<UsersView> {
 
   Widget _buildContent(bool isMobile) {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF10B981)));
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFF10B981)),
+      );
     }
 
     if (_errorMessage != null) {
@@ -167,8 +180,13 @@ class _UsersViewState extends State<UsersView> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadUsers,
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
-              child: const Text('Thử lại', style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF10B981),
+              ),
+              child: const Text(
+                'Thử lại',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -182,7 +200,10 @@ class _UsersViewState extends State<UsersView> {
           children: [
             Icon(Icons.people_outline, color: Colors.grey.shade400, size: 64),
             const SizedBox(height: 16),
-            Text('Không tìm thấy người dùng nào', style: TextStyle(color: Colors.grey.shade600, fontSize: 16)),
+            Text(
+              'Không tìm thấy người dùng nào',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
+            ),
           ],
         ),
       );
@@ -221,7 +242,9 @@ class _UsersViewState extends State<UsersView> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: const Color(0xFFF8FAFC),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
             ),
             child: Row(
               children: [
@@ -244,7 +267,10 @@ class _UsersViewState extends State<UsersView> {
       flex: flex,
       child: Text(
         text,
-        style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF64748B),
+        ),
       ),
     );
   }
@@ -263,9 +289,13 @@ class _UsersViewState extends State<UsersView> {
               children: [
                 CircleAvatar(
                   radius: 20,
-                  backgroundColor: _getRoleColor(user.roleName).withValues(alpha: 0.1),
+                  backgroundColor: _getRoleColor(
+                    user.roleName,
+                  ).withValues(alpha: 0.1),
                   child: Text(
-                    user.fullName.isNotEmpty ? user.fullName[0].toUpperCase() : 'U',
+                    user.fullName.isNotEmpty
+                        ? user.fullName[0].toUpperCase()
+                        : 'U',
                     style: TextStyle(
                       color: _getRoleColor(user.roleName),
                       fontWeight: FontWeight.bold,
@@ -285,7 +315,10 @@ class _UsersViewState extends State<UsersView> {
                       if (user.totalPoints != null)
                         Text(
                           '${user.totalPoints} điểm',
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade500,
+                          ),
                         ),
                     ],
                   ),
@@ -297,14 +330,8 @@ class _UsersViewState extends State<UsersView> {
             flex: 2,
             child: Text(user.email, overflow: TextOverflow.ellipsis),
           ),
-          Expanded(
-            flex: 1,
-            child: _buildRoleChip(user.roleName),
-          ),
-          Expanded(
-            flex: 1,
-            child: _buildStatusChip(user.isActive),
-          ),
+          Expanded(flex: 1, child: _buildRoleChip(user.roleName)),
+          Expanded(flex: 1, child: _buildStatusChip(user.isActive)),
           Expanded(
             flex: 1,
             child: Row(
@@ -317,8 +344,13 @@ class _UsersViewState extends State<UsersView> {
                   tooltip: 'Sửa',
                 ),
                 IconButton(
-                  icon: Icon(user.isActive ? Icons.block : Icons.check_circle_outline, size: 20),
-                  color: user.isActive ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+                  icon: Icon(
+                    user.isActive ? Icons.block : Icons.check_circle_outline,
+                    size: 20,
+                  ),
+                  color: user.isActive
+                      ? const Color(0xFFEF4444)
+                      : const Color(0xFF10B981),
                   onPressed: () => _toggleUserStatus(user),
                   tooltip: user.isActive ? 'Vô hiệu hóa' : 'Kích hoạt',
                 ),
@@ -352,9 +384,13 @@ class _UsersViewState extends State<UsersView> {
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundColor: _getRoleColor(user.roleName).withValues(alpha: 0.1),
+                backgroundColor: _getRoleColor(
+                  user.roleName,
+                ).withValues(alpha: 0.1),
                 child: Text(
-                  user.fullName.isNotEmpty ? user.fullName[0].toUpperCase() : 'U',
+                  user.fullName.isNotEmpty
+                      ? user.fullName[0].toUpperCase()
+                      : 'U',
                   style: TextStyle(
                     color: _getRoleColor(user.roleName),
                     fontWeight: FontWeight.bold,
@@ -369,11 +405,17 @@ class _UsersViewState extends State<UsersView> {
                   children: [
                     Text(
                       user.fullName,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                     Text(
                       user.email,
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 13,
+                      ),
                     ),
                   ],
                 ),
@@ -388,7 +430,10 @@ class _UsersViewState extends State<UsersView> {
               const Spacer(),
               if (user.totalPoints != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFDCFCE7),
                     borderRadius: BorderRadius.circular(12),
@@ -396,9 +441,19 @@ class _UsersViewState extends State<UsersView> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.stars, size: 14, color: Color(0xFF10B981)),
+                      const Icon(
+                        Icons.stars,
+                        size: 14,
+                        color: Color(0xFF10B981),
+                      ),
                       const SizedBox(width: 4),
-                      Text('${user.totalPoints} điểm', style: const TextStyle(fontSize: 12, color: Color(0xFF10B981))),
+                      Text(
+                        '${user.totalPoints} điểm',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF10B981),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -412,14 +467,21 @@ class _UsersViewState extends State<UsersView> {
                 onPressed: () => _showEditUserDialog(user),
                 icon: const Icon(Icons.edit_outlined, size: 18),
                 label: const Text('Sửa'),
-                style: TextButton.styleFrom(foregroundColor: const Color(0xFF3B82F6)),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF3B82F6),
+                ),
               ),
               TextButton.icon(
                 onPressed: () => _toggleUserStatus(user),
-                icon: Icon(user.isActive ? Icons.block : Icons.check_circle_outline, size: 18),
+                icon: Icon(
+                  user.isActive ? Icons.block : Icons.check_circle_outline,
+                  size: 18,
+                ),
                 label: Text(user.isActive ? 'Vô hiệu hóa' : 'Kích hoạt'),
                 style: TextButton.styleFrom(
-                  foregroundColor: user.isActive ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+                  foregroundColor: user.isActive
+                      ? const Color(0xFFEF4444)
+                      : const Color(0xFF10B981),
                 ),
               ),
             ],
@@ -461,7 +523,9 @@ class _UsersViewState extends State<UsersView> {
             width: 6,
             height: 6,
             decoration: BoxDecoration(
-              color: isActive ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+              color: isActive
+                  ? const Color(0xFF10B981)
+                  : const Color(0xFFEF4444),
               shape: BoxShape.circle,
             ),
           ),
@@ -469,7 +533,9 @@ class _UsersViewState extends State<UsersView> {
           Text(
             isActive ? 'Hoạt động' : 'Khóa',
             style: TextStyle(
-              color: isActive ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+              color: isActive
+                  ? const Color(0xFF10B981)
+                  : const Color(0xFFEF4444),
               fontWeight: FontWeight.w600,
               fontSize: 12,
             ),
@@ -494,11 +560,44 @@ class _UsersViewState extends State<UsersView> {
     }
   }
 
-  void _showCreateUserDialog() {
+  Future<List<District>> _loadDistricts() async {
+    try {
+      final response = await ApiService.get(ApiConfig.districts);
+      if (response.data is List) {
+        return (response.data as List)
+            .map((e) => District.fromJson(e))
+            .toList();
+      }
+    } catch (e) {
+      debugPrint('Error loading districts: $e');
+    }
+    return [];
+  }
+
+  bool _shouldShowDistrictField(String roleName) {
+    return roleName.toLowerCase() == 'enterprise';
+  }
+
+  bool _shouldShowEnterpriseField(String roleName) {
+    return roleName.toLowerCase() == 'collector';
+  }
+
+  List<AdminUser> get _enterpriseUsers {
+    return _users
+        .where((user) => user.roleName.toLowerCase() == 'enterprise')
+        .toList();
+  }
+
+  Future<void> _showCreateUserDialog() async {
     final nameController = TextEditingController();
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
     String selectedRole = 'Citizen';
+    int? selectedDistrictId;
+    int? selectedEnterpriseId;
+    final districts = await _loadDistricts();
+
+    if (!mounted) return;
 
     showDialog(
       context: context,
@@ -538,21 +637,89 @@ class _UsersViewState extends State<UsersView> {
               ),
               const SizedBox(height: 16),
               StatefulBuilder(
-                builder: (context, setDialogState) => DropdownButtonFormField<String>(
-                  value: selectedRole,
-                  decoration: const InputDecoration(
-                    labelText: 'Vai trò',
-                    prefixIcon: Icon(Icons.badge_outlined),
-                    border: OutlineInputBorder(),
-                  ),
-                  items: ['Admin', 'Citizen', 'Collector', 'Enterprise']
-                      .map((r) => DropdownMenuItem(value: r, child: Text(r)))
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setDialogState(() => selectedRole = value);
-                    }
-                  },
+                builder: (context, setDialogState) => Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButtonFormField<String>(
+                      initialValue: selectedRole,
+                      decoration: const InputDecoration(
+                        labelText: 'Vai trò',
+                        prefixIcon: Icon(Icons.badge_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      items: ['Admin', 'Citizen', 'Collector', 'Enterprise']
+                          .map(
+                            (r) => DropdownMenuItem(value: r, child: Text(r)),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          setDialogState(() {
+                            selectedRole = value;
+                            if (!_shouldShowDistrictField(value)) {
+                              selectedDistrictId = null;
+                            }
+                            if (!_shouldShowEnterpriseField(value)) {
+                              selectedEnterpriseId = null;
+                            }
+                          });
+                        }
+                      },
+                    ),
+                    if (_shouldShowDistrictField(selectedRole)) ...[
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<int>(
+                        initialValue:
+                            districts.any(
+                              (district) => district.id == selectedDistrictId,
+                            )
+                            ? selectedDistrictId
+                            : null,
+                        decoration: const InputDecoration(
+                          labelText: 'Quận phụ trách',
+                          prefixIcon: Icon(Icons.map_outlined),
+                          border: OutlineInputBorder(),
+                        ),
+                        items: districts
+                            .map(
+                              (district) => DropdownMenuItem(
+                                value: district.id,
+                                child: Text(district.name),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) =>
+                            setDialogState(() => selectedDistrictId = value),
+                      ),
+                    ],
+                    if (_shouldShowEnterpriseField(selectedRole)) ...[
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<int>(
+                        initialValue:
+                            _enterpriseUsers.any(
+                              (enterprise) =>
+                                  enterprise.userId == selectedEnterpriseId,
+                            )
+                            ? selectedEnterpriseId
+                            : null,
+                        decoration: const InputDecoration(
+                          labelText: 'Doanh nghiệp phụ trách',
+                          prefixIcon: Icon(Icons.business_outlined),
+                          border: OutlineInputBorder(),
+                        ),
+                        items: _enterpriseUsers
+                            .map(
+                              (enterprise) => DropdownMenuItem(
+                                value: enterprise.userId,
+                                child: Text(enterprise.fullName),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) =>
+                            setDialogState(() => selectedEnterpriseId = value),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ],
@@ -565,20 +732,48 @@ class _UsersViewState extends State<UsersView> {
           ),
           ElevatedButton(
             onPressed: () async {
-              if (nameController.text.isEmpty || emailController.text.isEmpty || passwordController.text.isEmpty) {
+              if (nameController.text.isEmpty ||
+                  emailController.text.isEmpty ||
+                  passwordController.text.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Vui lòng điền đầy đủ thông tin')),
+                  const SnackBar(
+                    content: Text('Vui lòng điền đầy đủ thông tin'),
+                  ),
+                );
+                return;
+              }
+              if (_shouldShowDistrictField(selectedRole) &&
+                  selectedDistrictId == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Vui lòng chọn quận phụ trách')),
+                );
+                return;
+              }
+              if (_shouldShowEnterpriseField(selectedRole) &&
+                  selectedEnterpriseId == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Vui lòng chọn doanh nghiệp phụ trách'),
+                  ),
                 );
                 return;
               }
 
               try {
-                await AdminApiService.createUser(CreateUserRequest(
-                  email: emailController.text,
-                  fullName: nameController.text,
-                  password: passwordController.text,
-                  roleId: _getRoleId(selectedRole),
-                ));
+                await AdminApiService.createUser(
+                  CreateUserRequest(
+                    email: emailController.text,
+                    fullName: nameController.text,
+                    password: passwordController.text,
+                    roleId: _getRoleId(selectedRole),
+                    managedDistrictId: _shouldShowDistrictField(selectedRole)
+                        ? selectedDistrictId
+                        : null,
+                    enterpriseId: _shouldShowEnterpriseField(selectedRole)
+                        ? selectedEnterpriseId
+                        : null,
+                  ),
+                );
                 if (context.mounted) {
                   Navigator.pop(context);
                   _loadUsers();
@@ -589,13 +784,15 @@ class _UsersViewState extends State<UsersView> {
                 }
               } catch (e) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Lỗi: $e')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
                 }
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+            ),
             child: const Text('Thêm', style: TextStyle(color: Colors.white)),
           ),
         ],
@@ -603,10 +800,15 @@ class _UsersViewState extends State<UsersView> {
     );
   }
 
-  void _showEditUserDialog(AdminUser user) {
+  Future<void> _showEditUserDialog(AdminUser user) async {
     final nameController = TextEditingController(text: user.fullName);
     final emailController = TextEditingController(text: user.email);
     String selectedRole = user.roleName;
+    int? selectedDistrictId = user.managedDistrictId;
+    int? selectedEnterpriseId = user.enterpriseId;
+    final districts = await _loadDistricts();
+
+    if (!mounted) return;
 
     showDialog(
       context: context,
@@ -636,21 +838,89 @@ class _UsersViewState extends State<UsersView> {
               ),
               const SizedBox(height: 16),
               StatefulBuilder(
-                builder: (context, setDialogState) => DropdownButtonFormField<String>(
-                  value: selectedRole,
-                  decoration: const InputDecoration(
-                    labelText: 'Vai trò',
-                    prefixIcon: Icon(Icons.badge_outlined),
-                    border: OutlineInputBorder(),
-                  ),
-                  items: ['Admin', 'Citizen', 'Collector', 'Enterprise']
-                      .map((r) => DropdownMenuItem(value: r, child: Text(r)))
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setDialogState(() => selectedRole = value);
-                    }
-                  },
+                builder: (context, setDialogState) => Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButtonFormField<String>(
+                      initialValue: selectedRole,
+                      decoration: const InputDecoration(
+                        labelText: 'Vai trò',
+                        prefixIcon: Icon(Icons.badge_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      items: ['Admin', 'Citizen', 'Collector', 'Enterprise']
+                          .map(
+                            (r) => DropdownMenuItem(value: r, child: Text(r)),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          setDialogState(() {
+                            selectedRole = value;
+                            if (!_shouldShowDistrictField(value)) {
+                              selectedDistrictId = null;
+                            }
+                            if (!_shouldShowEnterpriseField(value)) {
+                              selectedEnterpriseId = null;
+                            }
+                          });
+                        }
+                      },
+                    ),
+                    if (_shouldShowDistrictField(selectedRole)) ...[
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<int>(
+                        initialValue:
+                            districts.any(
+                              (district) => district.id == selectedDistrictId,
+                            )
+                            ? selectedDistrictId
+                            : null,
+                        decoration: const InputDecoration(
+                          labelText: 'Quận phụ trách',
+                          prefixIcon: Icon(Icons.map_outlined),
+                          border: OutlineInputBorder(),
+                        ),
+                        items: districts
+                            .map(
+                              (district) => DropdownMenuItem(
+                                value: district.id,
+                                child: Text(district.name),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) =>
+                            setDialogState(() => selectedDistrictId = value),
+                      ),
+                    ],
+                    if (_shouldShowEnterpriseField(selectedRole)) ...[
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<int>(
+                        initialValue:
+                            _enterpriseUsers.any(
+                              (enterprise) =>
+                                  enterprise.userId == selectedEnterpriseId,
+                            )
+                            ? selectedEnterpriseId
+                            : null,
+                        decoration: const InputDecoration(
+                          labelText: 'Doanh nghiệp phụ trách',
+                          prefixIcon: Icon(Icons.business_outlined),
+                          border: OutlineInputBorder(),
+                        ),
+                        items: _enterpriseUsers
+                            .map(
+                              (enterprise) => DropdownMenuItem(
+                                value: enterprise.userId,
+                                child: Text(enterprise.fullName),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) =>
+                            setDialogState(() => selectedEnterpriseId = value),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ],
@@ -663,12 +933,38 @@ class _UsersViewState extends State<UsersView> {
           ),
           ElevatedButton(
             onPressed: () async {
+              if (_shouldShowDistrictField(selectedRole) &&
+                  selectedDistrictId == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Vui lòng chọn quận phụ trách')),
+                );
+                return;
+              }
+              if (_shouldShowEnterpriseField(selectedRole) &&
+                  selectedEnterpriseId == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Vui lòng chọn doanh nghiệp phụ trách'),
+                  ),
+                );
+                return;
+              }
+
               try {
-                await AdminApiService.updateUser(user.userId, UpdateUserRequest(
-                  email: emailController.text,
-                  fullName: nameController.text,
-                  roleId: _getRoleId(selectedRole),
-                ));
+                await AdminApiService.updateUser(
+                  user.userId,
+                  UpdateUserRequest(
+                    email: emailController.text,
+                    fullName: nameController.text,
+                    roleId: _getRoleId(selectedRole),
+                    managedDistrictId: _shouldShowDistrictField(selectedRole)
+                        ? selectedDistrictId
+                        : null,
+                    enterpriseId: _shouldShowEnterpriseField(selectedRole)
+                        ? selectedEnterpriseId
+                        : null,
+                  ),
+                );
                 if (context.mounted) {
                   Navigator.pop(context);
                   _loadUsers();
@@ -678,13 +974,15 @@ class _UsersViewState extends State<UsersView> {
                 }
               } catch (e) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Lỗi: $e')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
                 }
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+            ),
             child: const Text('Lưu', style: TextStyle(color: Colors.white)),
           ),
         ],
@@ -696,10 +994,14 @@ class _UsersViewState extends State<UsersView> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(user.isActive ? 'Vô hiệu hóa người dùng' : 'Kích hoạt người dùng'),
-        content: Text(user.isActive
-            ? 'Bạn có chắc muốn vô hiệu hóa người dùng "${user.fullName}"?'
-            : 'Bạn có chắc muốn kích hoạt người dùng "${user.fullName}"?'),
+        title: Text(
+          user.isActive ? 'Vô hiệu hóa người dùng' : 'Kích hoạt người dùng',
+        ),
+        content: Text(
+          user.isActive
+              ? 'Bạn có chắc muốn vô hiệu hóa người dùng "${user.fullName}"?'
+              : 'Bạn có chắc muốn kích hoạt người dùng "${user.fullName}"?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -708,9 +1010,14 @@ class _UsersViewState extends State<UsersView> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: user.isActive ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+              backgroundColor: user.isActive
+                  ? const Color(0xFFEF4444)
+                  : const Color(0xFF10B981),
             ),
-            child: Text(user.isActive ? 'Vô hiệu hóa' : 'Kích hoạt', style: const TextStyle(color: Colors.white)),
+            child: Text(
+              user.isActive ? 'Vô hiệu hóa' : 'Kích hoạt',
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -727,14 +1034,20 @@ class _UsersViewState extends State<UsersView> {
         widget.onRefresh();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(user.isActive ? 'Đã vô hiệu hóa người dùng' : 'Đã kích hoạt người dùng')),
+            SnackBar(
+              content: Text(
+                user.isActive
+                    ? 'Đã vô hiệu hóa người dùng'
+                    : 'Đã kích hoạt người dùng',
+              ),
+            ),
           );
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Lỗi: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
         }
       }
     }
@@ -743,15 +1056,15 @@ class _UsersViewState extends State<UsersView> {
   int _getRoleId(String roleName) {
     switch (roleName.toLowerCase()) {
       case 'admin':
-        return 1;
+        return AppRoles.admin;
       case 'citizen':
-        return 2;
+        return AppRoles.citizen;
       case 'collector':
-        return 3;
+        return AppRoles.collector;
       case 'enterprise':
-        return 4;
+        return AppRoles.enterprise;
       default:
-        return 2;
+        return AppRoles.citizen;
     }
   }
 }

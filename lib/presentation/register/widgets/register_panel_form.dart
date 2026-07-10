@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:waste_collection_management_system/presentation/verify_email/verify_email_screen.dart';
 import 'package:waste_collection_management_system/services/auth_service.dart';
 
@@ -72,16 +71,40 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                 children: [
                   Icon(Icons.eco, color: Color(0xff10b981), size: 24),
                   SizedBox(width: 12),
-                  Text('Waste Collection', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87)),
+                  Text(
+                    'Waste Collection',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
-              const Text('Tạo tài khoản', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87, letterSpacing: -0.5)),
-              const Text('Tham gia cộng đồng sống xanh', style: TextStyle(fontSize: 14, color: Colors.black54)),
+              const Text(
+                'Tạo tài khoản',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const Text(
+                'Tham gia cộng đồng sống xanh',
+                style: TextStyle(fontSize: 14, color: Colors.black54),
+              ),
               const SizedBox(height: 24),
 
               // Full Name
-              const Text('Họ và tên', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+              const Text(
+                'Họ và tên',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _fullNameController,
@@ -89,9 +112,11 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                 textInputAction: TextInputAction.next,
                 onFieldSubmitted: (_) => _emailFocus.requestFocus(),
                 textCapitalization: TextCapitalization.words,
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[a-zA-ZÀ-ÿ\s'.-]"))],
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty) return 'Vui lòng nhập họ và tên';
+                  if (value == null || value.trim().isEmpty)
+                    return 'Vui lòng nhập họ và tên';
+                  if (value.trim().length > 100)
+                    return 'Họ và tên tối đa 100 ký tự';
                   return null;
                 },
                 decoration: InputDecoration(
@@ -99,7 +124,10 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                   hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
                   filled: true,
                   fillColor: const Color(0xfff9fafb),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 16,
+                  ),
                   border: myBorder(Colors.grey[200]!),
                   enabledBorder: myBorder(Colors.grey[200]!),
                   focusedBorder: myBorder(const Color(0xff10b981), width: 2.0),
@@ -111,7 +139,13 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
               const SizedBox(height: 16),
 
               // Email
-              const Text('Email', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+              const Text(
+                'Email',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _emailController,
@@ -121,9 +155,13 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                 keyboardType: TextInputType.emailAddress,
                 textCapitalization: TextCapitalization.none,
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty) return 'Vui lòng nhập email';
-                  final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                  if (!emailRegex.hasMatch(value)) return 'Vui lòng nhập địa chỉ email hợp lệ';
+                  if (value == null || value.trim().isEmpty)
+                    return 'Vui lòng nhập email';
+                  final emailRegex = RegExp(
+                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                  );
+                  if (!emailRegex.hasMatch(value))
+                    return 'Vui lòng nhập địa chỉ email hợp lệ';
                   return null;
                 },
                 decoration: InputDecoration(
@@ -131,7 +169,10 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                   hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
                   filled: true,
                   fillColor: const Color(0xfff9fafb),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 16,
+                  ),
                   border: myBorder(Colors.grey[200]!),
                   enabledBorder: myBorder(Colors.grey[200]!),
                   focusedBorder: myBorder(const Color(0xff10b981), width: 2.0),
@@ -143,7 +184,13 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
               const SizedBox(height: 16),
 
               // Password
-              const Text('Mật khẩu', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+              const Text(
+                'Mật khẩu',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _passwordController,
@@ -152,12 +199,18 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                 onFieldSubmitted: (_) => _confirmFocus.requestFocus(),
                 obscureText: _obscurePassword,
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Vui lòng nhập mật khẩu';
-                  if (value.length < 8) return 'Mật khẩu phải có ít nhất 8 ký tự';
-                  if (!RegExp(r'[A-Z]').hasMatch(value)) return 'Mật khẩu phải có ít nhất một chữ hoa';
-                  if (!RegExp(r'[a-z]').hasMatch(value)) return 'Mật khẩu phải có ít nhất một chữ thường';
-                  if (!RegExp(r'[0-9]').hasMatch(value)) return 'Mật khẩu phải có ít nhất một chữ số';
-                  if (!RegExp(r'[^a-zA-Z0-9]').hasMatch(value)) return 'Mật khẩu phải có ít nhất một ký tự đặc biệt';
+                  if (value == null || value.isEmpty)
+                    return 'Vui lòng nhập mật khẩu';
+                  if (value.length < 8)
+                    return 'Mật khẩu phải có ít nhất 8 ký tự';
+                  if (!RegExp(r'[A-Z]').hasMatch(value))
+                    return 'Mật khẩu phải có ít nhất một chữ hoa';
+                  if (!RegExp(r'[a-z]').hasMatch(value))
+                    return 'Mật khẩu phải có ít nhất một chữ thường';
+                  if (!RegExp(r'[0-9]').hasMatch(value))
+                    return 'Mật khẩu phải có ít nhất một chữ số';
+                  if (!RegExp(r'[^a-zA-Z0-9]').hasMatch(value))
+                    return 'Mật khẩu phải có ít nhất một ký tự đặc biệt';
                   return null;
                 },
                 decoration: InputDecoration(
@@ -165,7 +218,10 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                   hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
                   filled: true,
                   fillColor: const Color(0xfff9fafb),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 16,
+                  ),
                   border: myBorder(Colors.grey[200]!),
                   enabledBorder: myBorder(Colors.grey[200]!),
                   focusedBorder: myBorder(const Color(0xff10b981), width: 2.0),
@@ -173,9 +229,12 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                   focusedErrorBorder: myBorder(Colors.red, width: 2.0),
                   errorStyle: const TextStyle(fontSize: 12),
                   suffixIcon: IconButton(
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
                     icon: Icon(
-                      _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                      _obscurePassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
                       color: Colors.grey[400],
                       size: 20,
                     ),
@@ -185,7 +244,10 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
               const SizedBox(height: 16),
 
               // Confirm Password
-              const Text('Xác nhận mật khẩu', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const Text(
+                'Xác nhận mật khẩu',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _confirmController,
@@ -193,8 +255,10 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                 textInputAction: TextInputAction.done,
                 obscureText: _obscureConfirmPassword,
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Vui lòng xác nhận mật khẩu';
-                  if (value != _passwordController.text) return 'Mật khẩu không khớp';
+                  if (value == null || value.isEmpty)
+                    return 'Vui lòng xác nhận mật khẩu';
+                  if (value != _passwordController.text)
+                    return 'Mật khẩu không khớp';
                   return null;
                 },
                 decoration: InputDecoration(
@@ -202,7 +266,10 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                   hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
                   filled: true,
                   fillColor: const Color(0xfff9fafb),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 16,
+                  ),
                   border: myBorder(Colors.grey[200]!),
                   enabledBorder: myBorder(Colors.grey[200]!),
                   focusedBorder: myBorder(const Color(0xff10b981), width: 2.0),
@@ -210,9 +277,13 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                   focusedErrorBorder: myBorder(Colors.red, width: 2.0),
                   errorStyle: const TextStyle(fontSize: 12),
                   suffixIcon: IconButton(
-                    onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                    onPressed: () => setState(
+                      () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                    ),
                     icon: Icon(
-                      _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                      _obscureConfirmPassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
                       color: Colors.grey[400],
                       size: 20,
                     ),
@@ -251,7 +322,10 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                               }
                             } catch (e) {
                               setState(() {
-                                _errorMessage = e.toString().replaceFirst('Exception: ', '');
+                                _errorMessage = e.toString().replaceFirst(
+                                  'Exception: ',
+                                  '',
+                                );
                               });
                             } finally {
                               if (mounted) {
@@ -262,20 +336,34 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                         },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff10b981),
-                    disabledBackgroundColor: const Color(0xff10b981).withValues(alpha: 0.7),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    disabledBackgroundColor: const Color(
+                      0xff10b981,
+                    ).withValues(alpha: 0.7),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     elevation: 0,
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
                         )
                       : const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('Gửi mã OTP', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                            Text(
+                              'Gửi mã OTP',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             SizedBox(width: 8),
                             Icon(Icons.send, size: 18, color: Colors.white),
                           ],
@@ -296,12 +384,19 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.error_outline, color: Color(0xffdc2626), size: 18),
+                      const Icon(
+                        Icons.error_outline,
+                        color: Color(0xffdc2626),
+                        size: 18,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           _errorMessage!,
-                          style: const TextStyle(color: Color(0xffdc2626), fontSize: 13),
+                          style: const TextStyle(
+                            color: Color(0xffdc2626),
+                            fontSize: 13,
+                          ),
                         ),
                       ),
                     ],
@@ -312,11 +407,20 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Đã có tài khoản?', style: TextStyle(color: Colors.black54, fontSize: 14)),
+                  const Text(
+                    'Đã có tài khoản?',
+                    style: TextStyle(color: Colors.black54, fontSize: 14),
+                  ),
                   const SizedBox(width: 6),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Text('Đăng nhập', style: TextStyle(color: Color(0xff10b981), fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      'Đăng nhập',
+                      style: TextStyle(
+                        color: Color(0xff10b981),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),

@@ -19,8 +19,14 @@ class _ReportsViewState extends State<ReportsView> {
   bool _isLoading = true;
   String? _error;
   String _statusFilter = 'Tất cả';
-  final List<String> _statusFilters = ['Tất cả', 'Pending', 'Accepted', 'Rejected', 'Collected'];
-  
+  final List<String> _statusFilters = [
+    'Tất cả',
+    'Pending',
+    'Accepted',
+    'Rejected',
+    'Collected',
+  ];
+
   // Pagination state
   int _currentPage = 1;
   final int _itemsPerPage = 10;
@@ -47,7 +53,7 @@ class _ReportsViewState extends State<ReportsView> {
 
       final collectors = results[1] as List<EnterpriseCollector>;
       final allReports = results[2] as List<EnterpriseReport>;
-      
+
       if (mounted) {
         setState(() {
           _reports = allReports;
@@ -79,12 +85,14 @@ class _ReportsViewState extends State<ReportsView> {
           _buildFilterBar(),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: Color(0xFF10B981)))
+                ? const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF10B981)),
+                  )
                 : _error != null
-                    ? _buildErrorState()
-                    : _filteredReports.isEmpty
-                        ? _buildEmptyState()
-                        : _buildMainLayout(),
+                ? _buildErrorState()
+                : _filteredReports.isEmpty
+                ? _buildEmptyState()
+                : _buildMainLayout(),
           ),
         ],
       ),
@@ -118,13 +126,19 @@ class _ReportsViewState extends State<ReportsView> {
                 selectedColor: const Color(0xFF10B981).withOpacity(0.15),
                 backgroundColor: const Color(0xFFF5F5F5),
                 labelStyle: TextStyle(
-                  color: isSelected ? const Color(0xFF10B981) : const Color(0xFF595959),
+                  color: isSelected
+                      ? const Color(0xFF10B981)
+                      : const Color(0xFF595959),
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                   fontSize: 13,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6),
-                  side: BorderSide(color: isSelected ? const Color(0xFF10B981) : Colors.transparent),
+                  side: BorderSide(
+                    color: isSelected
+                        ? const Color(0xFF10B981)
+                        : Colors.transparent,
+                  ),
                 ),
                 showCheckmark: false,
               ),
@@ -139,7 +153,9 @@ class _ReportsViewState extends State<ReportsView> {
     final filtered = _filteredReports;
     final startIndex = (_currentPage - 1) * _itemsPerPage;
     final endIndex = (startIndex + _itemsPerPage).clamp(0, filtered.length);
-    final pagedReports = filtered.isEmpty ? <EnterpriseReport>[] : filtered.sublist(startIndex, endIndex);
+    final pagedReports = filtered.isEmpty
+        ? <EnterpriseReport>[]
+        : filtered.sublist(startIndex, endIndex);
 
     return RefreshIndicator(
       onRefresh: _loadData,
@@ -149,7 +165,7 @@ class _ReportsViewState extends State<ReportsView> {
         padding: const EdgeInsets.all(16),
         child: ReportsTableWidget(
           reports: pagedReports,
-          collectors: _collectors,
+          collectors: _assignableCollectors,
           totalItems: filtered.length,
           currentPage: _currentPage,
           itemsPerPage: _itemsPerPage,
@@ -163,23 +179,33 @@ class _ReportsViewState extends State<ReportsView> {
 
   String _getStatusLabel(String status) {
     switch (status) {
-      case 'Tất cả': return 'Tất cả';
-      case 'Pending': return 'Chờ duyệt';
-      case 'Accepted': return 'Đã duyệt';
-      case 'Rejected': return 'Từ chối';
-      case 'Collected': return 'Đã thu gom';
-      default: return status;
+      case 'Tất cả':
+        return 'Tất cả';
+      case 'Pending':
+        return 'Chờ duyệt';
+      case 'Accepted':
+        return 'Đã duyệt';
+      case 'Rejected':
+        return 'Từ chối';
+      case 'Collected':
+        return 'Đã thu gom';
+      default:
+        return status;
     }
   }
+
+  List<EnterpriseCollector> get _assignableCollectors =>
+      _collectors.where((collector) => collector.canReceiveAssignment).toList();
 
   Future<void> _handleAccept(int reportId, int? collectorId) async {
     try {
       final reportIdx = _reports.indexWhere((r) => r.reportId == reportId);
       if (reportIdx == -1) return;
-      
+
       EnterpriseReport currentReport = _reports[reportIdx];
-      final isAlreadyAccepted = currentReport.status.trim().toLowerCase() == 'accepted' || 
-                                currentReport.status.trim() == 'Đã duyệt';
+      final isAlreadyAccepted =
+          currentReport.status.trim().toLowerCase() == 'accepted' ||
+          currentReport.status.trim() == 'Đã duyệt';
 
       // 1. Nếu chưa duyệt thì gọi API duyệt (tạo Collection Request)
       if (!isAlreadyAccepted) {
@@ -194,18 +220,21 @@ class _ReportsViewState extends State<ReportsView> {
           });
         }
       }
-      
+
       // 2. Nếu có chọn nhân viên thì gọi API gán hoặc gán lại
       String? collectorName;
       int? assignmentId;
       if (collectorId != null) {
         final requestId = currentReport.requestId;
         if (requestId == null || requestId == 0) {
-          throw Exception('Không tìm thấy ID yêu cầu thu gom. Vui lòng thử lại.');
+          throw Exception(
+            'Không tìm thấy ID yêu cầu thu gom. Vui lòng thử lại.',
+          );
         }
 
         // Nếu đã có assignmentId thì gọi reassign, ngược lại gọi assign
-        if (currentReport.assignmentId != null && currentReport.assignmentId != 0) {
+        if (currentReport.assignmentId != null &&
+            currentReport.assignmentId != 0) {
           final res = await EnterpriseApiService.reassignCollector(
             currentReport.assignmentId!,
             collectorId,
@@ -214,35 +243,47 @@ class _ReportsViewState extends State<ReportsView> {
           collectorName = res.collectorName;
         } else {
           final res = await EnterpriseApiService.assignCollector(
-            AssignCollectorRequest(requestId: requestId, collectorId: collectorId),
+            AssignCollectorRequest(
+              requestId: requestId,
+              collectorId: collectorId,
+            ),
           );
           assignmentId = res.assignmentId;
           collectorName = res.collectorName;
         }
       }
-      
+
       if (mounted) {
         setState(() {
           _reports[reportIdx] = _reports[reportIdx].copyWith(
             status: 'Accepted',
             requestId: currentReport.requestId,
             assignmentId: assignmentId ?? _reports[reportIdx].assignmentId,
-            assignedCollectorId: collectorId ?? _reports[reportIdx].assignedCollectorId,
-            assignedCollectorName: collectorName ?? _reports[reportIdx].assignedCollectorName,
+            assignedCollectorId:
+                collectorId ?? _reports[reportIdx].assignedCollectorId,
+            assignedCollectorName:
+                collectorName ?? _reports[reportIdx].assignedCollectorName,
           );
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Cập nhật báo cáo thành công'), backgroundColor: Color(0xFF10B981)),
+          const SnackBar(
+            content: Text('Cập nhật báo cáo thành công'),
+            backgroundColor: Color(0xFF10B981),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         String errorMessage = e.toString();
         if (errorMessage.contains('Only Pending reports can be accepted')) {
-          errorMessage = 'Báo cáo này đã được duyệt hoặc không còn ở trạng thái chờ.';
+          errorMessage =
+              'Báo cáo này đã được duyệt hoặc không còn ở trạng thái chờ.';
         }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi: $errorMessage'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Lỗi: $errorMessage'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -254,12 +295,18 @@ class _ReportsViewState extends State<ReportsView> {
       if (mounted) {
         setState(() {
           final idx = _reports.indexWhere((r) => r.reportId == reportId);
-          if (idx != -1) _reports[idx] = _reports[idx].copyWith(status: 'Rejected');
+          if (idx != -1)
+            _reports[idx] = _reports[idx].copyWith(status: 'Rejected');
         });
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã từ chối báo cáo')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Đã từ chối báo cáo')));
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $e'), backgroundColor: Colors.red));
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi: $e'), backgroundColor: Colors.red),
+        );
     }
   }
 
@@ -285,7 +332,10 @@ class _ReportsViewState extends State<ReportsView> {
         children: [
           Icon(Icons.inbox_outlined, size: 80, color: Colors.grey.shade300),
           const SizedBox(height: 16),
-          Text('Không có dữ liệu', style: TextStyle(color: Colors.grey.shade500)),
+          Text(
+            'Không có dữ liệu',
+            style: TextStyle(color: Colors.grey.shade500),
+          ),
         ],
       ),
     );

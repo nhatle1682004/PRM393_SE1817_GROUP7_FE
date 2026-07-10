@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:waste_collection_management_system/services/auth_service.dart';
 import 'package:waste_collection_management_system/services/storage_service.dart';
 import 'package:waste_collection_management_system/presentation/login/login_screen.dart';
+import 'package:waste_collection_management_system/presentation/collector/widgets/collection_history_view.dart';
 import 'package:waste_collection_management_system/presentation/collector/widgets/my_tasks_view.dart';
 import 'package:waste_collection_management_system/presentation/enterprise/widgets/notifications_view.dart';
 import 'package:waste_collection_management_system/presentation/enterprise/widgets/profile_view.dart';
@@ -18,10 +19,30 @@ class _CollectorScreenState extends State<CollectorScreen> {
   UserProfile? _userProfile;
 
   final List<_CollectorMenuItem> _menuItems = [
-    _CollectorMenuItem(Icons.assignment_outlined, Icons.assignment_rounded, 'Công việc', 0),
-    _CollectorMenuItem(Icons.history_outlined, Icons.history_rounded, 'Lịch sử', 1),
-    _CollectorMenuItem(Icons.notifications_none_rounded, Icons.notifications_rounded, 'Thông báo', 2),
-    _CollectorMenuItem(Icons.account_circle_outlined, Icons.account_circle_rounded, 'Hồ sơ', 3),
+    _CollectorMenuItem(
+      Icons.assignment_outlined,
+      Icons.assignment_rounded,
+      'Công việc',
+      0,
+    ),
+    _CollectorMenuItem(
+      Icons.history_outlined,
+      Icons.history_rounded,
+      'Lịch sử',
+      1,
+    ),
+    _CollectorMenuItem(
+      Icons.notifications_none_rounded,
+      Icons.notifications_rounded,
+      'Thông báo',
+      2,
+    ),
+    _CollectorMenuItem(
+      Icons.account_circle_outlined,
+      Icons.account_circle_rounded,
+      'Hồ sơ',
+      3,
+    ),
   ];
 
   @override
@@ -118,7 +139,9 @@ class _CollectorScreenState extends State<CollectorScreen> {
 
   Widget _buildUserProfileHeader(bool isMobile) {
     final displayName = _userProfile?.fullName ?? 'Collector';
-    final initials = displayName.isNotEmpty ? displayName[0].toUpperCase() : 'C';
+    final initials = displayName.isNotEmpty
+        ? displayName[0].toUpperCase()
+        : 'C';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -135,14 +158,22 @@ class _CollectorScreenState extends State<CollectorScreen> {
             backgroundColor: const Color(0xFF10B981),
             child: Text(
               initials,
-              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           if (!isMobile) ...[
             const SizedBox(width: 10),
             Text(
               displayName,
-              style: const TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.w600, fontSize: 13),
+              style: const TextStyle(
+                color: Color(0xFF1E293B),
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
             ),
           ],
         ],
@@ -170,7 +201,9 @@ class _CollectorScreenState extends State<CollectorScreen> {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              children: _menuItems.map((item) => _buildSidebarItem(item)).toList(),
+              children: _menuItems
+                  .map((item) => _buildSidebarItem(item))
+                  .toList(),
             ),
           ),
           _buildSidebarFooter(),
@@ -235,7 +268,13 @@ class _CollectorScreenState extends State<CollectorScreen> {
               color: isActive ? const Color(0xFF10B981) : Colors.transparent,
               borderRadius: BorderRadius.circular(12),
               boxShadow: isActive
-                  ? [BoxShadow(color: const Color(0xFF10B981).withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 4))]
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFF10B981).withOpacity(0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
                   : null,
             ),
             child: Row(
@@ -304,7 +343,9 @@ class _CollectorScreenState extends State<CollectorScreen> {
   Widget _buildDrawer() {
     final userDisplayName = _userProfile?.fullName ?? 'Nhân viên';
     final userEmail = _userProfile?.email ?? 'collector@example.com';
-    final initials = userDisplayName.isNotEmpty ? userDisplayName[0].toUpperCase() : 'C';
+    final initials = userDisplayName.isNotEmpty
+        ? userDisplayName[0].toUpperCase()
+        : 'C';
 
     return Drawer(
       backgroundColor: Colors.white,
@@ -326,7 +367,11 @@ class _CollectorScreenState extends State<CollectorScreen> {
                   backgroundColor: Colors.white.withOpacity(0.2),
                   child: Text(
                     initials,
-                    style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -336,13 +381,20 @@ class _CollectorScreenState extends State<CollectorScreen> {
                     children: [
                       Text(
                         userDisplayName,
-                        style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         userEmail,
-                        style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13),
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 13,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -365,20 +417,28 @@ class _CollectorScreenState extends State<CollectorScreen> {
                   child: ListTile(
                     leading: Icon(
                       isActive ? item.activeIcon : item.icon,
-                      color: isActive ? const Color(0xFF10B981) : const Color(0xFF64748B),
+                      color: isActive
+                          ? const Color(0xFF10B981)
+                          : const Color(0xFF64748B),
                       size: 24,
                     ),
                     title: Text(
                       item.label,
                       style: TextStyle(
-                        color: isActive ? const Color(0xFF10B981) : const Color(0xFF1E293B),
-                        fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                        color: isActive
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFF1E293B),
+                        fontWeight: isActive
+                            ? FontWeight.bold
+                            : FontWeight.w500,
                         fontSize: 15,
                       ),
                     ),
                     selected: isActive,
                     selectedTileColor: const Color(0xFFF0FDFA),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     onTap: () {
                       Navigator.pop(context);
                       _onMenuTap(index);
@@ -392,12 +452,21 @@ class _CollectorScreenState extends State<CollectorScreen> {
           Padding(
             padding: const EdgeInsets.all(12),
             child: ListTile(
-              leading: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444)),
+              leading: const Icon(
+                Icons.logout_rounded,
+                color: Color(0xFFEF4444),
+              ),
               title: const Text(
                 'Đăng xuất',
-                style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold, fontSize: 15),
+                style: TextStyle(
+                  color: Color(0xFFEF4444),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
               ),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _handleLogout();
@@ -410,6 +479,10 @@ class _CollectorScreenState extends State<CollectorScreen> {
   }
 
   Widget _buildContent() {
+    if (_currentIndex == 1) {
+      return const CollectionHistoryView();
+    }
+
     switch (_currentIndex) {
       case 0:
         return const MyTasksView();

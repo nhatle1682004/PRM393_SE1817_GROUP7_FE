@@ -6,7 +6,11 @@ class AssignmentsView extends StatefulWidget {
   final int? pendingRequestId;
   final VoidCallback? onAssignmentComplete;
 
-  const AssignmentsView({super.key, this.pendingRequestId, this.onAssignmentComplete});
+  const AssignmentsView({
+    super.key,
+    this.pendingRequestId,
+    this.onAssignmentComplete,
+  });
 
   @override
   State<AssignmentsView> createState() => _AssignmentsViewState();
@@ -20,15 +24,23 @@ class _AssignmentsViewState extends State<AssignmentsView> {
   bool _isAssigning = false;
   String? _error;
   String _statusFilter = 'Tất cả';
-  final List<String> _statusFilters = ['Tất cả', 'Pending', 'InProgress', 'Completed', 'Cancelled'];
-  
+  final List<String> _statusFilters = [
+    'Tất cả',
+    'Pending',
+    'InProgress',
+    'Completed',
+    'Cancelled',
+  ];
+
   // Dialog state
   int? _currentDialogRequestId;
 
   @override
   void initState() {
     super.initState();
-    debugPrint('AssignmentsView initState - pendingRequestId: ${widget.pendingRequestId}');
+    debugPrint(
+      'AssignmentsView initState - pendingRequestId: ${widget.pendingRequestId}',
+    );
     _loadAssignments();
     _loadCollectors();
 
@@ -43,9 +55,12 @@ class _AssignmentsViewState extends State<AssignmentsView> {
   @override
   void didUpdateWidget(AssignmentsView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    debugPrint('AssignmentsView didUpdateWidget - old: ${oldWidget.pendingRequestId}, new: ${widget.pendingRequestId}');
+    debugPrint(
+      'AssignmentsView didUpdateWidget - old: ${oldWidget.pendingRequestId}, new: ${widget.pendingRequestId}',
+    );
     // Khi pendingRequestId thay đổi, hiện dialog
-    if (widget.pendingRequestId != null && widget.pendingRequestId != oldWidget.pendingRequestId) {
+    if (widget.pendingRequestId != null &&
+        widget.pendingRequestId != oldWidget.pendingRequestId) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showAssignDialogForRequest(widget.pendingRequestId!);
       });
@@ -81,20 +96,22 @@ class _AssignmentsViewState extends State<AssignmentsView> {
     if (_collectors.isNotEmpty && !_isLoadingCollectors) {
       return;
     }
-    
+
     setState(() => _isLoadingCollectors = true);
     try {
       final collectors = await EnterpriseApiService.getCollectors();
       debugPrint('Collectors loaded: ${collectors.length} items');
       for (var c in collectors) {
-        debugPrint('  - id: ${c.collectorId}, name: ${c.fullName}, available: ${c.isAvailable}');
+        debugPrint(
+          '  - id: ${c.collectorId}, name: ${c.fullName}, available: ${c.isAvailable}',
+        );
       }
       if (mounted) {
         setState(() {
           _collectors = collectors;
           _isLoadingCollectors = false;
         });
-        
+
         // Nếu có requestId đang chờ, hiện dialog
         if (_currentDialogRequestId != null) {
           await Future.delayed(const Duration(milliseconds: 100));
@@ -120,6 +137,9 @@ class _AssignmentsViewState extends State<AssignmentsView> {
     }
   }
 
+  List<EnterpriseCollector> get _assignableCollectors =>
+      _collectors.where((collector) => collector.canReceiveAssignment).toList();
+
   List<EnterpriseAssignment> get _filteredAssignments {
     if (_statusFilter == 'Tất cả') return _assignments;
     return _assignments.where((a) => a.status == _statusFilter).toList();
@@ -129,7 +149,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
   void _showAssignDialogForRequest(int requestId) {
     debugPrint('_showAssignDialogForRequest called with requestId: $requestId');
     _currentDialogRequestId = requestId;
-    
+
     // Always load collectors first before showing dialog
     _loadCollectors();
   }
@@ -143,7 +163,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
         builder: (context, setDialogState) {
           return _AssignCollectorDialog(
             requestId: requestId,
-            collectors: _collectors,
+            collectors: _assignableCollectors,
             isLoadingCollectors: _isLoadingCollectors,
             selectedCollectorId: localSelectedId,
             onCollectorSelected: (id) {
@@ -152,7 +172,6 @@ class _AssignmentsViewState extends State<AssignmentsView> {
               });
             },
             onAssign: (collectorId) {
-              Navigator.pop(dialogContext);
               _assignRequest(requestId, collectorId);
             },
           );
@@ -182,12 +201,13 @@ class _AssignmentsViewState extends State<AssignmentsView> {
             duration: Duration(seconds: 1),
           ),
         );
-        
+
         // Quay về trang Báo cáo sau khi phân công thành công
         widget.onAssignmentComplete?.call();
       }
     } on Exception catch (e) {
-      if (!e.toString().contains('404') && !e.toString().contains('Không tìm thấy')) {
+      if (!e.toString().contains('404') &&
+          !e.toString().contains('Không tìm thấy')) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -213,7 +233,12 @@ class _AssignmentsViewState extends State<AssignmentsView> {
         builder: (context, setDialogState) {
           return _AssignCollectorDialog(
             requestId: assignment.requestId,
-            collectors: _collectors.where((c) => c.isAvailable).toList(),
+            collectors: _assignableCollectors
+                .where(
+                  (collector) =>
+                      collector.collectorId != assignment.assignedCollector,
+                )
+                .toList(),
             isLoadingCollectors: _isLoadingCollectors,
             selectedCollectorId: localSelectedId,
             onCollectorSelected: (id) {
@@ -222,8 +247,6 @@ class _AssignmentsViewState extends State<AssignmentsView> {
               });
             },
             onAssign: (collectorId) async {
-              Navigator.pop(dialogContext);
-              
               setState(() => _isAssigning = true);
 
               try {
@@ -327,9 +350,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: const Color(0xFFE2E8F0)),
-        ),
+        border: Border(bottom: BorderSide(color: const Color(0xFFE2E8F0))),
       ),
       child: Row(
         children: [
@@ -383,14 +404,18 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                 selectedColor: const Color(0xFF10B981).withOpacity(0.15),
                 checkmarkColor: const Color(0xFF10B981),
                 labelStyle: TextStyle(
-                  color: isSelected ? const Color(0xFF10B981) : const Color(0xFF64748B),
+                  color: isSelected
+                      ? const Color(0xFF10B981)
+                      : const Color(0xFF64748B),
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   fontSize: 13,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                   side: BorderSide(
-                    color: isSelected ? const Color(0xFF10B981) : const Color(0xFFE2E8F0),
+                    color: isSelected
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFFE2E8F0),
                   ),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -466,10 +491,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
               _error ?? 'Không thể tải dữ liệu',
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF64748B),
-              ),
+              style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
               textAlign: TextAlign.center,
             ),
           ),
@@ -522,10 +544,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
           const SizedBox(height: 8),
           Text(
             'Danh sách phân công sẽ hiển thị tại đây',
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xFF64748B),
-            ),
+            style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
           ),
         ],
       ),
@@ -577,26 +596,24 @@ class _AssignmentCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            if (isMobile)
-              _buildMobileHeader()
-            else
-              _buildDesktopHeader(),
+            if (isMobile) _buildMobileHeader() else _buildDesktopHeader(),
             const SizedBox(height: 16),
             const Divider(height: 1),
             const SizedBox(height: 16),
-            
+
             // Info Grid
-            if (isMobile)
-              _buildMobileInfoGrid()
-            else
-              _buildDesktopInfoGrid(),
-            
+            if (isMobile) _buildMobileInfoGrid() else _buildDesktopInfoGrid(),
+
             // Timestamp
             if (assignment.assignedAt != null) ...[
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(Icons.access_time, size: 16, color: Colors.grey.shade400),
+                  Icon(
+                    Icons.access_time,
+                    size: 16,
+                    color: Colors.grey.shade400,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     'Gán lúc: ${_formatDate(assignment.assignedAt!)}',
@@ -605,7 +622,7 @@ class _AssignmentCard extends StatelessWidget {
                 ],
               ),
             ],
-            
+
             // Cancel and Reassign Buttons
             if (assignment.status?.toLowerCase() == 'pending') ...[
               const SizedBox(height: 16),
@@ -682,10 +699,7 @@ class _AssignmentCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 'Yêu cầu #${assignment.requestId}',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
               ),
             ],
           ),
@@ -727,16 +741,15 @@ class _AssignmentCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Flexible(child: _StatusBadge(status: assignment.status ?? 'Pending')),
+                  Flexible(
+                    child: _StatusBadge(status: assignment.status ?? 'Pending'),
+                  ),
                 ],
               ),
               const SizedBox(height: 2),
               Text(
                 'Yêu cầu #${assignment.requestId}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
             ],
           ),
@@ -792,11 +805,19 @@ class _AssignmentCard extends StatelessWidget {
   Widget _buildMobileInfoGrid() {
     return Column(
       children: [
-        _buildInfoRow(Icons.person, 'Collector', assignment.collectorName ?? 'N/A'),
+        _buildInfoRow(
+          Icons.person,
+          'Collector',
+          assignment.collectorName ?? 'N/A',
+        ),
         const SizedBox(height: 8),
         _buildInfoRow(Icons.badge, 'Công dân', assignment.citizenName ?? 'N/A'),
         const SizedBox(height: 8),
-        _buildInfoRow(Icons.delete_outline, 'Loại rác', assignment.wasteTypeName ?? 'N/A'),
+        _buildInfoRow(
+          Icons.delete_outline,
+          'Loại rác',
+          assignment.wasteTypeName ?? 'N/A',
+        ),
         const SizedBox(height: 8),
         _buildInfoRow(Icons.location_on, 'Vị trí', assignment.location),
       ],
@@ -810,18 +831,12 @@ class _AssignmentCard extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           '$label: ',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade500,
-          ),
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
         ),
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -973,7 +988,11 @@ class _AssignCollectorDialog extends StatelessWidget {
               color: const Color(0xFF10B981).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.person_add, color: Color(0xFF10B981), size: 24),
+            child: const Icon(
+              Icons.person_add,
+              color: Color(0xFF10B981),
+              size: 24,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1011,7 +1030,11 @@ class _AssignCollectorDialog extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    Icon(Icons.person_off, size: 48, color: Colors.grey.shade400),
+                    Icon(
+                      Icons.person_off,
+                      size: 48,
+                      color: Colors.grey.shade400,
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       'Không có nhân viên nào',
@@ -1020,7 +1043,10 @@ class _AssignCollectorDialog extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       'Vui lòng kiểm tra lại hệ thống',
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                   ],
                 ),
@@ -1031,7 +1057,8 @@ class _AssignCollectorDialog extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: Column(
                     children: collectors.map((collector) {
-                      final isSelected = selectedCollectorId == collector.collectorId;
+                      final isSelected =
+                          selectedCollectorId == collector.collectorId;
                       return InkWell(
                         onTap: () => onCollectorSelected(collector.collectorId),
                         borderRadius: BorderRadius.circular(10),
@@ -1044,7 +1071,9 @@ class _AssignCollectorDialog extends StatelessWidget {
                                 : Colors.grey.shade50,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: isSelected ? const Color(0xFF10B981) : Colors.transparent,
+                              color: isSelected
+                                  ? const Color(0xFF10B981)
+                                  : Colors.transparent,
                               width: 2,
                             ),
                           ),
@@ -1059,7 +1088,9 @@ class _AssignCollectorDialog extends StatelessWidget {
                                       ? collector.fullName![0].toUpperCase()
                                       : '?',
                                   style: TextStyle(
-                                    color: isSelected ? Colors.white : Colors.grey.shade600,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.grey.shade600,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -1089,7 +1120,11 @@ class _AssignCollectorDialog extends StatelessWidget {
                                 ),
                               ),
                               if (isSelected)
-                                const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 24),
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: Color(0xFF10B981),
+                                  size: 24,
+                                ),
                             ],
                           ),
                         ),

@@ -66,7 +66,7 @@ class ApiConfig {
   static const String listCollectors = '/users/collectors';
   
   /// Danh sách tất cả user hoặc tạo user mới (Admin)
-  static const String users = '/users';
+  static const String users = '/admin/users';
   
   /// Chi tiết, cập nhật hoặc xóa user theo ID
   static String user(int id) => '/users/$id';

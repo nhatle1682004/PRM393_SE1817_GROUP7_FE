@@ -17,7 +17,13 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
   bool _isLoading = true;
   String? _error;
   String _statusFilter = 'Tất cả';
-  final List<String> _statusFilters = ['Tất cả', 'Pending', 'InProgress', 'Completed', 'Cancelled'];
+  final List<String> _statusFilters = [
+    'Tất cả',
+    'Pending',
+    'InProgress',
+    'Completed',
+    'Cancelled',
+  ];
 
   @override
   void initState() {
@@ -39,7 +45,9 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
       if (mounted) {
         setState(() {
           _requests = results[0] as List<EnterpriseCollectionRequest>;
-          _collectors = (results[1] as List<EnterpriseCollector>).where((c) => c.isAvailable).toList();
+          _collectors = (results[1] as List<EnterpriseCollector>)
+              .where((collector) => collector.canReceiveAssignment)
+              .toList();
           _isLoading = false;
         });
       }
@@ -78,9 +86,7 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: Color(0xFFE2E8F0)),
-        ),
+        border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
       ),
       child: Row(
         children: [
@@ -151,14 +157,18 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
                 selectedColor: const Color(0xFF10B981).withOpacity(0.15),
                 checkmarkColor: const Color(0xFF10B981),
                 labelStyle: TextStyle(
-                  color: isSelected ? const Color(0xFF10B981) : const Color(0xFF64748B),
+                  color: isSelected
+                      ? const Color(0xFF10B981)
+                      : const Color(0xFF64748B),
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   fontSize: 13,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                   side: BorderSide(
-                    color: isSelected ? const Color(0xFF10B981) : const Color(0xFFE2E8F0),
+                    color: isSelected
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFFE2E8F0),
                   ),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -260,10 +270,7 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
               _error ?? 'Không thể tải dữ liệu',
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF64748B),
-              ),
+              style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
               textAlign: TextAlign.center,
             ),
           ),
@@ -316,10 +323,7 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
           const SizedBox(height: 8),
           Text(
             'Danh sách yêu cầu sẽ hiển thị tại đây',
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xFF64748B),
-            ),
+            style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
           ),
         ],
       ),
@@ -381,17 +385,30 @@ class _RequestCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildInfoRow(Icons.location_on_rounded, request.location, color: Colors.redAccent),
+                        _buildInfoRow(
+                          Icons.location_on_rounded,
+                          request.location,
+                          color: Colors.redAccent,
+                        ),
                         const SizedBox(height: 8),
                         _buildCollectorInfo(context),
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            const Icon(Icons.access_time_rounded, size: 14, color: Colors.grey),
+                            const Icon(
+                              Icons.access_time_rounded,
+                              size: 14,
+                              color: Colors.grey,
+                            ),
                             const SizedBox(width: 6),
                             Text(
-                              request.createdAt != null ? _formatDate(request.createdAt!) : 'N/A',
-                              style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                              request.createdAt != null
+                                  ? _formatDate(request.createdAt!)
+                                  : 'N/A',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade500,
+                              ),
                             ),
                           ],
                         ),
@@ -458,7 +475,11 @@ class _RequestCard extends StatelessWidget {
             ? Image.network(
                 fullUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported_rounded, color: Colors.grey, size: 20),
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.image_not_supported_rounded,
+                  color: Colors.grey,
+                  size: 20,
+                ),
               )
             : const Icon(Icons.image_rounded, color: Colors.grey, size: 20),
       ),
@@ -473,7 +494,9 @@ class _RequestCard extends StatelessWidget {
         color: hasCollector ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: hasCollector ? const Color(0xFFBBF7D0) : const Color(0xFFFECACA),
+          color: hasCollector
+              ? const Color(0xFFBBF7D0)
+              : const Color(0xFFFECACA),
         ),
       ),
       child: Row(
@@ -481,16 +504,22 @@ class _RequestCard extends StatelessWidget {
           Icon(
             hasCollector ? Icons.person_rounded : Icons.person_off_rounded,
             size: 16,
-            color: hasCollector ? const Color(0xFF15803D) : const Color(0xFFB91C1C),
+            color: hasCollector
+                ? const Color(0xFF15803D)
+                : const Color(0xFFB91C1C),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              hasCollector ? 'NV: ${request.assignedCollectorName}' : 'Chưa phân công',
+              hasCollector
+                  ? 'NV: ${request.assignedCollectorName}'
+                  : 'Chưa phân công',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: hasCollector ? const Color(0xFF15803D) : const Color(0xFFB91C1C),
+                color: hasCollector
+                    ? const Color(0xFF15803D)
+                    : const Color(0xFFB91C1C),
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -506,7 +535,11 @@ class _RequestCard extends StatelessWidget {
                 ),
                 child: const Text(
                   'Gán NV',
-                  style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -602,10 +635,13 @@ class _AssignCollectorDialogState extends State<_AssignCollectorDialog> {
                   final collector = widget.collectors[index];
                   return RadioListTile<int>(
                     title: Text(collector.fullName ?? 'N/A'),
-                    subtitle: Text('Hoàn thành: ${collector.completedCount} việc'),
+                    subtitle: Text(
+                      'Hoàn thành: ${collector.completedCount} việc',
+                    ),
                     value: collector.collectorId,
                     groupValue: _selectedCollectorId,
-                    onChanged: (val) => setState(() => _selectedCollectorId = val),
+                    onChanged: (val) =>
+                        setState(() => _selectedCollectorId = val),
                     activeColor: const Color(0xFF10B981),
                   );
                 },
@@ -620,9 +656,18 @@ class _AssignCollectorDialogState extends State<_AssignCollectorDialog> {
           onPressed: (_selectedCollectorId == null || _isSubmitting)
               ? null
               : _handleAssign,
-          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF10B981),
+          ),
           child: _isSubmitting
-              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
               : const Text('Xác nhận', style: TextStyle(color: Colors.white)),
         ),
       ],
@@ -632,10 +677,12 @@ class _AssignCollectorDialogState extends State<_AssignCollectorDialog> {
   Future<void> _handleAssign() async {
     setState(() => _isSubmitting = true);
     try {
-      await EnterpriseApiService.assignCollector(AssignCollectorRequest(
-        requestId: widget.request.requestId,
-        collectorId: _selectedCollectorId!,
-      ));
+      await EnterpriseApiService.assignCollector(
+        AssignCollectorRequest(
+          requestId: widget.request.requestId,
+          collectorId: _selectedCollectorId!,
+        ),
+      );
       if (mounted) {
         Navigator.pop(context);
         widget.onAssigned();
@@ -714,10 +761,7 @@ class _RequestDetailSheet extends StatefulWidget {
   final int requestId;
   final VoidCallback onRefresh;
 
-  const _RequestDetailSheet({
-    required this.requestId,
-    required this.onRefresh,
-  });
+  const _RequestDetailSheet({required this.requestId, required this.onRefresh});
 
   @override
   State<_RequestDetailSheet> createState() => _RequestDetailSheetState();
@@ -736,7 +780,9 @@ class _RequestDetailSheetState extends State<_RequestDetailSheet> {
 
   Future<void> _loadDetail() async {
     try {
-      final detail = await EnterpriseApiService.getCollectionRequestById(widget.requestId);
+      final detail = await EnterpriseApiService.getCollectionRequestById(
+        widget.requestId,
+      );
       if (mounted) {
         setState(() {
           _detail = detail;
@@ -772,10 +818,14 @@ class _RequestDetailSheetState extends State<_RequestDetailSheet> {
               _buildHeader(),
               Expanded(
                 child: _isLoading
-                    ? const Center(child: CircularProgressIndicator(color: Color(0xFF10B981)))
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF10B981),
+                        ),
+                      )
                     : _error != null
-                        ? Center(child: Text('Lỗi: $_error'))
-                        : _buildContent(scrollController),
+                    ? Center(child: Text('Lỗi: $_error'))
+                    : _buildContent(scrollController),
               ),
             ],
           ),
@@ -803,10 +853,7 @@ class _RequestDetailSheetState extends State<_RequestDetailSheet> {
         children: [
           const Text(
             'Chi tiết yêu cầu',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           const Spacer(),
           IconButton(
@@ -830,15 +877,22 @@ class _RequestDetailSheetState extends State<_RequestDetailSheet> {
           _buildSection('Thông tin yêu cầu', [
             _buildInfoRow('ID', '#${_detail!.requestId}'),
             _buildInfoRow('Trạng thái', _detail!.status ?? 'N/A'),
-            _buildInfoRow('Ngày tạo', _detail!.createdAt != null
-                ? _formatDate(_detail!.createdAt!) : 'N/A'),
+            _buildInfoRow(
+              'Ngày tạo',
+              _detail!.createdAt != null
+                  ? _formatDate(_detail!.createdAt!)
+                  : 'N/A',
+            ),
           ]),
           if (_detail!.report != null) ...[
             const SizedBox(height: 20),
             _buildSection('Thông tin báo cáo', [
               _buildInfoRow('ID', '#${_detail!.report!.reportId}'),
               _buildInfoRow('Công dân', _detail!.report!.citizenName ?? 'N/A'),
-              _buildInfoRow('Loại rác', _detail!.report!.wasteTypeNames.join(', ')),
+              _buildInfoRow(
+                'Loại rác',
+                _detail!.report!.wasteTypeNames.join(', '),
+              ),
               _buildInfoRow('Vị trí', _detail!.report!.location),
               if (_detail!.report!.description != null)
                 _buildInfoRow('Mô tả', _detail!.report!.description!),
@@ -847,7 +901,9 @@ class _RequestDetailSheetState extends State<_RequestDetailSheet> {
           if (_detail!.assignmentHistory?.isNotEmpty ?? false) ...[
             const SizedBox(height: 20),
             _buildSection('Lịch sử phân công', [
-              ...(_detail!.assignmentHistory!.map((h) => _buildAssignmentHistoryItem(h))),
+              ...(_detail!.assignmentHistory!.map(
+                (h) => _buildAssignmentHistoryItem(h),
+              )),
             ]),
           ],
         ],
@@ -890,19 +946,13 @@ class _RequestDetailSheetState extends State<_RequestDetailSheet> {
             width: 100,
             child: Text(
               label,
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
           ),
         ],
@@ -927,11 +977,7 @@ class _RequestDetailSheetState extends State<_RequestDetailSheet> {
               color: const Color(0xFF10B981).withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(
-              Icons.person,
-              color: Color(0xFF10B981),
-              size: 18,
-            ),
+            child: const Icon(Icons.person, color: Color(0xFF10B981), size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -945,10 +991,7 @@ class _RequestDetailSheetState extends State<_RequestDetailSheet> {
                 if (history.collectorPhone != null)
                   Text(
                     history.collectorPhone!,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                   ),
               ],
             ),

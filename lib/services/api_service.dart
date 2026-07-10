@@ -10,39 +10,41 @@ class ApiService {
   // Khởi tạo StorageService để xử lý đọc/ghi token
   static final StorageService _storageService = StorageService();
 
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: ApiConfig.baseUrl,
-      connectTimeout: const Duration(seconds: 5),
-      receiveTimeout: const Duration(seconds: 3),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ),
-  )..interceptors.add(
-    // 🛠️ THÊM INTERCEPTOR: Tự động chạy mỗi khi có request gửi đi
-    InterceptorsWrapper(
-      onRequest: (options, handler) async {
-        // Đọc token đã lưu dưới máy điện thoại lên
-        String? token = await _storageService.getToken();
+  static final Dio _dio =
+      Dio(
+          BaseOptions(
+            baseUrl: ApiConfig.baseUrl,
+            connectTimeout: const Duration(seconds: 5),
+            receiveTimeout: const Duration(seconds: 3),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          ),
+        )
+        ..interceptors.add(
+          // 🛠️ THÊM INTERCEPTOR: Tự động chạy mỗi khi có request gửi đi
+          InterceptorsWrapper(
+            onRequest: (options, handler) async {
+              // Đọc token đã lưu dưới máy điện thoại lên
+              String? token = await _storageService.getToken();
 
-        if (token != null) {
-          // Tự động đính kèm token chuẩn Bearer cho tất cả request gửi lên .NET
-          options.headers['Authorization'] = 'Bearer $token';
-        }
-        return handler.next(options);
-      },
-      onError: (DioException e, handler) {
-        // Xử lý lỗi tập trung khi token hết hạn (mã lỗi 401 Unauthorized từ .NET)
-        if (e.response?.statusCode == 401) {
-          print("🚨 Token hết hạn hoặc không hợp lệ!");
-          // Bạn có thể xử lý xóa token cũ và đá người dùng ra màn Login ở đây
-        }
-        return handler.next(e);
-      },
-    ),
-  );
+              if (token != null) {
+                // Tự động đính kèm token chuẩn Bearer cho tất cả request gửi lên .NET
+                options.headers['Authorization'] = 'Bearer $token';
+              }
+              return handler.next(options);
+            },
+            onError: (DioException e, handler) {
+              // Xử lý lỗi tập trung khi token hết hạn (mã lỗi 401 Unauthorized từ .NET)
+              if (e.response?.statusCode == 401) {
+                print("🚨 Token hết hạn hoặc không hợp lệ!");
+                // Bạn có thể xử lý xóa token cũ và đá người dùng ra màn Login ở đây
+              }
+              return handler.next(e);
+            },
+          ),
+        );
 
   // 🕵️ HÀM ĐĂNG NHẬP GIẢ LẬP (MOCK LOGIN) KHI CHƯA CÓ BACKEND .NET
   static Future<bool> mockLogin(String email, String password) async {
@@ -52,7 +54,8 @@ class ApiService {
     // Điều kiện giả lập đăng nhập thành công đơn giản (chỉ cần nhập text)
     if (email.isNotEmpty && password.length >= 6) {
       // Tự sinh ra 1 chuỗi JWT giả để test tính năng lưu trữ
-      String mockJwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.MockTokenChoGiaoDienUI2026.xxxx";
+      String mockJwtToken =
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.MockTokenChoGiaoDienUI2026.xxxx";
 
       // Lưu ngầm token giả lập xuống kho bảo mật an toàn
       await _storageService.saveToken(mockJwtToken);
@@ -61,9 +64,15 @@ class ApiService {
     return false;
   }
 
-  static Future<Response> get(String endpoint, {Map<String, dynamic>? queryParameters}) async {
+  static Future<Response> get(
+    String endpoint, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
-      final response = await _dio.get(endpoint, queryParameters: queryParameters);
+      final response = await _dio.get(
+        endpoint,
+        queryParameters: queryParameters,
+      );
       return response;
     } on DioException catch (e) {
       throw _handleError(e);
@@ -95,7 +104,8 @@ class ApiService {
   }
 
   /// Upload multipart form data (for image uploads)
-  static Future<Response> uploadMultipart(String endpoint, {
+  static Future<Response> uploadMultipart(
+    String endpoint, {
     File? imageFile,
     XFile? webImageFile,
     required double latitude,
@@ -126,17 +136,17 @@ class ApiService {
         'Image': multipartFile,
         'Latitude': latitude,
         'Longitude': longitude,
-        if (description != null && description.isNotEmpty) 'Description': description,
-        if (estimatedSize != null && estimatedSize.isNotEmpty) 'EstimatedSize': estimatedSize,
+        if (description != null && description.isNotEmpty)
+          'Description': description,
+        if (estimatedSize != null && estimatedSize.isNotEmpty)
+          'EstimatedSize': estimatedSize,
         'WasteTypeIds': wasteTypeIds,
       });
 
       final response = await _dio.post(
         endpoint,
         data: formData,
-        options: Options(
-          headers: {'Content-Type': 'multipart/form-data'},
-        ),
+        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
       );
       return response;
     } on DioException catch (e) {
@@ -147,6 +157,33 @@ class ApiService {
   static Future<Response> put(String endpoint, {dynamic body}) async {
     try {
       final response = await _dio.put(endpoint, data: body);
+      return response;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  static Future<Response> putMultipartForm(
+    String endpoint, {
+    Map<String, dynamic> fields = const {},
+    Map<String, XFile> files = const {},
+  }) async {
+    try {
+      final formMap = <String, dynamic>{...fields};
+
+      for (final entry in files.entries) {
+        final bytes = await entry.value.readAsBytes();
+        formMap[entry.key] = MultipartFile.fromBytes(
+          bytes,
+          filename: entry.value.name,
+        );
+      }
+
+      final response = await _dio.put(
+        endpoint,
+        data: FormData.fromMap(formMap),
+        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
+      );
       return response;
     } on DioException catch (e) {
       throw _handleError(e);
@@ -199,10 +236,11 @@ class ApiService {
       if (statusCode == 401) return 'Phiên đăng nhập hết hạn (401)';
       if (statusCode == 403) return 'Bạn không có quyền thực hiện (403)';
       if (statusCode == 404) return 'Không tìm thấy endpoint (404)';
-      if (statusCode == 405) return 'Phương thức POST không được hỗ trợ (405). BE chưa cài đặt API tạo.';
+      if (statusCode == 405)
+        return 'Phương thức POST không được hỗ trợ (405). BE chưa cài đặt API tạo.';
       if (statusCode == 409) return 'Dữ liệu đã tồn tại (409)';
       if (statusCode == 500) return 'Lỗi hệ thống máy chủ (500)';
-      
+
       if (statusCode != null) return 'Lỗi máy chủ ($statusCode)';
       return 'Lỗi không xác định từ máy chủ';
     } else {

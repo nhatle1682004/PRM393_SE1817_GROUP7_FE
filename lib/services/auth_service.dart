@@ -9,14 +9,11 @@ class AuthService {
   Future<Map<String, dynamic>> login(String email, String password) async {
     final response = await ApiService.post(
       ApiConfig.login,
-      body: {
-        'email': email,
-        'password': password,
-      },
+      body: {'email': email, 'password': password},
     );
 
     final data = response.data as Map<String, dynamic>;
-    
+
     final token = data['token']?.toString();
     if (token == null) {
       throw Exception('Phản hồi đăng nhập không hợp lệ từ máy chủ.');
@@ -32,7 +29,12 @@ class AuthService {
     return data;
   }
 
-  Future<void> register(String fullName, String email, String password, String confirmPassword) async {
+  Future<void> register(
+    String fullName,
+    String email,
+    String password,
+    String confirmPassword,
+  ) async {
     await ApiService.post(
       ApiConfig.register,
       body: {
@@ -42,22 +44,42 @@ class AuthService {
         'confirmPassword': confirmPassword,
       },
     );
-    await _storage.saveUserProfile(UserProfile(
-      userId: 0,
-      fullName: fullName,
-      email: email,
-      roleId: AppRoles.citizen,  // Default role for new registration
-      roleName: AppRoles.getRoleName(AppRoles.citizen),
-    ));
+    await _storage.saveUserProfile(
+      UserProfile(
+        userId: 0,
+        fullName: fullName,
+        email: email,
+        roleId: AppRoles.citizen, // Default role for new registration
+        roleName: AppRoles.getRoleName(AppRoles.citizen),
+      ),
+    );
+  }
+
+  Future<void> forgotPassword(String email) async {
+    await ApiService.post(ApiConfig.forgotPassword, body: {'email': email});
+  }
+
+  Future<void> resetPassword(
+    String email,
+    String otp,
+    String newPassword,
+    String confirmPassword,
+  ) async {
+    await ApiService.post(
+      ApiConfig.resetPassword,
+      body: {
+        'email': email,
+        'otp': otp,
+        'newPassword': newPassword,
+        'confirmPassword': confirmPassword,
+      },
+    );
   }
 
   Future<int> verifyOtp(String email, String otp) async {
     final response = await ApiService.post(
       ApiConfig.verifyOtp,
-      body: {
-        'email': email,
-        'otp': otp,
-      },
+      body: {'email': email, 'otp': otp},
     );
 
     final data = response.data as Map<String, dynamic>;
@@ -68,13 +90,15 @@ class AuthService {
 
     final profile = await _storage.getUserProfile();
     if (profile != null) {
-      await _storage.saveUserProfile(UserProfile(
-        userId: userId is int ? userId : int.tryParse(userId.toString()) ?? 0,
-        fullName: profile.fullName,
-        email: profile.email,
-        roleId: profile.roleId,
-        roleName: profile.roleName,
-      ));
+      await _storage.saveUserProfile(
+        UserProfile(
+          userId: userId is int ? userId : int.tryParse(userId.toString()) ?? 0,
+          fullName: profile.fullName,
+          email: profile.email,
+          roleId: profile.roleId,
+          roleName: profile.roleName,
+        ),
+      );
     }
 
     return userId is int ? userId : int.tryParse(userId.toString()) ?? 0;
@@ -92,14 +116,11 @@ class AuthService {
   Future<void> resendOtp() async {
     final profile = await _storage.getUserProfile();
     if (profile == null) {
-      throw Exception('Không tìm thấy thông tin đăng ký. Vui lòng đăng ký lại.');
+      throw Exception(
+        'Không tìm thấy thông tin đăng ký. Vui lòng đăng ký lại.',
+      );
     }
 
-    await ApiService.post(
-      ApiConfig.resendOtp,
-      body: {
-        'email': profile.email,
-      },
-    );
+    await ApiService.post(ApiConfig.resendOtp, body: {'email': profile.email});
   }
 }

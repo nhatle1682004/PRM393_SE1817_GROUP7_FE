@@ -3,6 +3,7 @@ import 'package:waste_collection_management_system/presentation/home/home_screen
 import 'package:waste_collection_management_system/presentation/admin/admin_screen.dart';
 import 'package:waste_collection_management_system/presentation/enterprise/enterprise_screen.dart';
 import 'package:waste_collection_management_system/presentation/collector/collector_screen.dart';
+import 'package:waste_collection_management_system/presentation/login/forgot_password_screen.dart';
 import 'package:waste_collection_management_system/presentation/register/register_screen.dart';
 import 'package:waste_collection_management_system/services/auth_service.dart';
 import 'package:waste_collection_management_system/services/storage_service.dart';
@@ -47,28 +48,21 @@ class _RightPanelFormState extends State<RightPanelForm> {
           _emailController.text.trim(),
           _passwordController.text,
         );
-        
+
         if (mounted) {
           // Get profile to check role
           final storage = StorageService();
           final profile = await storage.getUserProfile();
 
-          // DEBUG: Check what's happening
-          debugPrint('DEBUG LOGIN: profile=$profile, roleId=${profile?.roleId}, expected=${AppRoles.enterprise}');
-
           // Route based on role
           Widget nextScreen;
           if (profile != null && profile.roleId == AppRoles.admin) {
-            debugPrint('Navigating to AdminScreen');
             nextScreen = const AdminScreen();
           } else if (profile != null && profile.roleId == AppRoles.enterprise) {
-            debugPrint('Navigating to EnterpriseScreen');
             nextScreen = const EnterpriseScreen();
           } else if (profile != null && profile.roleId == AppRoles.collector) {
-            debugPrint('Navigating to CollectorScreen');
             nextScreen = const CollectorScreen();
           } else {
-            debugPrint('Navigating to HomeScreen (default)');
             nextScreen = const HomeScreen();
           }
 
@@ -111,22 +105,48 @@ class _RightPanelFormState extends State<RightPanelForm> {
               children: [
                 Icon(Icons.eco, color: Color(0xff10b981), size: 24),
                 SizedBox(width: 12),
-                Text('Waste Collection', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87)),
+                Text(
+                  'Waste Collection',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 48),
-            const Text('Chào mừng trở lại', style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.black87, letterSpacing: -0.5)),
+            const Text(
+              'Chào mừng trở lại',
+              style: TextStyle(
+                fontSize: 36,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+                letterSpacing: -0.5,
+              ),
+            ),
             const SizedBox(height: 10),
-            const Text('Đăng nhập để tiếp tục hành trình sống xanh của bạn', style: TextStyle(fontSize: 14, color: Colors.black54)),
+            const Text(
+              'Đăng nhập để tiếp tục hành trình sống xanh của bạn',
+              style: TextStyle(fontSize: 14, color: Colors.black54),
+            ),
             const SizedBox(height: 40),
-            const Text('Email', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+            const Text(
+              'Email',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
             const SizedBox(height: 8),
             TextFormField(
               controller: _emailController,
               validator: (value) {
-                if (value == null || value.trim().isEmpty) return 'Vui lòng nhập email';
+                if (value == null || value.trim().isEmpty)
+                  return 'Vui lòng nhập email';
                 final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                if (!emailRegex.hasMatch(value)) return 'Vui lòng nhập địa chỉ email hợp lệ';
+                if (!emailRegex.hasMatch(value))
+                  return 'Vui lòng nhập địa chỉ email hợp lệ';
                 return null;
               },
               decoration: InputDecoration(
@@ -134,7 +154,10 @@ class _RightPanelFormState extends State<RightPanelForm> {
                 hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
                 filled: true,
                 fillColor: const Color(0xfff9fafb),
-                contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 16,
+                ),
                 border: myBorder(Colors.grey[200]!),
                 enabledBorder: myBorder(Colors.grey[200]!),
                 focusedBorder: myBorder(const Color(0xff10b981), width: 2.0),
@@ -146,11 +169,28 @@ class _RightPanelFormState extends State<RightPanelForm> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Mật khẩu', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+                const Text(
+                  'Mật khẩu',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ForgotPasswordScreen(),
+                    ),
+                  ),
                   style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                  child: const Text('Quên mật khẩu?', style: TextStyle(color: Color(0xff10b981), fontWeight: FontWeight.w500)),
+                  child: const Text(
+                    'Quên mật khẩu?',
+                    style: TextStyle(
+                      color: Color(0xff10b981),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -161,7 +201,8 @@ class _RightPanelFormState extends State<RightPanelForm> {
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => _handleLogin(),
               validator: (value) {
-                if (value == null || value.isEmpty) return 'Vui lòng nhập mật khẩu';
+                if (value == null || value.isEmpty)
+                  return 'Vui lòng nhập mật khẩu';
                 return null;
               },
               decoration: InputDecoration(
@@ -169,9 +210,13 @@ class _RightPanelFormState extends State<RightPanelForm> {
                 hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
                 filled: true,
                 fillColor: const Color(0xfff9fafb),
-                contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 16,
+                ),
                 suffixIcon: IconButton(
-                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  onPressed: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
                   icon: Icon(
                     _obscurePassword ? Icons.visibility_off : Icons.visibility,
                     color: Colors.grey[400],
@@ -193,13 +238,31 @@ class _RightPanelFormState extends State<RightPanelForm> {
                 onPressed: _isLoading ? null : _handleLogin,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xff10b981),
-                  disabledBackgroundColor: const Color(0xff10b981).withValues(alpha: 0.7),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  disabledBackgroundColor: const Color(
+                    0xff10b981,
+                  ).withValues(alpha: 0.7),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   elevation: 0,
                 ),
                 child: _isLoading
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text('Đăng nhập', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Đăng nhập',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ),
             if (_errorMessage != null) ...[
@@ -214,12 +277,19 @@ class _RightPanelFormState extends State<RightPanelForm> {
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.error_outline, color: Color(0xffdc2626), size: 18),
+                    Icon(
+                      Icons.error_outline,
+                      color: Color(0xffdc2626),
+                      size: 18,
+                    ),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Email hoặc mật khẩu không đúng',
-                        style: TextStyle(color: Color(0xffdc2626), fontSize: 13),
+                        style: TextStyle(
+                          color: Color(0xffdc2626),
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ],
@@ -230,11 +300,26 @@ class _RightPanelFormState extends State<RightPanelForm> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('Chưa có tài khoản?', style: TextStyle(color: Colors.black54, fontSize: 14)),
+                const Text(
+                  'Chưa có tài khoản?',
+                  style: TextStyle(color: Colors.black54, fontSize: 14),
+                ),
                 const SizedBox(width: 6),
                 GestureDetector(
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
-                  child: const Text('Đăng ký', style: TextStyle(color: Color(0xff10b981), fontWeight: FontWeight.bold, fontSize: 14)),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RegisterScreen(),
+                    ),
+                  ),
+                  child: const Text(
+                    'Đăng ký',
+                    style: TextStyle(
+                      color: Color(0xff10b981),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
                 ),
               ],
             ),

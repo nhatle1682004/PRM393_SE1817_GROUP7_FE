@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:waste_collection_management_system/data/models/enterprise_models.dart';
 import 'package:waste_collection_management_system/services/collector_api_service.dart';
 import 'package:waste_collection_management_system/config/api_config.dart';
@@ -31,7 +32,13 @@ class _MyTasksViewState extends State<MyTasksView> {
       final tasks = await CollectorApiService.getMyAssignments();
       if (mounted) {
         setState(() {
-          _assignments = tasks;
+          _assignments = tasks.where((task) {
+            final status = task.status?.toLowerCase() ?? '';
+            return status != 'completed' &&
+                status != 'cancelled' &&
+                status != 'reportedissue' &&
+                status != 'issue';
+          }).toList();
           _isLoading = false;
         });
       }
@@ -48,7 +55,9 @@ class _MyTasksViewState extends State<MyTasksView> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF10B981)));
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFF10B981)),
+      );
     }
 
     if (_errorMessage != null) {
@@ -71,9 +80,16 @@ class _MyTasksViewState extends State<MyTasksView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.assignment_turned_in_outlined, size: 64, color: Colors.grey.shade300),
+            Icon(
+              Icons.assignment_turned_in_outlined,
+              size: 64,
+              color: Colors.grey.shade300,
+            ),
             const SizedBox(height: 16),
-            const Text('Bạn chưa có công việc nào được giao.', style: TextStyle(color: Colors.grey)),
+            const Text(
+              'Bạn chưa có công việc nào được giao.',
+              style: TextStyle(color: Colors.grey),
+            ),
           ],
         ),
       );
@@ -86,10 +102,7 @@ class _MyTasksViewState extends State<MyTasksView> {
         itemCount: _assignments.length,
         itemBuilder: (context, index) {
           final assignment = _assignments[index];
-          return _TaskCard(
-            assignment: assignment,
-            onUpdate: _loadTasks,
-          );
+          return _TaskCard(assignment: assignment, onUpdate: _loadTasks);
         },
       ),
     );
@@ -123,14 +136,20 @@ class _TaskCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     '#${assignment.assignmentId}',
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF475569)),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF475569),
+                    ),
                   ),
                 ),
                 _StatusBadge(status: status),
@@ -148,12 +167,22 @@ class _TaskCard extends StatelessWidget {
                     children: [
                       Text(
                         assignment.wasteTypeName ?? 'Loại rác không xác định',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
                       const SizedBox(height: 8),
-                      _IconLabel(Icons.location_on_outlined, assignment.location, color: Colors.redAccent),
+                      _IconLabel(
+                        Icons.location_on_outlined,
+                        assignment.location,
+                        color: Colors.redAccent,
+                      ),
                       const SizedBox(height: 4),
-                      _IconLabel(Icons.person_outline, assignment.citizenName ?? 'Ẩn danh'),
+                      _IconLabel(
+                        Icons.person_outline,
+                        assignment.citizenName ?? 'Ẩn danh',
+                      ),
                     ],
                   ),
                 ),
@@ -180,7 +209,12 @@ class _TaskCard extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(11),
         child: (imageUrl != null && imageUrl.isNotEmpty)
-            ? Image.network(fullUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported, color: Colors.grey))
+            ? Image.network(
+                fullUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) =>
+                    const Icon(Icons.image_not_supported, color: Colors.grey),
+              )
             : const Icon(Icons.image_outlined, color: Colors.grey),
       ),
     );
@@ -258,18 +292,157 @@ class _TaskCard extends StatelessWidget {
 
   Future<void> _handleArrived(BuildContext context) async {
     try {
-      await CollectorApiService.confirmArrival(assignment.assignmentId);
+      final image = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+        maxWidth: 1600,
+      );
+
+      if (image == null) return;
+
+      await CollectorApiService.confirmArrival(
+        assignment.assignmentId,
+        beforeImage: image,
+      );
       onUpdate();
     } catch (e) {
+      if (!context.mounted) return;
       _showError(context, e.toString());
     }
   }
 
   Future<void> _handleComplete(BuildContext context) async {
+    final assignedWasteItems =
+        assignment.wasteItems ?? const <EstimatedWasteItem>[];
+    final assignedWasteTypeIds = assignment.wasteTypeIds ?? const <int>[];
+    final wasteItems = assignedWasteItems.isNotEmpty
+        ? assignedWasteItems
+        : assignedWasteTypeIds
+              .map((id) => EstimatedWasteItem(wasteTypeId: id))
+              .toList();
+
+    if (wasteItems.isEmpty) {
+      _showError(context, 'Không tìm thấy loại rác để nhập khối lượng.');
+      return;
+    }
+
+    final weightControllers = {
+      for (final item in wasteItems) item.wasteTypeId: TextEditingController(),
+    };
+    final noteController = TextEditingController();
+    XFile? afterImage;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            title: const Text('Hoàn thành thu gom'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final image = await ImagePicker().pickImage(
+                          source: ImageSource.camera,
+                          imageQuality: 80,
+                          maxWidth: 1600,
+                        );
+                        if (image != null) {
+                          setDialogState(() => afterImage = image);
+                        }
+                      },
+                      icon: Icon(
+                        afterImage == null
+                            ? Icons.camera_alt_outlined
+                            : Icons.check_circle_outline,
+                      ),
+                      label: Text(
+                        afterImage == null
+                            ? 'Chụp ảnh sau thu gom'
+                            : 'Đã chọn ảnh sau thu gom',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ...wasteItems.map(
+                    (item) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: TextField(
+                        controller: weightControllers[item.wasteTypeId],
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: InputDecoration(
+                          labelText:
+                              '${item.wasteTypeName ?? 'Loại rác #${item.wasteTypeId}'} (kg)',
+                          border: const OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ),
+                  TextField(
+                    controller: noteController,
+                    maxLines: 2,
+                    decoration: const InputDecoration(
+                      labelText: 'Ghi chú',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: const Text('Hủy'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                child: const Text('Xác nhận'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+    if (!context.mounted) return;
+
+    final actualWeights = <int, double>{};
+    for (final entry in weightControllers.entries) {
+      final weight = double.tryParse(
+        entry.value.text.trim().replaceAll(',', '.'),
+      );
+      if (weight == null || weight <= 0) {
+        _showError(
+          context,
+          'Vui lòng nhập khối lượng hợp lệ cho tất cả loại rác.',
+        );
+        return;
+      }
+      actualWeights[entry.key] = weight;
+    }
+
+    if (afterImage == null) {
+      _showError(context, 'Vui lòng chụp ảnh sau thu gom.');
+      return;
+    }
+
     try {
-      await CollectorApiService.completeCollection(assignment.assignmentId);
+      await CollectorApiService.completeCollection(
+        assignment.assignmentId,
+        afterImage: afterImage!,
+        actualWeights: actualWeights,
+        note: noteController.text,
+      );
       onUpdate();
     } catch (e) {
+      if (!context.mounted) return;
       _showError(context, e.toString());
     }
   }
@@ -285,15 +458,24 @@ class _TaskCard extends StatelessWidget {
           decoration: const InputDecoration(hintText: 'Nhập lý do...'),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, controller.text), child: const Text('Xác nhận')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('Xác nhận'),
+          ),
         ],
       ),
     );
 
     if (reason != null && reason.isNotEmpty) {
       try {
-        await CollectorApiService.declineAssignment(assignment.assignmentId, reason);
+        await CollectorApiService.declineAssignment(
+          assignment.assignmentId,
+          reason,
+        );
         onUpdate();
       } catch (e) {
         _showError(context, e.toString());
@@ -302,7 +484,9 @@ class _TaskCard extends StatelessWidget {
   }
 
   void _showError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $message'), backgroundColor: Colors.red));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Lỗi: $message'), backgroundColor: Colors.red),
+    );
   }
 }
 
@@ -343,8 +527,18 @@ class _StatusBadge extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
-      child: Text(label, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 }
@@ -360,7 +554,13 @@ class _IconLabel extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: color ?? Colors.grey),
         const SizedBox(width: 6),
-        Expanded(child: Text(label, style: TextStyle(color: Colors.grey.shade700, fontSize: 13), overflow: TextOverflow.ellipsis)),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
     );
   }
