@@ -63,17 +63,43 @@ public sealed class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterRequestDto request)
+    public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
-        await _authService.RegisterCitizenAsync(request);
-        return Ok(new { message = "OTP sent to email" });
+        try
+        {
+            await _authService.RegisterCitizenAsync(request);
+            return Ok(new { message = "OTP sent to email" });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+        catch (FileNotFoundException ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = $"Failed to send OTP email: {ex.Message}" });
+        }
     }
 
     [HttpPost("verify-otp")]
-    public async Task<IActionResult> VerifyOtp(VerifyOtpRequestDto request)
+    public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequestDto request)
     {
-        var user = await _authService.VerifyOtpAndCreateUserAsync(request.Email, request.Otp);
-        return Ok(new { message = "Register successful", user.UserId });
+        try
+        {
+            var user = await _authService.VerifyOtpAndCreateUserAsync(request.Email, request.Otp);
+            return Ok(new { message = "Register successful", user.UserId });
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPut("change-password")]
@@ -109,6 +135,10 @@ public sealed class AuthController : ControllerBase
         catch (InvalidOperationException ex)
         {
             return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = $"Failed to send reset OTP email: {ex.Message}" });
         }
     }
 

@@ -18,7 +18,7 @@ public sealed class RewardsController : ControllerBase
     }
 
     [HttpGet("catalog")]
-    [Authorize(Roles = "Citizen")]
+    [Authorize(Roles = "Citizen,Admin")]
     public async Task<IActionResult> GetRewardCatalog() => Ok(await _rewardService.GetAvailableRewardsAsync());
 
     [HttpGet("balance")]

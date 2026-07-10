@@ -16,9 +16,11 @@ public sealed class EmailService : IEmailService
     public async Task SendEmailAsync(string toEmail, string subject, string body, bool isHtml = false)
     {
         var smtp = _configuration.GetSection("SmtpSettings");
+        var password = smtp["Password"]?.Replace(" ", string.Empty);
+
         using var client = new SmtpClient(smtp["Host"], int.Parse(smtp["Port"]!))
         {
-            Credentials = new NetworkCredential(smtp["Username"], smtp["Password"]),
+            Credentials = new NetworkCredential(smtp["Username"], password),
             EnableSsl = smtp.GetValue("EnableSsl", true)
         };
 
