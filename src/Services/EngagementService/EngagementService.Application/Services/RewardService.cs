@@ -38,8 +38,65 @@ public sealed class RewardService : IRewardService
             .Where(r => r.Status)
             .OrderBy(r => r.Points)
             .AsEnumerable()
-            .Select(r => new RewardVoucherDto { RewardId = r.RewardId, Name = r.Name, Description = r.Description, Points = r.Points, Status = r.Status });
+            .Select(MapReward);
         return Task.FromResult(rewards);
+    }
+
+    public Task<IEnumerable<RewardVoucherDto>> GetAllRewardsAsync()
+    {
+        var rewards = _uow.Rewards
+            .OrderBy(r => r.Points)
+            .AsEnumerable()
+            .Select(MapReward);
+        return Task.FromResult(rewards);
+    }
+
+    public async Task<RewardVoucherDto> CreateRewardAsync(CreateRewardDto request)
+    {
+        ValidateReward(request.Name, request.Points);
+        if (_uow.Rewards.Any(r => r.Name.ToLower() == request.Name.Trim().ToLower()))
+            throw new InvalidOperationException("Reward name already exists");
+
+        var reward = new Reward
+        {
+            Name = request.Name.Trim(),
+            Description = request.Description?.Trim(),
+            Points = request.Points,
+            Status = request.Status
+        };
+
+        await _uow.AddRewardAsync(reward);
+        await _uow.SaveChangesAsync();
+        return MapReward(reward);
+    }
+
+    public async Task<RewardVoucherDto> UpdateRewardAsync(int rewardId, UpdateRewardDto request)
+    {
+        ValidateReward(request.Name, request.Points);
+        var reward = _uow.Rewards.FirstOrDefault(r => r.RewardId == rewardId)
+            ?? throw new InvalidOperationException("Reward not found");
+
+        if (_uow.Rewards.Any(r => r.RewardId != rewardId && r.Name.ToLower() == request.Name.Trim().ToLower()))
+            throw new InvalidOperationException("Reward name already exists");
+
+        reward.Name = request.Name.Trim();
+        reward.Description = request.Description?.Trim();
+        reward.Points = request.Points;
+        reward.Status = request.Status;
+
+        _uow.UpdateReward(reward);
+        await _uow.SaveChangesAsync();
+        return MapReward(reward);
+    }
+
+    public async Task DeleteRewardAsync(int rewardId)
+    {
+        var reward = _uow.Rewards.FirstOrDefault(r => r.RewardId == rewardId)
+            ?? throw new InvalidOperationException("Reward not found");
+
+        reward.Status = false;
+        _uow.UpdateReward(reward);
+        await _uow.SaveChangesAsync();
     }
 
     public Task<IEnumerable<EngagementService.Application.DTOs.Reward.RewardTransactionDto>> GetUserTransactionHistoryAsync(int userId)
@@ -271,4 +328,21 @@ public sealed class RewardService : IRewardService
         FailureReason = transaction.FailureReason,
         CompletedAt = transaction.CompletedAt
     };
+
+    private static RewardVoucherDto MapReward(Reward reward) => new()
+    {
+        RewardId = reward.RewardId,
+        Name = reward.Name,
+        Description = reward.Description,
+        Points = reward.Points,
+        Status = reward.Status
+    };
+
+    private static void ValidateReward(string name, int points)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Name is required");
+        if (points <= 0)
+            throw new ArgumentException("Points must be greater than zero");
+    }
 }

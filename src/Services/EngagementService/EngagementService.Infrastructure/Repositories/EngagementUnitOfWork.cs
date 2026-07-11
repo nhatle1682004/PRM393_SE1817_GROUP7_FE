@@ -19,6 +19,7 @@ public sealed class EngagementUnitOfWork : IEngagementUnitOfWork
     public IQueryable<RewardTransaction> RewardTransactions => _context.RewardTransactions;
     public IQueryable<Feedback> Feedbacks => _context.Feedbacks;
     public Task AddNotificationAsync(Notification notification) => _context.Notifications.AddAsync(notification).AsTask();
+    public Task AddRewardAsync(Reward reward) => _context.Rewards.AddAsync(reward).AsTask();
     public Task AddRewardTransactionAsync(RewardTransaction transaction) => _context.RewardTransactions.AddAsync(transaction).AsTask();
     public Task AddFeedbackAsync(Feedback feedback) => _context.Feedbacks.AddAsync(feedback).AsTask();
     public void UpdateNotification(Notification notification) => _context.Notifications.Update(notification);

@@ -20,14 +20,14 @@ ALTER TABLE waste.districts ADD COLUMN IF NOT EXISTS boundary geometry;
 
 INSERT INTO waste.waste_types (waste_type_id, name, description, reward_points, is_active)
 VALUES
-  (1, 'Organic', 'Food scraps, leaves, and biodegradable waste', 5, TRUE),
-  (2, 'Plastic', 'Plastic bottles, bags, packaging, and containers', 10, TRUE),
-  (3, 'Paper', 'Paper, cardboard, newspapers, and carton', 8, TRUE),
-  (4, 'Metal', 'Cans, scrap metal, and small metal items', 15, TRUE),
-  (5, 'Glass', 'Glass bottles, jars, and broken glass packed safely', 12, TRUE),
-  (6, 'E-Waste', 'Electronic waste such as batteries, cables, and devices', 25, TRUE),
-  (7, 'Hazardous', 'Paint, chemicals, bulbs, and other hazardous waste', 30, TRUE),
-  (8, 'Other', 'Other waste types that need manual review', 3, TRUE)
+  (1, 'Rác hữu cơ', 'Thức ăn thừa, lá cây và rác có thể phân hủy sinh học', 5, TRUE),
+  (2, 'Nhựa', 'Chai nhựa, túi nilon, bao bì và hộp nhựa', 10, TRUE),
+  (3, 'Giấy', 'Giấy, bìa carton, báo và thùng giấy', 8, TRUE),
+  (4, 'Kim loại', 'Lon, sắt vụn và vật dụng kim loại nhỏ', 15, TRUE),
+  (5, 'Thủy tinh', 'Chai lọ thủy tinh và kính vỡ đã được đóng gói an toàn', 12, TRUE),
+  (6, 'Rác điện tử', 'Pin, dây cáp, thiết bị điện tử và linh kiện hỏng', 25, TRUE),
+  (7, 'Rác nguy hại', 'Sơn, hóa chất, bóng đèn và rác thải nguy hại khác', 30, TRUE),
+  (8, 'Khác', 'Các loại rác khác cần được kiểm tra thủ công', 3, TRUE)
 ON CONFLICT (waste_type_id) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,

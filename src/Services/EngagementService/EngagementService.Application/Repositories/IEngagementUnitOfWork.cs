@@ -9,6 +9,7 @@ public interface IEngagementUnitOfWork
     IQueryable<RewardTransaction> RewardTransactions { get; }
     IQueryable<Feedback> Feedbacks { get; }
     Task AddNotificationAsync(Notification notification);
+    Task AddRewardAsync(Reward reward);
     Task AddRewardTransactionAsync(RewardTransaction transaction);
     Task AddFeedbackAsync(Feedback feedback);
     void UpdateNotification(Notification notification);

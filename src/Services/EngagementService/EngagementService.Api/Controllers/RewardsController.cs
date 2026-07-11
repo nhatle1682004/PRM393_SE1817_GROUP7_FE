@@ -19,7 +19,68 @@ public sealed class RewardsController : ControllerBase
 
     [HttpGet("catalog")]
     [Authorize(Roles = "Citizen,Admin")]
-    public async Task<IActionResult> GetRewardCatalog() => Ok(await _rewardService.GetAvailableRewardsAsync());
+    public async Task<IActionResult> GetRewardCatalog()
+    {
+        return Ok(User.IsInRole("Admin")
+            ? await _rewardService.GetAllRewardsAsync()
+            : await _rewardService.GetAvailableRewardsAsync());
+    }
+
+    [HttpPost("catalog")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> CreateReward([FromBody] CreateRewardDto request)
+    {
+        try
+        {
+            var created = await _rewardService.CreateRewardAsync(request);
+            return CreatedAtAction(nameof(GetRewardCatalog), new { id = created.RewardId }, created);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("exists"))
+        {
+            return Conflict(new { message = ex.Message });
+        }
+    }
+
+    [HttpPut("catalog/{rewardId:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateReward(int rewardId, [FromBody] UpdateRewardDto request)
+    {
+        try
+        {
+            return Ok(await _rewardService.UpdateRewardAsync(rewardId, request));
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("exists"))
+        {
+            return Conflict(new { message = ex.Message });
+        }
+    }
+
+    [HttpDelete("catalog/{rewardId:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteReward(int rewardId)
+    {
+        try
+        {
+            await _rewardService.DeleteRewardAsync(rewardId);
+            return NoContent();
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
 
     [HttpGet("balance")]
     public async Task<IActionResult> GetMyBalance()
