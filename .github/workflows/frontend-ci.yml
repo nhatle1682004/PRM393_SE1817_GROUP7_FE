@@ -1,0 +1,67 @@
+name: Frontend CI
+
+on:
+  push:
+    branches:
+      - FE
+
+  pull_request:
+    branches:
+      - FE
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  flutter-test:
+    name: Analyze, Test and Build Flutter
+    runs-on: ubuntu-latest
+
+    steps:
+      # Bước 1: Lấy source code
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      # Bước 2: Cài Java cho Android Gradle
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      # Bước 3: Cài Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # Bước 4: Kiểm tra Flutter
+      - name: Show Flutter version
+        run: flutter --version
+
+      # Bước 5: Tải dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Bước 6: Phân tích code
+      - name: Analyze Flutter code
+        run: flutter analyze
+
+      # Bước 7: Chạy test
+      - name: Run Flutter tests
+        run: flutter test --reporter expanded
+
+      # Bước 8: Kiểm tra có build được APK không
+      - name: Build release APK
+        run: flutter build apk --release
+
+      # Bước 9: Lưu APK trong kết quả Actions
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
