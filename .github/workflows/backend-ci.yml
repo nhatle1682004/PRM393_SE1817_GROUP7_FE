@@ -1,0 +1,61 @@
+name: Backend CI
+
+on:
+  push:
+    branches:
+      - BE
+
+  pull_request:
+    branches:
+      - BE
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend-test:
+    name: Build, Test and Docker Check
+    runs-on: ubuntu-latest
+
+    steps:
+      # Bước 1: Lấy source code từ repository
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      # Bước 2: Cài .NET 8
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      # Bước 3: Hiển thị phiên bản .NET
+      - name: Show .NET version
+        run: dotnet --version
+
+      # Bước 4: Restore package
+      - name: Restore dependencies
+        run: dotnet restore BackEnd-Microservices.sln
+
+      # Bước 5: Build toàn bộ BE
+      - name: Build backend
+        run: |
+          dotnet build BackEnd-Microservices.sln \
+            --configuration Release \
+            --no-restore
+
+      # Bước 6: Chạy unit test
+      - name: Run backend tests
+        run: |
+          dotnet test tests/BackendBehavior.Tests/BackendBehavior.Tests.csproj \
+            --configuration Release \
+            --logger "console;verbosity=detailed"
+
+      # Bước 7: Kiểm tra docker-compose.yml
+      - name: Validate Docker Compose
+        run: docker compose config
+
+      # Bước 8: Thử build Docker image
+      - name: Build Docker images
+        run: docker compose build
