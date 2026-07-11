@@ -74,3 +74,24 @@ class AdminRewardTransaction {
     );
   }
 }
+
+class CreateRewardRequest {
+  final String name;
+  final String? description;
+  final int points;
+  final bool status;
+
+  CreateRewardRequest({
+    required this.name,
+    this.description,
+    required this.points,
+    this.status = true,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'description': description,
+        'points': points,
+        'status': status,
+      };
+}

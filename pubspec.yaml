@@ -70,7 +70,6 @@ flutter:
 
   assets:
     - assets/images/
-    - assets/icons/
     - assets/images/3d_report_illustration.png
     - assets/images/community_1.png
     - assets/images/community_2.png

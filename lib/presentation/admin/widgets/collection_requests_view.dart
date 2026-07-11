@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:waste_collection_management_system/data/models/admin_collection_request.dart';
 import 'package:waste_collection_management_system/services/admin_api_service.dart';
+import 'package:waste_collection_management_system/presentation/admin/widgets/pagination_controls.dart';
 
 class CollectionRequestsView extends StatefulWidget {
   const CollectionRequestsView({super.key});
@@ -15,6 +16,8 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
   String? _errorMessage;
   String _searchQuery = '';
   String _selectedStatus = 'All';
+  int _currentPage = 0;
+  static const int _pageSize = 10;
 
   final List<String> _statuses = ['All', 'Pending', 'Assigned', 'InProgress', 'Completed', 'Cancelled'];
 
@@ -58,6 +61,14 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
     }).toList();
   }
 
+  List<AdminCollectionRequest> get _pagedRequests {
+    final filtered = _filteredRequests;
+    final start = _currentPage * _pageSize;
+    if (start >= filtered.length) return [];
+    final end = start + _pageSize > filtered.length ? filtered.length : start + _pageSize;
+    return filtered.sublist(start, end);
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -82,7 +93,10 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
         children: [
           Expanded(
             child: TextField(
-              onChanged: (value) => setState(() => _searchQuery = value),
+              onChanged: (value) => setState(() {
+                _searchQuery = value;
+                _currentPage = 0;
+              }),
               decoration: InputDecoration(
                 hintText: 'Tìm kiếm yêu cầu...',
                 prefixIcon: const Icon(Icons.search),
@@ -110,7 +124,12 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
                 isDense: true,
                 items: _statuses.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
                 onChanged: (value) {
-                  if (value != null) setState(() => _selectedStatus = value);
+                  if (value != null) {
+                    setState(() {
+                      _selectedStatus = value;
+                      _currentPage = 0;
+                    });
+                  }
                 },
               ),
             ),
@@ -169,14 +188,26 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
     if (isMobile) {
       return ListView.builder(
         padding: const EdgeInsets.all(12),
-        itemCount: _filteredRequests.length,
-        itemBuilder: (context, index) => _buildRequestCard(_filteredRequests[index]),
+        itemCount: _pagedRequests.length,
+        itemBuilder: (context, index) => _buildRequestCard(_pagedRequests[index]),
       );
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: _buildRequestsTable(),
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: _buildRequestsTable(),
+          ),
+        ),
+        PaginationControls(
+          currentPage: _currentPage,
+          totalItems: _filteredRequests.length,
+          pageSize: _pageSize,
+          onPageChanged: (page) => setState(() => _currentPage = page),
+        ),
+      ],
     );
   }
 
@@ -212,7 +243,7 @@ class _CollectionRequestsViewState extends State<CollectionRequestsView> {
               ],
             ),
           ),
-          ..._filteredRequests.map((request) => _buildRequestRow(request)),
+          ..._pagedRequests.map((request) => _buildRequestRow(request)),
         ],
       ),
     );

@@ -174,6 +174,9 @@ class ApiConfig {
   // 11. REWARDS - api/rewards
   /// Danh mục voucher/phần thưởng
   static const String rewardsCatalog = '/rewards/catalog';
+
+  /// Chi tiết phần thưởng trong danh mục
+  static String rewardCatalogItem(int id) => '/rewards/catalog/$id';
   
   /// Tổng điểm thưởng hiện có
   static const String rewardsBalance = '/rewards/balance';

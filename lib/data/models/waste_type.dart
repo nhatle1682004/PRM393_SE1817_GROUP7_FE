@@ -4,6 +4,9 @@ class WasteType {
   final int id;
   final String name;
   final String nameVi;
+  final String? description;
+  final int rewardPoints;
+  final bool isActive;
   final IconData? icon;
   final Color? color;
 
@@ -11,6 +14,9 @@ class WasteType {
     required this.id,
     required this.name,
     required this.nameVi,
+    this.description,
+    this.rewardPoints = 0,
+    this.isActive = true,
     this.icon,
     this.color,
   });
@@ -30,6 +36,11 @@ class WasteType {
       id: id,
       name: name,
       nameVi: nameVi,
+      description: json['description']?.toString(),
+      rewardPoints: json['rewardPoints'] is int
+          ? json['rewardPoints'] as int
+          : int.tryParse(json['rewardPoints']?.toString() ?? '') ?? 0,
+      isActive: json['isActive'] is bool ? json['isActive'] as bool : true,
       icon: iconData,
       color: colorData,
     );
@@ -73,4 +84,43 @@ class WasteType {
     if (lowerName.contains('other')) return 'Khác';
     return name;
   }
+}
+
+class CreateWasteTypeRequest {
+  final String name;
+  final String? description;
+  final int rewardPoints;
+
+  CreateWasteTypeRequest({
+    required this.name,
+    this.description,
+    required this.rewardPoints,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'description': description,
+        'rewardPoints': rewardPoints,
+      };
+}
+
+class UpdateWasteTypeRequest {
+  final String name;
+  final String? description;
+  final int rewardPoints;
+  final bool isActive;
+
+  UpdateWasteTypeRequest({
+    required this.name,
+    this.description,
+    required this.rewardPoints,
+    required this.isActive,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'description': description,
+        'rewardPoints': rewardPoints,
+        'isActive': isActive,
+      };
 }

@@ -10,6 +10,7 @@ import 'package:waste_collection_management_system/presentation/admin/widgets/co
 import 'package:waste_collection_management_system/presentation/admin/widgets/feedbacks_view.dart';
 import 'package:waste_collection_management_system/presentation/admin/widgets/notifications_view.dart';
 import 'package:waste_collection_management_system/presentation/admin/widgets/rewards_view.dart';
+import 'package:waste_collection_management_system/presentation/admin/widgets/waste_types_view.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -33,6 +34,7 @@ class _AdminScreenState extends State<AdminScreen> {
     _AdminMenuItem(Icons.feedback_outlined, Icons.feedback, 'Phản hồi', 4),
     _AdminMenuItem(Icons.notifications_outlined, Icons.notifications, 'Thông báo', 5),
     _AdminMenuItem(Icons.card_giftcard_outlined, Icons.card_giftcard, 'Phần thưởng', 6),
+    _AdminMenuItem(Icons.category_outlined, Icons.category, 'Loại rác', 7),
   ];
 
   @override
@@ -500,6 +502,8 @@ class _AdminScreenState extends State<AdminScreen> {
         return NotificationsView();
       case 6:
         return RewardsView();
+      case 7:
+        return const WasteTypesView();
       default:
         return DashboardView(stats: _stats, onRefresh: _loadStats);
     }

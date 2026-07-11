@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:waste_collection_management_system/data/models/admin_reward.dart';
+import 'package:waste_collection_management_system/presentation/admin/widgets/pagination_controls.dart';
 import 'package:waste_collection_management_system/services/admin_api_service.dart';
 
 class RewardsView extends StatefulWidget {
@@ -10,13 +11,16 @@ class RewardsView extends StatefulWidget {
 }
 
 class _RewardsViewState extends State<RewardsView> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+  late final TabController _tabController;
   List<AdminReward> _rewards = [];
   List<AdminRewardTransaction> _transactions = [];
-  bool _isLoadingRewards = true;
-  bool _isLoadingTransactions = true;
-  String? _errorMessageRewards;
-  String? _errorMessageTransactions;
+  bool _loadingRewards = true;
+  bool _loadingTransactions = true;
+  String? _rewardError;
+  String? _transactionError;
+  int _rewardPage = 0;
+  int _transactionPage = 0;
+  static const int _pageSize = 10;
 
   @override
   void initState() {
@@ -32,572 +36,369 @@ class _RewardsViewState extends State<RewardsView> with SingleTickerProviderStat
     super.dispose();
   }
 
+  List<T> _page<T>(List<T> items, int page) {
+    final start = page * _pageSize;
+    if (start >= items.length) return [];
+    final end = start + _pageSize > items.length ? items.length : start + _pageSize;
+    return items.sublist(start, end);
+  }
+
   Future<void> _loadRewards() async {
     setState(() {
-      _isLoadingRewards = true;
-      _errorMessageRewards = null;
+      _loadingRewards = true;
+      _rewardError = null;
     });
-
     try {
       final rewards = await AdminApiService.getRewardCatalog();
-      if (mounted) {
-        setState(() {
-          _rewards = rewards;
-          _isLoadingRewards = false;
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        _rewards = rewards;
+        _rewardPage = 0;
+        _loadingRewards = false;
+      });
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessageRewards = e.toString();
-          _isLoadingRewards = false;
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        _rewardError = e.toString();
+        _loadingRewards = false;
+      });
     }
   }
 
   Future<void> _loadTransactions() async {
     setState(() {
-      _isLoadingTransactions = true;
-      _errorMessageTransactions = null;
+      _loadingTransactions = true;
+      _transactionError = null;
     });
-
     try {
       final transactions = await AdminApiService.getAllRewardTransactions();
-      if (mounted) {
-        setState(() {
-          _transactions = transactions;
-          _isLoadingTransactions = false;
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        _transactions = transactions;
+        _transactionPage = 0;
+        _loadingTransactions = false;
+      });
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessageTransactions = e.toString();
-          _isLoadingTransactions = false;
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        _transactionError = e.toString();
+        _loadingTransactions = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 768;
-
     return Column(
       children: [
         Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-          ),
-          child: TabBar(
-            controller: _tabController,
-            labelColor: const Color(0xFF10B981),
-            unselectedLabelColor: Colors.grey.shade600,
-            indicatorColor: const Color(0xFF10B981),
-            tabs: const [
-              Tab(text: 'Danh sách phần thưởng', icon: Icon(Icons.card_giftcard, size: 20)),
-              Tab(text: 'Lịch sử giao dịch', icon: Icon(Icons.history, size: 20)),
+          color: Colors.white,
+          child: Row(
+            children: [
+              Expanded(
+                child: TabBar(
+                  controller: _tabController,
+                  labelColor: const Color(0xFF10B981),
+                  unselectedLabelColor: Colors.grey.shade600,
+                  indicatorColor: const Color(0xFF10B981),
+                  tabs: const [
+                    Tab(text: 'Danh sách phần thưởng', icon: Icon(Icons.card_giftcard, size: 20)),
+                    Tab(text: 'Lịch sử giao dịch', icon: Icon(Icons.history, size: 20)),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: ElevatedButton.icon(
+                  onPressed: () => _showRewardDialog(),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Tạo phần thưởng'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF10B981),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
         Expanded(
           child: TabBarView(
             controller: _tabController,
-            children: [
-              _buildRewardsTab(isMobile),
-              _buildTransactionsTab(isMobile),
-            ],
+            children: [_buildRewardsTab(), _buildTransactionsTab()],
           ),
         ),
       ],
     );
   }
 
-  Widget _buildRewardsTab(bool isMobile) {
-    if (_isLoadingRewards) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF10B981)));
-    }
+  Widget _buildRewardsTab() {
+    if (_loadingRewards) return const Center(child: CircularProgressIndicator(color: Color(0xFF10B981)));
+    if (_rewardError != null) return _errorView(_rewardError!, _loadRewards);
+    if (_rewards.isEmpty) return _emptyView(Icons.card_giftcard_outlined, 'Chưa có phần thưởng nào');
 
-    if (_errorMessageRewards != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 48),
-            const SizedBox(height: 16),
-            Text(_errorMessageRewards!, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadRewards,
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
-              child: const Text('Thử lại', style: TextStyle(color: Colors.white)),
-            ),
-          ],
+    final rewards = _page(_rewards, _rewardPage);
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: rewards.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 10),
+            itemBuilder: (context, index) => _rewardRow(rewards[index]),
+          ),
         ),
-      );
-    }
-
-    if (_rewards.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.card_giftcard_outlined, color: Colors.grey.shade400, size: 64),
-            const SizedBox(height: 16),
-            Text('Chưa có phần thưởng nào', style: TextStyle(color: Colors.grey.shade600, fontSize: 16)),
-          ],
+        PaginationControls(
+          currentPage: _rewardPage,
+          totalItems: _rewards.length,
+          pageSize: _pageSize,
+          onPageChanged: (page) => setState(() => _rewardPage = page),
         ),
-      );
-    }
-
-    if (isMobile) {
-      return ListView.builder(
-        padding: const EdgeInsets.all(12),
-        itemCount: _rewards.length,
-        itemBuilder: (context, index) => _buildRewardCard(_rewards[index]),
-      );
-    }
-
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 1.2,
-      ),
-      itemCount: _rewards.length,
-      itemBuilder: (context, index) => _buildRewardCard(_rewards[index]),
+      ],
     );
   }
 
-  Widget _buildRewardCard(AdminReward reward) {
+  Widget _rewardRow(AdminReward reward) {
     return Container(
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4))],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    reward.status ? const Color(0xFF10B981) : Colors.grey,
-                    reward.status ? const Color(0xFF059669) : Colors.grey.shade400,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.card_giftcard,
-                  color: Colors.white.withValues(alpha: 0.9),
-                  size: 48,
-                ),
-              ),
-            ),
+          CircleAvatar(
+            backgroundColor: const Color(0xFFDCFCE7),
+            child: Icon(Icons.card_giftcard, color: reward.status ? const Color(0xFF10B981) : Colors.grey),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
+          const SizedBox(width: 12),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        reward.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: reward.status ? const Color(0xFFDCFCE7) : const Color(0xFFFEF2F2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        reward.status ? 'Hoạt động' : 'Tắt',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: reward.status ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                if (reward.description != null)
-                  Text(
-                    reward.description!,
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDCFCE7),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.stars, size: 14, color: Color(0xFF10B981)),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${reward.points} điểm',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF10B981),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      '${reward.totalRedeemed} đã đổi',
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-                    ),
-                  ],
-                ),
+                Text(reward.name, style: const TextStyle(fontWeight: FontWeight.w700)),
+                if (reward.description?.isNotEmpty == true)
+                  Text(reward.description!, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF64748B))),
               ],
             ),
+          ),
+          Text('${reward.points} điểm', style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF10B981))),
+          const SizedBox(width: 16),
+          _chip(reward.status ? 'Hoạt động' : 'Tắt', reward.status ? const Color(0xFF10B981) : const Color(0xFFEF4444)),
+          const SizedBox(width: 8),
+          IconButton(
+            tooltip: 'Sửa',
+            icon: const Icon(Icons.edit_outlined, size: 20),
+            color: const Color(0xFF3B82F6),
+            onPressed: () => _showRewardDialog(reward: reward),
+          ),
+          IconButton(
+            tooltip: 'Xóa',
+            icon: const Icon(Icons.delete_outline, size: 20),
+            color: const Color(0xFFEF4444),
+            onPressed: () => _deleteReward(reward),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTransactionsTab(bool isMobile) {
-    if (_isLoadingTransactions) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF10B981)));
-    }
+  Widget _buildTransactionsTab() {
+    if (_loadingTransactions) return const Center(child: CircularProgressIndicator(color: Color(0xFF10B981)));
+    if (_transactionError != null) return _errorView(_transactionError!, _loadTransactions);
+    if (_transactions.isEmpty) return _emptyView(Icons.history_outlined, 'Chưa có giao dịch nào');
 
-    if (_errorMessageTransactions != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 48),
-            const SizedBox(height: 16),
-            Text(_errorMessageTransactions!, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadTransactions,
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
-              child: const Text('Thử lại', style: TextStyle(color: Colors.white)),
-            ),
-          ],
+    final transactions = _page(_transactions, _transactionPage);
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: transactions.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 10),
+            itemBuilder: (context, index) => _transactionRow(transactions[index]),
+          ),
         ),
-      );
-    }
-
-    if (_transactions.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.history_outlined, color: Colors.grey.shade400, size: 64),
-            const SizedBox(height: 16),
-            Text('Chưa có giao dịch nào', style: TextStyle(color: Colors.grey.shade600, fontSize: 16)),
-          ],
+        PaginationControls(
+          currentPage: _transactionPage,
+          totalItems: _transactions.length,
+          pageSize: _pageSize,
+          onPageChanged: (page) => setState(() => _transactionPage = page),
         ),
-      );
-    }
-
-    if (isMobile) {
-      return ListView.builder(
-        padding: const EdgeInsets.all(12),
-        itemCount: _transactions.length,
-        itemBuilder: (context, index) => _buildTransactionCard(_transactions[index]),
-      );
-    }
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: _buildTransactionsTable(),
+      ],
     );
   }
 
-  Widget _buildTransactionsTable() {
+  Widget _transactionRow(AdminRewardTransaction transaction) {
+    final positive = transaction.points >= 0;
     return Container(
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4))],
       ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            child: const Row(
-              children: [
-                Expanded(flex: 1, child: Text('ID', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-                Expanded(flex: 2, child: Text('Người dùng', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-                Expanded(flex: 2, child: Text('Phần thưởng', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-                Expanded(flex: 1, child: Text('Điểm', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-                Expanded(flex: 1, child: Text('Loại', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-                Expanded(flex: 1, child: Text('Trạng thái', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-                Expanded(flex: 1, child: Text('Ngày', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-              ],
-            ),
-          ),
-          ..._transactions.map((transaction) => _buildTransactionRow(transaction)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTransactionRow(AdminRewardTransaction transaction) {
-    final isPositive = transaction.points > 0;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey.shade100))),
       child: Row(
         children: [
-          Expanded(
-            flex: 1,
-            child: Text('#${transaction.transactionId}', style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text('#${transaction.transactionId}', style: const TextStyle(fontWeight: FontWeight.w700)),
+          const SizedBox(width: 16),
+          Expanded(child: Text(transaction.userName.isEmpty ? 'Người dùng #${transaction.userId}' : transaction.userName)),
+          Expanded(child: Text(transaction.rewardName ?? transaction.description, overflow: TextOverflow.ellipsis)),
+          Text(
+            '${positive ? '+' : ''}${transaction.points}',
+            style: TextStyle(fontWeight: FontWeight.w700, color: positive ? const Color(0xFF10B981) : const Color(0xFFEF4444)),
           ),
-          Expanded(
-            flex: 2,
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.1),
-                  child: Text(
-                    transaction.userName.isNotEmpty ? transaction.userName[0].toUpperCase() : 'U',
-                    style: const TextStyle(color: Color(0xFF10B981), fontWeight: FontWeight.bold, fontSize: 12),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(transaction.userName, overflow: TextOverflow.ellipsis),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              transaction.rewardName ?? transaction.description,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Row(
-              children: [
-                Icon(
-                  isPositive ? Icons.arrow_upward : Icons.arrow_downward,
-                  size: 16,
-                  color: isPositive ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                ),
-                Text(
-                  '${isPositive ? '+' : ''}${transaction.points}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: isPositive ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: _buildTypeChip(transaction.type),
-          ),
-          Expanded(
-            flex: 1,
-            child: _buildStatusChip(transaction.status),
-          ),
-          Expanded(
-            flex: 1,
-            child: Text(
-              transaction.createdAt != null ? _formatDate(transaction.createdAt!) : '-',
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-            ),
-          ),
+          const SizedBox(width: 16),
+          _chip(_transactionStatusLabel(transaction.status), _transactionStatusColor(transaction.status)),
         ],
       ),
     );
   }
 
-  Widget _buildTransactionCard(AdminRewardTransaction transaction) {
-    final isPositive = transaction.points > 0;
+  Future<void> _showRewardDialog({AdminReward? reward}) async {
+    final isEdit = reward != null;
+    final nameController = TextEditingController(text: reward?.name ?? '');
+    final descriptionController = TextEditingController(text: reward?.description ?? '');
+    final pointsController = TextEditingController(text: reward?.points.toString() ?? '');
+    bool status = reward?.status ?? true;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(8)),
-                child: Text('#${transaction.transactionId}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-              ),
-              const SizedBox(width: 8),
-              _buildStatusChip(transaction.status),
-              const Spacer(),
-              Row(
-                children: [
-                  Icon(
-                    isPositive ? Icons.arrow_upward : Icons.arrow_downward,
-                    size: 16,
-                    color: isPositive ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                  ),
-                  Text(
-                    '${isPositive ? '+' : ''}${transaction.points}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: isPositive ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.1),
-                child: Text(
-                  transaction.userName.isNotEmpty ? transaction.userName[0].toUpperCase() : 'U',
-                  style: const TextStyle(color: Color(0xFF10B981), fontWeight: FontWeight.bold, fontSize: 12),
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(isEdit ? 'Sửa phần thưởng' : 'Tạo phần thưởng'),
+          content: SizedBox(
+            width: 420,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Tên phần thưởng', border: OutlineInputBorder())),
+                const SizedBox(height: 12),
+                TextField(controller: descriptionController, maxLines: 2, decoration: const InputDecoration(labelText: 'Mô tả', border: OutlineInputBorder())),
+                const SizedBox(height: 12),
+                TextField(controller: pointsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Điểm cần đổi', border: OutlineInputBorder())),
+                SwitchListTile(
+                  value: status,
+                  onChanged: (value) => setDialogState(() => status = value),
+                  title: const Text('Đang hoạt động'),
+                  contentPadding: EdgeInsets.zero,
                 ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(transaction.userName, style: const TextStyle(fontWeight: FontWeight.w600)),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              const Icon(Icons.card_giftcard, size: 16, color: Color(0xFF64748B)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  transaction.rewardName ?? transaction.description,
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              _buildTypeChip(transaction.type),
-              const Spacer(),
-              Text(
-                transaction.createdAt != null ? _formatDate(transaction.createdAt!) : '-',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-              ),
-            ],
-          ),
-        ],
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
+            ElevatedButton(
+              onPressed: () async {
+                final points = int.tryParse(pointsController.text.trim());
+                if (nameController.text.trim().isEmpty || points == null || points <= 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng nhập tên và điểm hợp lệ')));
+                  return;
+                }
+
+                final request = CreateRewardRequest(
+                  name: nameController.text.trim(),
+                  description: descriptionController.text.trim().isEmpty ? null : descriptionController.text.trim(),
+                  points: points,
+                  status: status,
+                );
+
+                try {
+                  if (isEdit) {
+                    await AdminApiService.updateReward(reward.rewardId, request);
+                  } else {
+                    await AdminApiService.createReward(request);
+                  }
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    await _loadRewards();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(isEdit ? 'Đã cập nhật phần thưởng' : 'Đã tạo phần thưởng')),
+                      );
+                    }
+                  }
+                } catch (e) {
+                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+                }
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
+              child: Text(isEdit ? 'Lưu' : 'Tạo', style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildTypeChip(String type) {
-    Color color;
-    switch (type.toLowerCase()) {
-      case 'redeemed':
-        color = const Color(0xFFEF4444);
-        break;
-      case 'earned':
-        color = const Color(0xFF10B981);
-        break;
-      default:
-        color = const Color(0xFF6B7280);
+  Future<void> _deleteReward(AdminReward reward) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Xóa phần thưởng'),
+        content: Text('Bạn có chắc muốn xóa/tắt "${reward.name}"?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Hủy')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
+            child: const Text('Xóa', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+    try {
+      await AdminApiService.deleteReward(reward.rewardId);
+      await _loadRewards();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã xóa/tắt phần thưởng')));
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
     }
+  }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        type,
-        style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 12),
+  Widget _errorView(String message, Future<void> Function() retry) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 48),
+          const SizedBox(height: 12),
+          Text(message, textAlign: TextAlign.center),
+          const SizedBox(height: 12),
+          ElevatedButton(onPressed: retry, child: const Text('Thử lại')),
+        ],
       ),
     );
   }
 
-  Widget _buildStatusChip(String status) {
-    final color = _getStatusColor(status);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        _getStatusLabel(status),
-        style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 12),
+  Widget _emptyView(IconData icon, String text) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Colors.grey.shade400, size: 64),
+          const SizedBox(height: 16),
+          Text(text, style: TextStyle(color: Colors.grey.shade600)),
+        ],
       ),
     );
   }
 
-  Color _getStatusColor(String status) {
+  Widget _chip(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+      child: Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 12)),
+    );
+  }
+
+  Color _transactionStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'completed':
         return const Color(0xFF10B981);
@@ -606,11 +407,11 @@ class _RewardsViewState extends State<RewardsView> with SingleTickerProviderStat
       case 'failed':
         return const Color(0xFFEF4444);
       default:
-        return const Color(0xFF6B7280);
+        return const Color(0xFF64748B);
     }
   }
 
-  String _getStatusLabel(String status) {
+  String _transactionStatusLabel(String status) {
     switch (status.toLowerCase()) {
       case 'completed':
         return 'Hoàn thành';
@@ -621,9 +422,5 @@ class _RewardsViewState extends State<RewardsView> with SingleTickerProviderStat
       default:
         return status;
     }
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
   }
 }

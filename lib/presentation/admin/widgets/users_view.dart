@@ -5,6 +5,7 @@ import 'package:waste_collection_management_system/data/models/admin_user.dart';
 import 'package:waste_collection_management_system/data/models/district_model.dart';
 import 'package:waste_collection_management_system/services/admin_api_service.dart';
 import 'package:waste_collection_management_system/services/api_service.dart';
+import 'package:waste_collection_management_system/presentation/admin/widgets/pagination_controls.dart';
 
 class UsersView extends StatefulWidget {
   final VoidCallback onRefresh;
@@ -21,6 +22,8 @@ class _UsersViewState extends State<UsersView> {
   String? _errorMessage;
   String _searchQuery = '';
   String _selectedRole = 'All';
+  int _currentPage = 0;
+  static const int _pageSize = 10;
 
   final List<String> _roles = [
     'All',
@@ -71,6 +74,20 @@ class _UsersViewState extends State<UsersView> {
     }).toList();
   }
 
+  List<AdminUser> get _pagedUsers {
+    final filtered = _filteredUsers;
+    final start = _currentPage * _pageSize;
+    if (start >= filtered.length) return [];
+    final end = start + _pageSize > filtered.length ? filtered.length : start + _pageSize;
+    return filtered.sublist(start, end);
+  }
+
+  String _enterpriseNameFor(int? enterpriseId) {
+    if (enterpriseId == null) return 'Chưa gán';
+    final matches = _users.where((user) => user.userId == enterpriseId);
+    return matches.isEmpty ? '#$enterpriseId' : matches.first.fullName;
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -97,7 +114,10 @@ class _UsersViewState extends State<UsersView> {
             children: [
               Expanded(
                 child: TextField(
-                  onChanged: (value) => setState(() => _searchQuery = value),
+                  onChanged: (value) => setState(() {
+                    _searchQuery = value;
+                    _currentPage = 0;
+                  }),
                   decoration: InputDecoration(
                     hintText: 'Tìm kiếm người dùng...',
                     prefixIcon: const Icon(Icons.search),
@@ -154,7 +174,10 @@ class _UsersViewState extends State<UsersView> {
               .toList(),
           onChanged: (value) {
             if (value != null) {
-              setState(() => _selectedRole = value);
+              setState(() {
+                _selectedRole = value;
+                _currentPage = 0;
+              });
             }
           },
         ),
@@ -212,14 +235,26 @@ class _UsersViewState extends State<UsersView> {
     if (isMobile) {
       return ListView.builder(
         padding: const EdgeInsets.all(12),
-        itemCount: _filteredUsers.length,
-        itemBuilder: (context, index) => _buildUserCard(_filteredUsers[index]),
+        itemCount: _pagedUsers.length,
+        itemBuilder: (context, index) => _buildUserCard(_pagedUsers[index]),
       );
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: _buildUsersTable(),
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: _buildUsersTable(),
+          ),
+        ),
+        PaginationControls(
+          currentPage: _currentPage,
+          totalItems: _filteredUsers.length,
+          pageSize: _pageSize,
+          onPageChanged: (page) => setState(() => _currentPage = page),
+        ),
+      ],
     );
   }
 
@@ -250,13 +285,14 @@ class _UsersViewState extends State<UsersView> {
               children: [
                 _buildTableHeader('Người dùng', flex: 3),
                 _buildTableHeader('Email', flex: 2),
+                _buildTableHeader('Doanh nghiệp', flex: 2),
                 _buildTableHeader('Vai trò', flex: 1),
                 _buildTableHeader('Trạng thái', flex: 1),
                 _buildTableHeader('Hành động', flex: 1),
               ],
             ),
           ),
-          ..._filteredUsers.map((user) => _buildUserRow(user)),
+          ..._pagedUsers.map((user) => _buildUserRow(user)),
         ],
       ),
     );
@@ -329,6 +365,27 @@ class _UsersViewState extends State<UsersView> {
           Expanded(
             flex: 2,
             child: Text(user.email, overflow: TextOverflow.ellipsis),
+          ),
+          Expanded(
+            flex: 2,
+            child: user.roleName.toLowerCase() == 'collector'
+                ? Row(
+                    children: [
+                      const Icon(Icons.business_outlined, size: 16, color: Color(0xFFF59E0B)),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          _enterpriseNameFor(user.enterpriseId),
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  )
+                : Text(
+                    user.roleName.toLowerCase() == 'enterprise' ? 'Đơn vị chủ quản' : '-',
+                    style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                  ),
           ),
           Expanded(flex: 1, child: _buildRoleChip(user.roleName)),
           Expanded(flex: 1, child: _buildStatusChip(user.isActive)),
@@ -427,6 +484,16 @@ class _UsersViewState extends State<UsersView> {
           Row(
             children: [
               _buildStatusChip(user.isActive),
+              if (user.roleName.toLowerCase() == 'collector') ...[
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'DN: ${_enterpriseNameFor(user.enterpriseId)}',
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                  ),
+                ),
+              ],
               const Spacer(),
               if (user.totalPoints != null)
                 Container(

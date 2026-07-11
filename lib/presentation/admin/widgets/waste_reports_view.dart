@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:waste_collection_management_system/data/models/admin_waste_report.dart';
 import 'package:waste_collection_management_system/services/admin_api_service.dart';
+import 'package:waste_collection_management_system/presentation/admin/widgets/pagination_controls.dart';
 
 class WasteReportsView extends StatefulWidget {
   const WasteReportsView({super.key});
@@ -15,6 +16,8 @@ class _WasteReportsViewState extends State<WasteReportsView> {
   String? _errorMessage;
   String _searchQuery = '';
   String _selectedStatus = 'All';
+  int _currentPage = 0;
+  static const int _pageSize = 10;
 
   final List<String> _statuses = ['All', 'Pending', 'Processing', 'Completed', 'Rejected', 'Cancelled'];
 
@@ -57,6 +60,14 @@ class _WasteReportsViewState extends State<WasteReportsView> {
     }).toList();
   }
 
+  List<AdminWasteReport> get _pagedReports {
+    final filtered = _filteredReports;
+    final start = _currentPage * _pageSize;
+    if (start >= filtered.length) return [];
+    final end = start + _pageSize > filtered.length ? filtered.length : start + _pageSize;
+    return filtered.sublist(start, end);
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -81,7 +92,10 @@ class _WasteReportsViewState extends State<WasteReportsView> {
         children: [
           Expanded(
             child: TextField(
-              onChanged: (value) => setState(() => _searchQuery = value),
+              onChanged: (value) => setState(() {
+                _searchQuery = value;
+                _currentPage = 0;
+              }),
               decoration: InputDecoration(
                 hintText: 'Tìm kiếm báo cáo...',
                 prefixIcon: const Icon(Icons.search),
@@ -112,7 +126,12 @@ class _WasteReportsViewState extends State<WasteReportsView> {
                 isDense: true,
                 items: _statuses.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
                 onChanged: (value) {
-                  if (value != null) setState(() => _selectedStatus = value);
+                  if (value != null) {
+                    setState(() {
+                      _selectedStatus = value;
+                      _currentPage = 0;
+                    });
+                  }
                 },
               ),
             ),
@@ -171,14 +190,26 @@ class _WasteReportsViewState extends State<WasteReportsView> {
     if (isMobile) {
       return ListView.builder(
         padding: const EdgeInsets.all(12),
-        itemCount: _filteredReports.length,
-        itemBuilder: (context, index) => _buildReportCard(_filteredReports[index]),
+        itemCount: _pagedReports.length,
+        itemBuilder: (context, index) => _buildReportCard(_pagedReports[index]),
       );
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: _buildReportsTable(),
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: _buildReportsTable(),
+          ),
+        ),
+        PaginationControls(
+          currentPage: _currentPage,
+          totalItems: _filteredReports.length,
+          pageSize: _pageSize,
+          onPageChanged: (page) => setState(() => _currentPage = page),
+        ),
+      ],
     );
   }
 
@@ -215,7 +246,7 @@ class _WasteReportsViewState extends State<WasteReportsView> {
               ],
             ),
           ),
-          ..._filteredReports.map((report) => _buildReportRow(report)),
+          ..._pagedReports.map((report) => _buildReportRow(report)),
         ],
       ),
     );

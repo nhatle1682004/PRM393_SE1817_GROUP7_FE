@@ -7,6 +7,7 @@ import 'package:waste_collection_management_system/data/models/admin_feedback.da
 import 'package:waste_collection_management_system/data/models/admin_collection_request.dart';
 import 'package:waste_collection_management_system/data/models/admin_notification.dart';
 import 'package:waste_collection_management_system/data/models/admin_reward.dart';
+import 'package:waste_collection_management_system/data/models/waste_type.dart';
 
 class AdminApiService {
   static Future<AdminStats> getAdminDashboard({int? year}) async {
@@ -214,11 +215,86 @@ class AdminApiService {
     }
   }
 
+  static Future<AdminReward> createReward(CreateRewardRequest request) async {
+    try {
+      final response = await ApiService.post(
+        ApiConfig.rewardsCatalog,
+        body: request.toJson(),
+      );
+      return AdminReward.fromJson(response.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<AdminReward> updateReward(int rewardId, CreateRewardRequest request) async {
+    try {
+      final response = await ApiService.put(
+        ApiConfig.rewardCatalogItem(rewardId),
+        body: request.toJson(),
+      );
+      return AdminReward.fromJson(response.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<void> deleteReward(int rewardId) async {
+    try {
+      await ApiService.delete(ApiConfig.rewardCatalogItem(rewardId));
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   static Future<List<AdminRewardTransaction>> getAllRewardTransactions() async {
     try {
       final response = await ApiService.get(ApiConfig.rewardsHistory);
       final List<dynamic> data = response.data ?? [];
       return data.map((e) => AdminRewardTransaction.fromJson(e)).toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // ============ WASTE TYPES ============
+  static Future<List<WasteType>> getWasteTypes() async {
+    try {
+      final response = await ApiService.get(ApiConfig.wasteTypes);
+      final List<dynamic> data = response.data ?? [];
+      return data.map((e) => WasteType.fromJson(e)).toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<WasteType> createWasteType(CreateWasteTypeRequest request) async {
+    try {
+      final response = await ApiService.post(
+        ApiConfig.wasteTypes,
+        body: request.toJson(),
+      );
+      return WasteType.fromJson(response.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<WasteType> updateWasteType(int wasteTypeId, UpdateWasteTypeRequest request) async {
+    try {
+      final response = await ApiService.put(
+        ApiConfig.wasteTypeDetails(wasteTypeId),
+        body: request.toJson(),
+      );
+      return WasteType.fromJson(response.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<void> deleteWasteType(int wasteTypeId) async {
+    try {
+      await ApiService.delete(ApiConfig.wasteTypeDetails(wasteTypeId));
     } catch (e) {
       rethrow;
     }
