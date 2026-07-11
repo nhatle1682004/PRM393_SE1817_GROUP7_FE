@@ -88,8 +88,13 @@ public sealed class IdentityAndWasteFlowTests
         Assert.Equal("Accepted", result.Status);
         await collection.Received(1).CreateFromReportAsync(Arg.Is<CreateCollectionRequestFromReportRequest>(request =>
             request.ReportId == report.ReportId && request.EnterpriseId == 22 && request.Status == "Pending"));
-        await engagement.Received(1).CreateNotificationAsync(Arg.Is<CreateNotificationRequest>(request =>
-            request.UserId == report.SubmittedBy && request.Content.Contains("accepted")));
+        await engagement.Received(1)
+            .CreateNotificationAsync(
+                Arg.Is<CreateNotificationRequest>(request =>
+                    request.UserId == report.SubmittedBy &&
+                    request.Content.Contains(
+                        "chấp nhận",
+                        StringComparison.OrdinalIgnoreCase)));
     }
 
     [Fact]
@@ -123,11 +128,34 @@ public sealed class IdentityAndWasteFlowTests
     private static IWasteUnitOfWork CreateWasteUnitOfWork(WasteReport report)
     {
         var uow = Substitute.For<IWasteUnitOfWork>();
+
         uow.WasteReports.Returns(Substitute.For<IWasteReportRepository>());
         uow.WasteTypes.Returns(Substitute.For<IWasteTypeRepository>());
         uow.Districts.Returns(Array.Empty<District>().AsQueryable());
-        uow.WasteReports.GetByIdAsync(report.ReportId).Returns(report);
-        uow.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
+
+        uow.WasteReports
+            .GetByIdAsync(report.ReportId)
+            .Returns(report);
+
+        uow.WasteReports
+            .TrySetStatusToAcceptedAsync(report.ReportId)
+            .Returns(_ =>
+            {
+                if (!string.Equals(
+                        report.Status,
+                        "Pending",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+
+                report.Status = "Accepted";
+                return true;
+            });
+
+        uow.SaveChangesAsync(Arg.Any<CancellationToken>())
+            .Returns(1);
+
         return uow;
     }
 }
