@@ -1,6 +1,7 @@
 using Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WasteReportService.Application.Clients;
 using WasteReportService.Application.DTOs.WasteReport;
 using WasteReportService.Application.Services;
 
@@ -11,10 +12,12 @@ namespace WasteReportService.Api.Controllers;
 public sealed class WasteReportsController : ControllerBase
 {
     private readonly IWasteReportService _service;
+    private readonly IAiPredictionClient _aiPredictionClient;
 
-    public WasteReportsController(IWasteReportService service)
+    public WasteReportsController(IWasteReportService service, IAiPredictionClient aiPredictionClient)
     {
         _service = service;
+        _aiPredictionClient = aiPredictionClient;
     }
 
     public class CreateWasteReportForm
@@ -29,6 +32,11 @@ public sealed class WasteReportsController : ControllerBase
 
     public sealed class UpdateWasteReportForm : CreateWasteReportForm
     {
+    }
+
+    public sealed class PredictWasteReportImageForm
+    {
+        public IFormFile? Image { get; set; }
     }
 
     [HttpGet]
@@ -101,6 +109,38 @@ public sealed class WasteReportsController : ControllerBase
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
         {
             return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("predict")]
+    [Authorize(Roles = "Citizen")]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> Predict([FromForm] PredictWasteReportImageForm form)
+    {
+        if (form.Image == null || form.Image.Length <= 0)
+            return BadRequest(new { message = "Image is required" });
+
+        var tempPath = await SaveTempImageAsync(form.Image);
+        try
+        {
+            var prediction = await _aiPredictionClient.PredictAsync(tempPath);
+            if (prediction == null || string.IsNullOrWhiteSpace(prediction.Label))
+                return BadRequest(new { message = "AI prediction is not available" });
+
+            return Ok(prediction);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new
+            {
+                message = "AI prediction service is not available",
+                detail = ex.Message
+            });
+        }
+        finally
+        {
+            if (System.IO.File.Exists(tempPath))
+                System.IO.File.Delete(tempPath);
         }
     }
 
@@ -228,5 +268,17 @@ public sealed class WasteReportsController : ControllerBase
         await using var stream = new FileStream(fullPath, FileMode.Create);
         await image.CopyToAsync(stream);
         return new SavedImage($"/uploads/waste-reports/{fileName}", fullPath);
+    }
+
+    private static async Task<string> SaveTempImageAsync(IFormFile image)
+    {
+        var ext = Path.GetExtension(image.FileName);
+        if (string.IsNullOrWhiteSpace(ext))
+            ext = ".jpg";
+
+        var tempPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}{ext}");
+        await using var stream = new FileStream(tempPath, FileMode.Create);
+        await image.CopyToAsync(stream);
+        return tempPath;
     }
 }
