@@ -14,6 +14,7 @@ public sealed class WasteReportService : IWasteReportService
     private readonly IIdentityClient _identityClient;
     private readonly ICollectionClient _collectionClient;
     private readonly IEngagementClient _engagementClient;
+    private readonly IAiPredictionClient _aiPredictionClient;
     private readonly ILogger<WasteReportService> _logger;
 
     public WasteReportService(
@@ -21,12 +22,14 @@ public sealed class WasteReportService : IWasteReportService
         IIdentityClient identityClient,
         ICollectionClient collectionClient,
         IEngagementClient engagementClient,
+        IAiPredictionClient aiPredictionClient,
         ILogger<WasteReportService> logger)
     {
         _uow = uow;
         _identityClient = identityClient;
         _collectionClient = collectionClient;
         _engagementClient = engagementClient;
+        _aiPredictionClient = aiPredictionClient;
         _logger = logger;
     }
 
@@ -70,6 +73,8 @@ public sealed class WasteReportService : IWasteReportService
 
         await _uow.WasteReports.AddAsync(entity);
         await _uow.SaveChangesAsync();
+
+        await AddAiPredictionAsync(entity, dto.ImageFilePath);
 
         await _engagementClient.CreateNotificationAsync(new CreateNotificationRequest
         {
@@ -236,6 +241,7 @@ public sealed class WasteReportService : IWasteReportService
 
         _uow.WasteReports.Update(report);
         await _uow.SaveChangesAsync();
+        await AddAiPredictionAsync(report, dto.ImageFilePath);
         return await MapToDtoAsync(report);
     }
 
@@ -444,4 +450,31 @@ public sealed class WasteReportService : IWasteReportService
     }
 
     private static double DegreesToRadians(double degrees) => degrees * Math.PI / 180;
+
+    private async Task AddAiPredictionAsync(WasteReport report, string? imageFilePath)
+    {
+        if (string.IsNullOrWhiteSpace(imageFilePath))
+            return;
+
+        try
+        {
+            var prediction = await _aiPredictionClient.PredictAsync(imageFilePath);
+            if (prediction == null || string.IsNullOrWhiteSpace(prediction.Label))
+                return;
+
+            report.AiWastePredictions.Add(new AiWastePrediction
+            {
+                ReportId = report.ReportId,
+                SuggestedType = prediction.Label,
+                Confidence = decimal.Round(prediction.Confidence, 2),
+                CreatedAt = DateTime.UtcNow
+            });
+
+            await _uow.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "AI prediction failed for waste report {ReportId}", report.ReportId);
+        }
+    }
 }
