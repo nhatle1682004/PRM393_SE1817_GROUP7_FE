@@ -87,6 +87,8 @@ class ApiConfig {
   
   /// Danh sách hoặc tạo báo cáo rác mới
   static const String wasteReports = '/waste-reports';
+
+  static const String predictWasteReport = '/waste-reports/predict';
   
   /// Chi tiết hoặc cập nhật báo cáo rác
   static String reportDetails(int id) => '/waste-reports/$id';

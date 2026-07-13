@@ -154,6 +154,39 @@ class ApiService {
     }
   }
 
+  static Future<Response> predictWasteImage({
+    File? imageFile,
+    XFile? webImageFile,
+  }) async {
+    try {
+      MultipartFile? multipartFile;
+
+      if (kIsWeb && webImageFile != null) {
+        final bytes = await webImageFile.readAsBytes();
+        multipartFile = MultipartFile.fromBytes(
+          bytes,
+          filename: webImageFile.name,
+        );
+      } else if (imageFile != null) {
+        multipartFile = await MultipartFile.fromFile(
+          imageFile.path,
+          filename: imageFile.path.split('/').last,
+        );
+      }
+
+      if (multipartFile == null) throw "HÃ¬nh áº£nh khÃ´ng há»£p lá»‡";
+
+      final formData = FormData.fromMap({'Image': multipartFile});
+      return await _dio.post(
+        ApiConfig.predictWasteReport,
+        data: formData,
+        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   static Future<Response> put(String endpoint, {dynamic body}) async {
     try {
       final response = await _dio.put(endpoint, data: body);

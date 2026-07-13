@@ -29,6 +29,8 @@ class _CreateReportScreenState extends State<CreateReportScreen> implements Repo
   String? _currentAddress;
   bool _isSubmitting = false;
   bool _isLocationLoading = false;
+  bool _isAiPredicting = false;
+  String? _aiPredictionText;
   File? _imageFile;
   XFile? _webPickedFile;
   List<WasteType> _wasteTypes = [];
@@ -140,6 +142,7 @@ class _CreateReportScreenState extends State<CreateReportScreen> implements Repo
       _notesController.clear();
       _selectedTypes.clear();
       _selectedSize = null;
+      _aiPredictionText = null;
       _lat = null;
       _lng = null;
       _currentAddress = null;
@@ -191,6 +194,24 @@ class _CreateReportScreenState extends State<CreateReportScreen> implements Repo
     if (mounted) {
       setState(() => _wasteTypes = types);
     }
+  }
+
+  @override
+  void onAiPredictionLoading(bool isLoading) {
+    if (mounted) {
+      setState(() => _isAiPredicting = isLoading);
+    }
+  }
+
+  @override
+  void onAiPredictionSuggested(String type, String label, double confidence) {
+    if (!mounted) return;
+    setState(() {
+      _selectedTypes
+        ..clear()
+        ..add(type);
+      _aiPredictionText = 'AI goi y: $type (${(confidence * 100).toStringAsFixed(0)}%)';
+    });
   }
 
   @override
@@ -256,7 +277,7 @@ class _CreateReportScreenState extends State<CreateReportScreen> implements Repo
   }
 
   Widget _buildMobileLayout() => Column(children: [
-    PhotoCard(isMobile: true, imageFile: _imageFile, webPickedFile: _webPickedFile, selectedTypes: _selectedTypes, onPickImage: () => _presenter.pickImage(), onToggleWasteType: (type) => _presenter.toggleWasteType(type), wasteTypes: _wasteTypes),
+    PhotoCard(isMobile: true, imageFile: _imageFile, webPickedFile: _webPickedFile, selectedTypes: _selectedTypes, onPickImage: () => _presenter.pickImage(), onToggleWasteType: (type) => _presenter.toggleWasteType(type), wasteTypes: _wasteTypes, isAiPredicting: _isAiPredicting, aiPredictionText: _aiPredictionText),
     const SizedBox(height: 16),
     LocationCard(
       isMobile: true,
@@ -280,7 +301,7 @@ class _CreateReportScreenState extends State<CreateReportScreen> implements Repo
 
   Widget _buildTabletLayout() => Column(children: [
     Row(children: [
-      Expanded(child: PhotoCard(isMobile: false, imageFile: _imageFile, webPickedFile: _webPickedFile, selectedTypes: _selectedTypes, onPickImage: () => _presenter.pickImage(), onToggleWasteType: (type) => _presenter.toggleWasteType(type), wasteTypes: _wasteTypes)),
+      Expanded(child: PhotoCard(isMobile: false, imageFile: _imageFile, webPickedFile: _webPickedFile, selectedTypes: _selectedTypes, onPickImage: () => _presenter.pickImage(), onToggleWasteType: (type) => _presenter.toggleWasteType(type), wasteTypes: _wasteTypes, isAiPredicting: _isAiPredicting, aiPredictionText: _aiPredictionText)),
       const SizedBox(width: 16),
       Expanded(child: LocationCard(
         isMobile: false,
@@ -303,7 +324,7 @@ class _CreateReportScreenState extends State<CreateReportScreen> implements Repo
 
   Widget _buildDesktopLayout() => Column(children: [
     Row(children: [
-      Expanded(flex: 6, child: PhotoCard(isMobile: false, imageFile: _imageFile, webPickedFile: _webPickedFile, selectedTypes: _selectedTypes, onPickImage: () => _presenter.pickImage(), onToggleWasteType: (type) => _presenter.toggleWasteType(type), wasteTypes: _wasteTypes)),
+      Expanded(flex: 6, child: PhotoCard(isMobile: false, imageFile: _imageFile, webPickedFile: _webPickedFile, selectedTypes: _selectedTypes, onPickImage: () => _presenter.pickImage(), onToggleWasteType: (type) => _presenter.toggleWasteType(type), wasteTypes: _wasteTypes, isAiPredicting: _isAiPredicting, aiPredictionText: _aiPredictionText)),
       const SizedBox(width: 20),
       Expanded(flex: 5, child: LocationCard(
         isMobile: false,

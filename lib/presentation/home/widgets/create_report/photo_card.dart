@@ -10,6 +10,8 @@ class PhotoCard extends StatelessWidget {
   final VoidCallback onPickImage;
   final void Function(String) onToggleWasteType;
   final List<WasteType> wasteTypes;
+  final bool isAiPredicting;
+  final String? aiPredictionText;
 
   const PhotoCard({
     super.key,
@@ -20,6 +22,8 @@ class PhotoCard extends StatelessWidget {
     required this.onPickImage,
     required this.onToggleWasteType,
     this.wasteTypes = const [],
+    this.isAiPredicting = false,
+    this.aiPredictionText,
   });
 
   @override
@@ -44,6 +48,8 @@ class PhotoCard extends StatelessWidget {
           _buildSectionTitle(Icons.category, 'Loại rác thải'),
           SizedBox(height: isMobile ? 12 : 16),
           WasteTypeChips(selectedTypes: selectedTypes, onToggle: onToggleWasteType, wasteTypes: wasteTypes),
+          const SizedBox(height: 6),
+          _buildAiHint(),
           const SizedBox(height: 6),
           Text('Chọn loại rác thải có trong hình ảnh', style: TextStyle(color: Colors.grey.shade500, fontSize: isMobile ? 11 : 12, fontStyle: FontStyle.italic)),
         ],
@@ -90,6 +96,25 @@ class PhotoCard extends StatelessWidget {
     const SizedBox(height: 6),
     Text('Hỗ trợ: JPG, PNG, WEBP', style: TextStyle(color: Colors.grey.shade400, fontSize: isMobile ? 11 : 12)),
   ]);
+  Widget _buildAiHint() {
+    if (isAiPredicting) {
+      return Row(children: [
+        const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF059669))),
+        const SizedBox(width: 8),
+        Text('AI dang phan tich anh...', style: TextStyle(color: const Color(0xFF059669), fontSize: isMobile ? 11 : 12, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600)),
+      ]);
+    }
+
+    if (aiPredictionText != null && aiPredictionText!.isNotEmpty) {
+      return Row(children: [
+        const Icon(Icons.auto_awesome, color: Color(0xFF059669), size: 16),
+        const SizedBox(width: 6),
+        Flexible(child: Text(aiPredictionText!, style: TextStyle(color: const Color(0xFF059669), fontSize: isMobile ? 11 : 12, fontWeight: FontWeight.w600))),
+      ]);
+    }
+
+    return const SizedBox.shrink();
+  }
 }
 
 class WasteTypeChips extends StatelessWidget {

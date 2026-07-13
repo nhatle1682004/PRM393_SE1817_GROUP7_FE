@@ -15,6 +15,8 @@ abstract class ReportView {
   void onShowImageSourceDialog();
   void onShowWebCamera(List<CameraDescription> cameras);
   void onWasteTypesLoaded(List<WasteType> types);
+  void onAiPredictionLoading(bool isLoading);
+  void onAiPredictionSuggested(String type, String label, double confidence);
 }
 
 abstract class ReportPresenter {

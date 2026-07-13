@@ -106,6 +106,7 @@ class ReportPresenterImpl implements ReportPresenter {
             _imageFile = File(image.path);
             _view.onImageStateChanged(true);
             _view.onImageFileUpdated(_imageFile);
+            await _predictWasteTypeFromImage();
           }
         } catch (e) {
           // Camera không khả dụng, thử gallery
@@ -136,6 +137,7 @@ class ReportPresenterImpl implements ReportPresenter {
           _view.onWebImageFileUpdated(image);
         }
         _view.onImageStateChanged(true);
+        await _predictWasteTypeFromImage();
       }
     } catch (e) {
       _view.onError("Không thể chọn hình ảnh");
@@ -146,6 +148,8 @@ class ReportPresenterImpl implements ReportPresenter {
   void onWebImageCaptured(XFile file) {
     _webImageFile = file;
     _view.onImageStateChanged(true);
+    _view.onWebImageFileUpdated(file);
+    _predictWasteTypeFromImage();
   }
 
   @override
@@ -273,6 +277,75 @@ class ReportPresenterImpl implements ReportPresenter {
     };
 
     return names.map((name) => wasteTypeMapping[name] ?? 1).toList();
+  }
+
+  Future<void> _predictWasteTypeFromImage() async {
+    if (_imageFile == null && _webImageFile == null) {
+      return;
+    }
+
+    _view.onAiPredictionLoading(true);
+    try {
+      final response = await ApiService.predictWasteImage(
+        imageFile: _imageFile,
+        webImageFile: _webImageFile,
+      );
+
+      final data = response.data;
+      if (data is! Map) {
+        return;
+      }
+
+      final label = data['label']?.toString() ?? '';
+      final confidence = data['confidence'] is num
+          ? (data['confidence'] as num).toDouble()
+          : double.tryParse(data['confidence']?.toString() ?? '') ?? 0;
+      final suggestedType = _resolvePredictedWasteType(label);
+      if (suggestedType == null || suggestedType.isEmpty) {
+        return;
+      }
+
+      _selectedTypes.clear();
+      _selectedTypes.add(suggestedType);
+      _view.onAiPredictionSuggested(suggestedType, label, confidence);
+    } catch (e) {
+      _view.onError("AI chua the phan tich anh nay. Ban van co the chon loai rac thu cong.");
+    } finally {
+      _view.onAiPredictionLoading(false);
+    }
+  }
+
+  String? _resolvePredictedWasteType(String label) {
+    if (_wasteTypes.isEmpty) {
+      return null;
+    }
+
+    final normalized = label.toLowerCase().trim();
+    final expectedId = switch (normalized) {
+      'food waste' => 1,
+      'plastic' => 2,
+      'paper' || 'cardboard' => 3,
+      'metal' => 4,
+      'glass' => 5,
+      'battery' => 7,
+      'clothes' || 'shoes' || 'trash' => 8,
+      _ => null,
+    };
+
+    if (expectedId != null) {
+      final matches = _wasteTypes.where((type) => type.id == expectedId);
+      if (matches.isNotEmpty) {
+        return matches.first.nameVi;
+      }
+    }
+
+    final directMatches = _wasteTypes.where((type) {
+      final name = type.name.toLowerCase();
+      final nameVi = type.nameVi.toLowerCase();
+      return name.contains(normalized) || normalized.contains(name) || nameVi.contains(normalized);
+    });
+
+    return directMatches.isNotEmpty ? directMatches.first.nameVi : _wasteTypes.last.nameVi;
   }
 
   @override
