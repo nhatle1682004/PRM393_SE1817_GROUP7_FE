@@ -43,6 +43,7 @@ services:
       ServiceUrls__WasteReportService: http://waste-report-service:8080
       ServiceUrls__CollectionService: http://collection-service:8080
       ServiceUrls__EngagementService: http://engagement-service:8080
+      ServiceUrls__AiPredictionService: http://ai-prediction-service:8000
     ports:
       - "5002:8080"
     volumes:
@@ -50,6 +51,16 @@ services:
     depends_on:
       - identity-service
       - postgres
+      - ai-prediction-service
+
+  ai-prediction-service:
+    build:
+      context: ./cnn-waste-classification-opencv-pytorch
+      dockerfile: Dockerfile
+    environment:
+      MODEL_PATH: saved_models/best_model.pth
+    ports:
+      - "8000:8000"
 
   collection-service:
     build:

@@ -80,7 +80,13 @@ public sealed class IdentityAndWasteFlowTests
             .Returns(new CollectionRequestDto { RequestId = 9, ReportId = report.ReportId, EnterpriseId = 22 });
         var engagement = Substitute.For<IEngagementClient>();
         engagement.CreateNotificationAsync(Arg.Any<CreateNotificationRequest>()).Returns(Task.CompletedTask);
-        var service = new WasteApplicationService(uow, identity, collection, engagement, NullLogger<WasteApplicationService>.Instance);
+        var service = new WasteApplicationService(
+            uow,
+            identity,
+            collection,
+            engagement,
+            Substitute.For<IAiPredictionClient>(),
+            NullLogger<WasteApplicationService>.Instance);
 
         var result = await service.AcceptAsync(report.ReportId, 22);
 
@@ -117,6 +123,7 @@ public sealed class IdentityAndWasteFlowTests
             identity,
             Substitute.For<ICollectionClient>(),
             Substitute.For<IEngagementClient>(),
+            Substitute.For<IAiPredictionClient>(),
             NullLogger<WasteApplicationService>.Instance);
 
         var result = await service.GetDashboardStatsAsync(DateTime.UtcNow.Year);

@@ -85,9 +85,11 @@ public sealed class WasteReportsController : ControllerBase
 
         try
         {
+            var uploadedImage = await SaveImageAsync(form.Image);
             var created = await _service.CreateAsync(userId, new CreateWasteReportDto
             {
-                Image = await SaveImageAsync(form.Image),
+                Image = uploadedImage.Url,
+                ImageFilePath = uploadedImage.FilePath,
                 Latitude = form.Latitude,
                 Longitude = form.Longitude,
                 Description = form.Description,
@@ -112,9 +114,11 @@ public sealed class WasteReportsController : ControllerBase
 
         try
         {
+            var uploadedImage = await SaveImageAsync(form.Image);
             var updated = await _service.UpdateAsync(id, userId, new UpdateWasteReportDto
             {
-                Image = await SaveImageAsync(form.Image),
+                Image = uploadedImage.Url,
+                ImageFilePath = uploadedImage.FilePath,
                 Latitude = form.Latitude,
                 Longitude = form.Longitude,
                 Description = form.Description,
@@ -209,10 +213,12 @@ public sealed class WasteReportsController : ControllerBase
         return int.TryParse(claim, out userId);
     }
 
-    private static async Task<string> SaveImageAsync(IFormFile? image)
+    private sealed record SavedImage(string Url, string? FilePath);
+
+    private static async Task<SavedImage> SaveImageAsync(IFormFile? image)
     {
         if (image == null || image.Length <= 0)
-            return string.Empty;
+            return new SavedImage(string.Empty, null);
 
         var ext = Path.GetExtension(image.FileName);
         var fileName = $"{Guid.NewGuid():N}{ext}";
@@ -221,6 +227,6 @@ public sealed class WasteReportsController : ControllerBase
         var fullPath = Path.Combine(root, fileName);
         await using var stream = new FileStream(fullPath, FileMode.Create);
         await image.CopyToAsync(stream);
-        return $"/uploads/waste-reports/{fileName}";
+        return new SavedImage($"/uploads/waste-reports/{fileName}", fullPath);
     }
 }
