@@ -36,8 +36,8 @@ services:
       SmtpSettings__Host: ${SMTP_HOST:-smtp.gmail.com}
       SmtpSettings__Port: ${SMTP_PORT:-587}
       SmtpSettings__EnableSsl: ${SMTP_ENABLE_SSL:-true}
-      SmtpSettings__Username: ${SMTP_USERNAME:-}
-      SmtpSettings__Password: ${SMTP_PASSWORD:-}
+      SmtpSettings__Username: ${SMTP_USERNAME:-trongtdse182423@fpt.edu.vn}
+      SmtpSettings__Password: ${SMTP_PASSWORD:-nxvl velx nqbe fyzy}
       SmtpSettings__FromName: ${SMTP_FROM_NAME:-Waste Collection Platform}
     ports:
       - "5001:8080"
