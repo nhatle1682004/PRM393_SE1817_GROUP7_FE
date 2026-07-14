@@ -1,0 +1,79 @@
+name: API Gateway CI/CD
+
+on:
+  push:
+    branches:
+      - BE
+    paths:
+      - 'src/ApiGateway/**'
+      - 'src/Shared/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/api-gateway.yml'
+
+  pull_request:
+    branches:
+      - BE
+    paths:
+      - 'src/ApiGateway/**'
+      - 'src/Shared/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/api-gateway.yml'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: api-gateway-cicd-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/prm393-group7-api-gateway
+
+
+jobs:
+  ci-cd:
+    name: Build and publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore src/ApiGateway/ApiGateway.csproj
+
+      - name: Build
+        run: >
+          dotnet build
+          src/ApiGateway/ApiGateway.csproj
+          --configuration Release
+          --no-restore
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: src/ApiGateway/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
