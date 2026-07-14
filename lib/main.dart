@@ -22,7 +22,7 @@ Future<void> _initializeLocation() async {
   try {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Location services are not enabled, app will work without GPS
+      // Location services are not enabled, app will work without GPSs
       return;
     }
     

@@ -42,6 +42,7 @@ class AuthService {
         'email': email,
         'password': password,
         'confirmPassword': confirmPassword,
+        'address': null,
       },
     );
     await _storage.saveUserProfile(
