@@ -33,7 +33,6 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/prm393-group7-identity
 
-
 jobs:
   ci-cd:
     name: Build and publish
@@ -42,6 +41,9 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
