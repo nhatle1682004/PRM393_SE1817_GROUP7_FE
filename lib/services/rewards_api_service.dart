@@ -25,7 +25,7 @@ class RewardsApiService {
       final response = await ApiService.get(ApiConfig.rewardsBalance);
       return RewardBalance.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
-      return RewardBalance(totalPoints: 0);
+      rethrow;
     }
   }
 

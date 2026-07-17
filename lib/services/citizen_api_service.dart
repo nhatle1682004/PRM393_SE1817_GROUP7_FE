@@ -1,6 +1,7 @@
 import 'package:waste_collection_management_system/config/api_config.dart';
 import 'package:waste_collection_management_system/services/api_service.dart';
 import 'package:waste_collection_management_system/presentation/history/history_contract.dart';
+import 'package:image_picker/image_picker.dart';
 
 class CitizenApiService {
   CitizenApiService._();
@@ -33,6 +34,25 @@ class CitizenApiService {
   static Future<void> cancelReport(int reportId) async {
     try {
       await ApiService.put(ApiConfig.cancelWasteReport(reportId));
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<void> createFeedback({
+    required int reportId,
+    required String content,
+    XFile? image,
+  }) async {
+    try {
+      await ApiService.postMultipartForm(
+        ApiConfig.feedbacks,
+        fields: {
+          'ReportId': reportId,
+          'Content': content,
+        },
+        files: image == null ? const {} : {'Image': image},
+      );
     } catch (e) {
       rethrow;
     }

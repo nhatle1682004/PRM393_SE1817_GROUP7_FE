@@ -12,4 +12,20 @@ class HomeStats {
     this.userName = '',
     this.userEmail = '',
   });
+
+  HomeStats copyWith({
+    String? totalPoints,
+    String? reportsSubmitted,
+    String? rewardEvents,
+    String? userName,
+    String? userEmail,
+  }) {
+    return HomeStats(
+      totalPoints: totalPoints ?? this.totalPoints,
+      reportsSubmitted: reportsSubmitted ?? this.reportsSubmitted,
+      rewardEvents: rewardEvents ?? this.rewardEvents,
+      userName: userName ?? this.userName,
+      userEmail: userEmail ?? this.userEmail,
+    );
+  }
 }

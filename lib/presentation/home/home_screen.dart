@@ -53,11 +53,13 @@ class _ProfileScreenContent extends StatelessWidget {
 }
 
 class _RewardsScreenContent extends StatelessWidget {
-  const _RewardsScreenContent();
+  final ValueChanged<int> onBalanceChanged;
+
+  const _RewardsScreenContent({required this.onBalanceChanged});
 
   @override
   Widget build(BuildContext context) {
-    return const RewardsScreen();
+    return RewardsScreen(onBalanceChanged: onBalanceChanged);
   }
 }
 
@@ -169,6 +171,12 @@ class _HomeScreenState extends State<HomeScreen> implements HomeView {
   @override
   void onStatsLoaded(HomeStats stats) {
     if (mounted) setState(() => _stats = stats);
+  }
+
+  void _handleRewardBalanceChanged(int balance) {
+    if (mounted) {
+      setState(() => _stats = _stats.copyWith(totalPoints: balance.toString()));
+    }
   }
 
   @override
@@ -284,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> implements HomeView {
 
     switch (_currentTabIndex) {
       case 1: return const CreateReportScreen();
-      case 2: return const _RewardsScreenContent();
+      case 2: return _RewardsScreenContent(onBalanceChanged: _handleRewardBalanceChanged);
       case 3: return const _HistoryScreenContent();
       case 4: return const _ProfileScreenContent();
       case 5: return const _NotificationScreenContent();

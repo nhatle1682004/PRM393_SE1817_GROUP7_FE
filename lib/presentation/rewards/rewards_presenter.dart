@@ -54,22 +54,22 @@ class RewardsPresenterImpl implements RewardsPresenter {
   @override
   void redeemReward(RewardVoucher reward) async {
     if (_isRedeeming) return;
-    
+
     _isRedeeming = true;
     _view.onRedeemInProgress(true);
     _view.onRedeemError('');
 
     try {
       final response = await RewardsApiService.redeem(reward);
-      
+
       if (response.success) {
+        final remainingPoints =
+            response.remainingPoints ?? (await RewardsApiService.getBalance()).totalPoints;
+        final rewardName = response.rewardName ?? reward.name;
         _view.onRedeemSuccess(
-          response.message ?? 'Đổi quà thành công!',
-          response.remainingPoints ?? 0,
+          response.message ?? 'Đổi "$rewardName" thành công!',
+          remainingPoints,
         );
-        // Reload balance after successful redemption
-        final balance = await RewardsApiService.getBalance();
-        _view.onBalanceLoaded(balance.totalPoints);
       } else {
         _view.onRedeemError(response.message ?? 'Đổi quà thất bại');
       }

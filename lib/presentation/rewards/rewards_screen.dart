@@ -4,7 +4,9 @@ import 'package:waste_collection_management_system/presentation/rewards/rewards_
 import 'package:waste_collection_management_system/presentation/rewards/rewards_presenter.dart';
 
 class RewardsScreen extends StatefulWidget {
-  const RewardsScreen({super.key});
+  final ValueChanged<int>? onBalanceChanged;
+
+  const RewardsScreen({super.key, this.onBalanceChanged});
 
   @override
   State<RewardsScreen> createState() => _RewardsScreenState();
@@ -51,6 +53,7 @@ class _RewardsScreenState extends State<RewardsScreen> implements RewardsView {
   void onBalanceLoaded(int balance) {
     if (mounted) {
       setState(() => _balance = balance);
+      widget.onBalanceChanged?.call(balance);
     }
   }
 
@@ -58,6 +61,7 @@ class _RewardsScreenState extends State<RewardsScreen> implements RewardsView {
   void onRedeemSuccess(String message, int remainingPoints) {
     if (mounted) {
       setState(() => _balance = remainingPoints);
+      widget.onBalanceChanged?.call(remainingPoints);
       _showSuccessDialog(message, remainingPoints);
     }
   }

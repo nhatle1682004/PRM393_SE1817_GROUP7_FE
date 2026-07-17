@@ -29,9 +29,18 @@ class HomePresenterImpl implements HomePresenter {
       try {
         final rewardsResponse = await ApiService.get(ApiConfig.rewardsBalance);
         final rewardsData = rewardsResponse.data as Map<String, dynamic>;
-        totalPoints = (rewardsData['balance'] ?? rewardsData['points'] ?? 0).toString();
+        totalPoints = (rewardsData['totalPoints'] ??
+                rewardsData['TotalPoints'] ??
+                rewardsData['points'] ??
+                rewardsData['Points'] ??
+                rewardsData['balance'] ??
+                rewardsData['Balance'] ??
+                profileData['totalPoints'] ??
+                profileData['TotalPoints'] ??
+                0)
+            .toString();
       } catch (_) {
-        // Rewards endpoint not ready yet - keep default 0
+        totalPoints = (profileData['totalPoints'] ?? profileData['TotalPoints'] ?? 0).toString();
       }
 
       try {

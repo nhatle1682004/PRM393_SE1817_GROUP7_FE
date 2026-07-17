@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waste_collection_management_system/presentation/history/feedback_dialog.dart';
 import 'package:waste_collection_management_system/presentation/history/report_detail_screen.dart';
 import '../../services/citizen_api_service.dart';
 import 'history_contract.dart';
@@ -103,7 +104,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
       child: ListView.builder(
         padding: EdgeInsets.all(isMobile ? 16 : 24),
         itemCount: _reports.length,
-        itemBuilder: (context, index) => _ReportCard(report: _reports[index], isMobile: isMobile),
+        itemBuilder: (context, index) => _ReportCard(
+          report: _reports[index],
+          isMobile: isMobile,
+          onFeedbackCreated: _loadReports,
+        ),
       ),
     );
   }
@@ -155,8 +160,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
 class _ReportCard extends StatelessWidget {
   final WasteReportItem report;
   final bool isMobile;
+  final VoidCallback onFeedbackCreated;
 
-  const _ReportCard({required this.report, required this.isMobile});
+  const _ReportCard({
+    required this.report,
+    required this.isMobile,
+    required this.onFeedbackCreated,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +180,13 @@ class _ReportCard extends StatelessWidget {
         elevation: 2,
         shadowColor: Colors.black.withValues(alpha: 0.05),
         child: InkWell(
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ReportDetailScreen(report: report))),
+          onTap: () async {
+            final changed = await Navigator.push<bool>(
+              context,
+              MaterialPageRoute(builder: (_) => ReportDetailScreen(report: report)),
+            );
+            if (changed == true) onFeedbackCreated();
+          },
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: EdgeInsets.all(isMobile ? 14 : 16),
@@ -238,6 +254,31 @@ class _ReportCard extends StatelessWidget {
                           Icon(Icons.chevron_right, color: Colors.grey.shade400),
                         ],
                       ),
+                      if (canCreateFeedback(report)) ...[
+                        const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: OutlinedButton.icon(
+                            onPressed: () async {
+                              final created = await showFeedbackDialog(context, report: report);
+                              if (created == true) {
+                                onFeedbackCreated();
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Đã gửi phản hồi')),
+                                  );
+                                }
+                              }
+                            },
+                            icon: const Icon(Icons.feedback_outlined, size: 18),
+                            label: const Text('Phản hồi'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF10B981),
+                              side: const BorderSide(color: Color(0xFF10B981)),
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

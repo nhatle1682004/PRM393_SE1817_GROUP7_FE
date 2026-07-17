@@ -196,6 +196,33 @@ class ApiService {
     }
   }
 
+  static Future<Response> postMultipartForm(
+    String endpoint, {
+    Map<String, dynamic> fields = const {},
+    Map<String, XFile> files = const {},
+  }) async {
+    try {
+      final formMap = <String, dynamic>{...fields};
+
+      for (final entry in files.entries) {
+        final bytes = await entry.value.readAsBytes();
+        formMap[entry.key] = MultipartFile.fromBytes(
+          bytes,
+          filename: entry.value.name,
+        );
+      }
+
+      final response = await _dio.post(
+        endpoint,
+        data: FormData.fromMap(formMap),
+        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
+      );
+      return response;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   static Future<Response> putMultipartForm(
     String endpoint, {
     Map<String, dynamic> fields = const {},

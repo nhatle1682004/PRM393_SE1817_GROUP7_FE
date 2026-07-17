@@ -15,11 +15,11 @@ class RewardVoucher {
 
   factory RewardVoucher.fromJson(Map<String, dynamic> json) {
     return RewardVoucher(
-      rewardId: json['rewardId'] ?? 0,
-      name: json['name'] ?? '',
-      description: json['description'],
-      points: json['points'] ?? 0,
-      status: json['status'] ?? true,
+      rewardId: _toInt(json['rewardId'] ?? json['RewardId']),
+      name: (json['name'] ?? json['Name'] ?? '').toString(),
+      description: (json['description'] ?? json['Description'])?.toString(),
+      points: _toInt(json['points'] ?? json['Points']),
+      status: json['status'] ?? json['Status'] ?? true,
     );
   }
 
@@ -65,21 +65,21 @@ class RewardTransaction {
 
   factory RewardTransaction.fromJson(Map<String, dynamic> json) {
     return RewardTransaction(
-      transactionId: json['transactionId'] ?? 0,
-      userId: json['userId'] ?? 0,
-      reportId: json['reportId'],
-      points: json['points'] ?? 0,
-      type: json['type'] ?? '',
-      description: json['description'],
-      createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'].toString())
+      transactionId: _toInt(json['transactionId'] ?? json['TransactionId']),
+      userId: _toInt(json['userId'] ?? json['UserId']),
+      reportId: _toNullableInt(json['reportId'] ?? json['ReportId']),
+      points: _toInt(json['points'] ?? json['Points']),
+      type: (json['type'] ?? json['Type'] ?? '').toString(),
+      description: (json['description'] ?? json['Description'])?.toString(),
+      createdAt: (json['createdAt'] ?? json['CreatedAt']) != null
+          ? DateTime.tryParse((json['createdAt'] ?? json['CreatedAt']).toString())
           : null,
-      status: json['status'] ?? '',
-      sourceType: json['sourceType'],
-      referenceId: json['referenceId']?.toString(),
-      failureReason: json['failureReason'],
-      completedAt: json['completedAt'] != null
-          ? DateTime.tryParse(json['completedAt'].toString())
+      status: (json['status'] ?? json['Status'] ?? '').toString(),
+      sourceType: (json['sourceType'] ?? json['SourceType'])?.toString(),
+      referenceId: (json['referenceId'] ?? json['ReferenceId'])?.toString(),
+      failureReason: (json['failureReason'] ?? json['FailureReason'])?.toString(),
+      completedAt: (json['completedAt'] ?? json['CompletedAt']) != null
+          ? DateTime.tryParse((json['completedAt'] ?? json['CompletedAt']).toString())
           : null,
     );
   }
@@ -121,7 +121,14 @@ class RewardBalance {
 
   factory RewardBalance.fromJson(Map<String, dynamic> json) {
     return RewardBalance(
-      totalPoints: json['totalPoints'] ?? json['balance'] ?? 0,
+      totalPoints: _toInt(
+        json['totalPoints'] ??
+            json['TotalPoints'] ??
+            json['points'] ??
+            json['Points'] ??
+            json['balance'] ??
+            json['Balance'],
+      ),
     );
   }
 }
@@ -148,20 +155,44 @@ class RedeemRewardResponse {
   final String? message;
   final int? remainingPoints;
   final int? rewardId;
+  final String? rewardName;
+  final int? redeemedPoints;
 
   RedeemRewardResponse({
     required this.success,
     this.message,
     this.remainingPoints,
     this.rewardId,
+    this.rewardName,
+    this.redeemedPoints,
   });
 
   factory RedeemRewardResponse.fromJson(Map<String, dynamic> json) {
+    final rewardId = _toNullableInt(json['rewardId'] ?? json['RewardId']);
+    final remainingPoints = _toNullableInt(json['remainingPoints'] ?? json['RemainingPoints']);
+    final rewardName = (json['rewardName'] ?? json['RewardName'])?.toString();
+
     return RedeemRewardResponse(
-      success: json['success'] ?? false,
-      message: json['message'],
-      remainingPoints: json['remainingPoints'],
-      rewardId: json['rewardId'],
+      success: json['success'] == true ||
+          json['Success'] == true ||
+          rewardId != null ||
+          remainingPoints != null,
+      message: (json['message'] ?? json['Message'])?.toString(),
+      remainingPoints: remainingPoints,
+      rewardId: rewardId,
+      rewardName: rewardName,
+      redeemedPoints: _toNullableInt(json['redeemedPoints'] ?? json['RedeemedPoints']),
     );
   }
+}
+
+int _toInt(dynamic value) {
+  if (value is int) return value;
+  return int.tryParse(value?.toString() ?? '') ?? 0;
+}
+
+int? _toNullableInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  return int.tryParse(value.toString());
 }
