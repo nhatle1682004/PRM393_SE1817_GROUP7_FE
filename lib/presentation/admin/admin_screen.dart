@@ -11,7 +11,7 @@ import 'package:waste_collection_management_system/presentation/admin/widgets/fe
 import 'package:waste_collection_management_system/presentation/admin/widgets/notifications_view.dart';
 import 'package:waste_collection_management_system/presentation/admin/widgets/rewards_view.dart';
 import 'package:waste_collection_management_system/presentation/admin/widgets/waste_types_view.dart';
-
+//screen admin
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
 
