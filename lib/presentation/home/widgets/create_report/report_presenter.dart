@@ -247,36 +247,11 @@ class ReportPresenterImpl implements ReportPresenter {
         _view.onError("Gửi báo cáo thất bại (${response.statusCode})");
       }
     } catch (e) {
-      print('Submit report error: $e');
+      debugPrint('Submit report error: $e');
       _view.onError("Lỗi khi gửi báo cáo: $e");
     } finally {
       _view.onSubmitting(false);
     }
-  }
-
-  List<int> _mapWasteTypeNamesToIds(List<String> names) {
-    // Mapping theo thứ tự ID trong database backend
-    final Map<String, int> wasteTypeMapping = {
-      'Hữu cơ': 1,
-      'Organic': 1,
-      'Nhựa': 2,
-      'Plastic': 2,
-      'Giấy': 3,
-      'Paper': 3,
-      'Kim loại': 4,
-      'Metal': 4,
-      'Thủy tinh': 5,
-      'Glass': 5,
-      'Điện tử': 6,
-      'E-Waste': 6,
-      'Electronic': 6,
-      'Nguy hại': 7,
-      'Hazardous': 7,
-      'Khác': 8,
-      'Other': 8,
-    };
-
-    return names.map((name) => wasteTypeMapping[name] ?? 1).toList();
   }
 
   Future<void> _predictWasteTypeFromImage() async {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:waste_collection_management_system/presentation/home/home_screen.dart';
+import 'package:waste_collection_management_system/presentation/home/widgets/home_screen.dart';
 import 'package:waste_collection_management_system/presentation/admin/admin_screen.dart';
 import 'package:waste_collection_management_system/presentation/enterprise/enterprise_screen.dart';
 import 'package:waste_collection_management_system/presentation/collector/collector_screen.dart';
@@ -53,6 +53,8 @@ class _RightPanelFormState extends State<RightPanelForm> {
           // Get profile to check role
           final storage = StorageService();
           final profile = await storage.getUserProfile();
+
+          if (!mounted) return;
 
           // Route based on role
           Widget nextScreen;
@@ -142,11 +144,13 @@ class _RightPanelFormState extends State<RightPanelForm> {
             TextFormField(
               controller: _emailController,
               validator: (value) {
-                if (value == null || value.trim().isEmpty)
+                if (value == null || value.trim().isEmpty) {
                   return 'Vui lòng nhập email';
+                }
                 final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                if (!emailRegex.hasMatch(value))
+                if (!emailRegex.hasMatch(value)) {
                   return 'Vui lòng nhập địa chỉ email hợp lệ';
+                }
                 return null;
               },
               decoration: InputDecoration(
@@ -201,8 +205,9 @@ class _RightPanelFormState extends State<RightPanelForm> {
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => _handleLogin(),
               validator: (value) {
-                if (value == null || value.isEmpty)
+                if (value == null || value.isEmpty) {
                   return 'Vui lòng nhập mật khẩu';
+                }
                 return null;
               },
               decoration: InputDecoration(

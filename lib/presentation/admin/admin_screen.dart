@@ -24,7 +24,6 @@ class _AdminScreenState extends State<AdminScreen> {
   AdminStats? _stats;
   bool _isLoading = true;
   String? _errorMessage;
-  int? _unreadNotifications;
 
   final List<_AdminMenuItem> _menuItems = [
     _AdminMenuItem(Icons.dashboard_outlined, Icons.dashboard, 'Dashboard', 0),

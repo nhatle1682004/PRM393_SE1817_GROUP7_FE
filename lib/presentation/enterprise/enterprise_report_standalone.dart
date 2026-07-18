@@ -81,9 +81,9 @@ class _ReportListScreenState extends State<ReportListScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
         text,
@@ -240,7 +240,7 @@ class _ReportListScreenState extends State<ReportListScreen> {
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF10B981).withOpacity(0.3),
+                color: const Color(0xFF10B981).withValues(alpha: 0.3),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),

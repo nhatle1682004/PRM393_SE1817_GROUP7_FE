@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:cherry_toast/cherry_toast.dart';
+import 'package:cherry_toast/resources/arrays.dart';
 import 'create_report/report_contract.dart';
 import 'create_report/report_presenter.dart';
 import 'create_report/widgets/web_camera_dialog.dart';
@@ -75,66 +77,12 @@ class _CreateReportScreenState extends State<CreateReportScreen> implements Repo
   void onSuccess(String msg) {
     if (!mounted) return;
     
-    // Hiển thị dialog thông báo thành công
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: Color(0xFF10B981),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.check_rounded, color: Colors.white, size: 48),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Gửi Báo Cáo Thành Công!',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1E293B),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              msg,
-              style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Cảm ơn bạn đã đóng góp cho môi trường xanh!',
-              style: TextStyle(fontSize: 13, color: Color(0xFF059669), fontStyle: FontStyle.italic),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              _presenter.resetForm();
-            },
-            style: TextButton.styleFrom(
-              backgroundColor: const Color(0xFF10B981),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            child: const Text('Tiếp Tục Báo Cáo', style: TextStyle(fontWeight: FontWeight.w600)),
-          ),
-        ],
-      ),
-    );
+    CherryToast.success(
+      title: const Text('Gửi Báo Cáo Thành Công!', style: TextStyle(fontWeight: FontWeight.bold)),
+      description: Text(msg),
+      animationType: AnimationType.fromRight,
+      autoDismiss: true,
+    ).show(context);
 
     // Reset toàn bộ dữ liệu form
     setState(() {
@@ -153,13 +101,13 @@ class _CreateReportScreenState extends State<CreateReportScreen> implements Repo
 
   @override
   void onError(String err) {
-    try {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(err), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating),
-      );
-    } catch (e) {
-      print('Error snackbar error: $e');
-    }
+    if (!mounted) return;
+    CherryToast.error(
+      title: const Text('Lỗi', style: TextStyle(fontWeight: FontWeight.bold)),
+      description: Text(err),
+      animationType: AnimationType.fromRight,
+      autoDismiss: true,
+    ).show(context);
   }
 
   @override

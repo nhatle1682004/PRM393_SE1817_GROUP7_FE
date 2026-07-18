@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cherry_toast/cherry_toast.dart';
+import 'package:cherry_toast/resources/arrays.dart';
 import 'package:waste_collection_management_system/services/api_service.dart';
 import 'package:waste_collection_management_system/config/api_config.dart';
 
@@ -29,19 +31,19 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   Future<void> _handleChangePassword() async {
     if (_currentPasswordController.text.isEmpty) {
-      _showSnackBar('Vui lòng nhập mật khẩu hiện tại', isError: true);
+      _showToast('Vui lòng nhập mật khẩu hiện tại', isError: true);
       return;
     }
     if (_newPasswordController.text.isEmpty) {
-      _showSnackBar('Vui lòng nhập mật khẩu mới', isError: true);
+      _showToast('Vui lòng nhập mật khẩu mới', isError: true);
       return;
     }
     if (_newPasswordController.text != _confirmPasswordController.text) {
-      _showSnackBar('Mật khẩu xác nhận không khớp', isError: true);
+      _showToast('Mật khẩu xác nhận không khớp', isError: true);
       return;
     }
     if (_newPasswordController.text.length < 6) {
-      _showSnackBar('Mật khẩu mới phải có ít nhất 6 ký tự', isError: true);
+      _showToast('Mật khẩu mới phải có ít nhất 6 ký tự', isError: true);
       return;
     }
 
@@ -61,11 +63,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         _currentPasswordController.clear();
         _newPasswordController.clear();
         _confirmPasswordController.clear();
-        _showSuccessDialog();
+        _showSuccessToast();
       }
     } catch (e) {
       if (mounted) {
-        _showSnackBar('Đổi mật khẩu thất bại: ${e.toString()}', isError: true);
+        _showToast('Đổi mật khẩu thất bại: ${e.toString()}', isError: true);
       }
     } finally {
       if (mounted) {
@@ -74,73 +76,31 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     }
   }
 
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        backgroundColor: Colors.white,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: Color(0xffe8f5f0),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.check_circle, color: Color(0xff10b981), size: 48),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Đổi mật khẩu thành công!',
-              style: TextStyle(
-                color: Color(0xff1e293b),
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Mật khẩu của bạn đã được cập nhật.',
-              style: TextStyle(
-                color: Color(0xff64748b),
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff10b981),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: const Text('Đồng ý'),
-            ),
-          ),
-        ],
-      ),
-    );
+  void _showSuccessToast() {
+    CherryToast.success(
+      title: const Text('Thành công', style: TextStyle(fontWeight: FontWeight.bold)),
+      description: const Text('Đổi mật khẩu thành công!'),
+      animationType: AnimationType.fromRight,
+      autoDismiss: true,
+    ).show(context);
   }
 
-  void _showSnackBar(String message, {required bool isError}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? const Color(0xffdc2626) : const Color(0xff10b981),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
+  void _showToast(String message, {required bool isError}) {
+    if (isError) {
+      CherryToast.error(
+        title: const Text('Lỗi', style: TextStyle(fontWeight: FontWeight.bold)),
+        description: Text(message),
+        animationType: AnimationType.fromRight,
+        autoDismiss: true,
+      ).show(context);
+    } else {
+      CherryToast.success(
+        title: const Text('Thành công', style: TextStyle(fontWeight: FontWeight.bold)),
+        description: Text(message),
+        animationType: AnimationType.fromRight,
+        autoDismiss: true,
+      ).show(context);
+    }
   }
 
   @override

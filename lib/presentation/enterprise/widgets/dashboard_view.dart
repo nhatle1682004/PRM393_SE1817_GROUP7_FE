@@ -115,7 +115,7 @@ class DashboardView extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: stats!.recentCollections!.length.clamp(0, 5),
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            separatorBuilder: (_, index) => const SizedBox(height: 10),
             itemBuilder: (context, index) {
               final item = stats!.recentCollections![index];
               return _CollectionCard(item: item, isWide: isWide);
@@ -148,7 +148,7 @@ class DashboardView extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: stats!.recentReports!.length.clamp(0, 5),
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            separatorBuilder: (_, index) => const SizedBox(height: 10),
             itemBuilder: (context, index) {
               final item = stats!.recentReports![index];
               return _ReportCard(item: item, isWide: isWide);
@@ -208,7 +208,7 @@ class _StatCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -221,7 +221,7 @@ class _StatCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(isWide ? 10 : 7),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: iconSize),
@@ -275,7 +275,7 @@ class _CollectionCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(isWide ? 10 : 8),
             decoration: BoxDecoration(
-              color: _getStatusColor(item.status).withOpacity(0.1),
+              color: _getStatusColor(item.status).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -372,7 +372,7 @@ class _ReportCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(isWide ? 10 : 8),
             decoration: BoxDecoration(
-              color: const Color(0xFFF59E0B).withOpacity(0.1),
+              color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -448,7 +448,7 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(

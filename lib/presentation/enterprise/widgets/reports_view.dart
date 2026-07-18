@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cherry_toast/cherry_toast.dart';
+import 'package:cherry_toast/resources/arrays.dart';
 import 'package:waste_collection_management_system/data/models/enterprise_models.dart';
 import 'package:waste_collection_management_system/services/enterprise_api_service.dart';
 import 'package:waste_collection_management_system/services/auth_service.dart';
@@ -123,7 +125,7 @@ class _ReportsViewState extends State<ReportsView> {
                     _currentPage = 1;
                   });
                 },
-                selectedColor: const Color(0xFF10B981).withOpacity(0.15),
+                selectedColor: const Color(0xFF10B981).withValues(alpha: 0.15),
                 backgroundColor: const Color(0xFFF5F5F5),
                 labelStyle: TextStyle(
                   color: isSelected
@@ -265,12 +267,12 @@ class _ReportsViewState extends State<ReportsView> {
                 collectorName ?? _reports[reportIdx].assignedCollectorName,
           );
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cập nhật báo cáo thành công'),
-            backgroundColor: Color(0xFF10B981),
-          ),
-        );
+        CherryToast.success(
+          title: const Text('Thành công', style: TextStyle(fontWeight: FontWeight.bold)),
+          description: const Text('Cập nhật báo cáo thành công'),
+          animationType: AnimationType.fromRight,
+          autoDismiss: true,
+        ).show(context);
       }
     } catch (e) {
       if (mounted) {
@@ -279,12 +281,12 @@ class _ReportsViewState extends State<ReportsView> {
           errorMessage =
               'Báo cáo này đã được duyệt hoặc không còn ở trạng thái chờ.';
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Lỗi: $errorMessage'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        CherryToast.error(
+          title: const Text('Lỗi', style: TextStyle(fontWeight: FontWeight.bold)),
+          description: Text(errorMessage),
+          animationType: AnimationType.fromRight,
+          autoDismiss: true,
+        ).show(context);
       }
     }
   }
@@ -295,18 +297,26 @@ class _ReportsViewState extends State<ReportsView> {
       if (mounted) {
         setState(() {
           final idx = _reports.indexWhere((r) => r.reportId == reportId);
-          if (idx != -1)
+          if (idx != -1) {
             _reports[idx] = _reports[idx].copyWith(status: 'Rejected');
+          }
         });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Đã từ chối báo cáo')));
+        CherryToast.success(
+          title: const Text('Thành công', style: TextStyle(fontWeight: FontWeight.bold)),
+          description: const Text('Đã từ chối báo cáo'),
+          animationType: AnimationType.fromRight,
+          autoDismiss: true,
+        ).show(context);
       }
     } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi: $e'), backgroundColor: Colors.red),
-        );
+      if (mounted) {
+        CherryToast.error(
+          title: const Text('Lỗi', style: TextStyle(fontWeight: FontWeight.bold)),
+          description: Text(e.toString()),
+          animationType: AnimationType.fromRight,
+          autoDismiss: true,
+        ).show(context);
+      }
     }
   }
 

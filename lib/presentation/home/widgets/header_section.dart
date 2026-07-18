@@ -278,13 +278,12 @@ class _HeaderSectionState extends State<HeaderSection> {
               if (widget.onLogout != null) {
                 widget.onLogout!();
               } else {
-                if (mounted) {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginScreen()),
-                    (route) => false,
-                  );
-                }
+                if (!context.mounted) return;
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (route) => false,
+                );
               }
             },
             style: ElevatedButton.styleFrom(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cherry_toast/cherry_toast.dart';
+import 'package:cherry_toast/resources/arrays.dart';
 import 'package:waste_collection_management_system/services/api_service.dart';
 import 'package:waste_collection_management_system/config/api_config.dart';
 
@@ -83,9 +85,12 @@ class _CitizenNotificationScreenState extends State<CitizenNotificationScreen> {
       _loadNotifications();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi: $e')),
-        );
+        CherryToast.error(
+          title: const Text('Lỗi', style: TextStyle(fontWeight: FontWeight.bold)),
+          description: Text('Lỗi: $e'),
+          animationType: AnimationType.fromRight,
+          autoDismiss: true,
+        ).show(context);
       }
     }
   }
@@ -95,15 +100,21 @@ class _CitizenNotificationScreenState extends State<CitizenNotificationScreen> {
       await ApiService.put(ApiConfig.notificationsReadAll);
       _loadNotifications();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Đã đánh dấu tất cả thông báo là đã đọc')),
-        );
+        CherryToast.success(
+          title: const Text('Thành công', style: TextStyle(fontWeight: FontWeight.bold)),
+          description: const Text('Đã đánh dấu tất cả thông báo là đã đọc'),
+          animationType: AnimationType.fromRight,
+          autoDismiss: true,
+        ).show(context);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi: $e')),
-        );
+        CherryToast.error(
+          title: const Text('Lỗi', style: TextStyle(fontWeight: FontWeight.bold)),
+          description: Text('Lỗi: $e'),
+          animationType: AnimationType.fromRight,
+          autoDismiss: true,
+        ).show(context);
       }
     }
   }

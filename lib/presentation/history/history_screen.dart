@@ -195,7 +195,7 @@ class _ReportCard extends StatelessWidget {
                           ),
                         );
                       },
-                      errorBuilder: (_, __, ___) => Icon(Icons.image_not_supported_outlined, size: 32, color: Colors.grey.shade400),
+                      errorBuilder: (_, error, stackTrace) => Icon(Icons.image_not_supported_outlined, size: 32, color: Colors.grey.shade400),
                     ),
                   ),
                 Expanded(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cherry_toast/cherry_toast.dart';
+import 'package:cherry_toast/resources/arrays.dart';
 import 'package:waste_collection_management_system/data/models/waste_type.dart';
 import 'package:waste_collection_management_system/presentation/admin/widgets/pagination_controls.dart';
 import 'package:waste_collection_management_system/services/admin_api_service.dart';
@@ -257,7 +259,12 @@ class _WasteTypesViewState extends State<WasteTypesView> {
               onPressed: () async {
                 final points = int.tryParse(pointsController.text.trim());
                 if (nameController.text.trim().isEmpty || points == null || points < 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng nhập tên và điểm hợp lệ')));
+                  CherryToast.warning(
+                    title: const Text('Thông báo'),
+                    description: const Text('Vui lòng nhập tên và điểm hợp lệ'),
+                    animationType: AnimationType.fromRight,
+                    autoDismiss: true,
+                  ).show(context);
                   return;
                 }
                 try {
@@ -284,13 +291,23 @@ class _WasteTypesViewState extends State<WasteTypesView> {
                     Navigator.pop(context);
                     await _loadTypes();
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(isEdit ? 'Đã cập nhật loại rác' : 'Đã tạo loại rác')),
-                      );
+                      CherryToast.success(
+                        title: const Text('Thành công', style: TextStyle(fontWeight: FontWeight.bold)),
+                        description: Text(isEdit ? 'Đã cập nhật loại rác' : 'Đã tạo loại rác'),
+                        animationType: AnimationType.fromRight,
+                        autoDismiss: true,
+                      ).show(context);
                     }
                   }
                 } catch (e) {
-                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+                  if (context.mounted) {
+                    CherryToast.error(
+                      title: const Text('Lỗi', style: TextStyle(fontWeight: FontWeight.bold)),
+                      description: Text('Lỗi: $e'),
+                      animationType: AnimationType.fromRight,
+                      autoDismiss: true,
+                    ).show(context);
+                  }
                 }
               },
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
@@ -325,10 +342,22 @@ class _WasteTypesViewState extends State<WasteTypesView> {
       await AdminApiService.deleteWasteType(type.id);
       await _loadTypes();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã xóa/tắt loại rác')));
+        CherryToast.success(
+          title: const Text('Thành công', style: TextStyle(fontWeight: FontWeight.bold)),
+          description: const Text('Đã xóa/tắt loại rác'),
+          animationType: AnimationType.fromRight,
+          autoDismiss: true,
+        ).show(context);
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+      if (mounted) {
+        CherryToast.error(
+          title: const Text('Lỗi', style: TextStyle(fontWeight: FontWeight.bold)),
+          description: Text('Lỗi: $e'),
+          animationType: AnimationType.fromRight,
+          autoDismiss: true,
+        ).show(context);
+      }
     }
   }
 

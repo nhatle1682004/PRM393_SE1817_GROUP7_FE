@@ -43,7 +43,7 @@ class ReportDetailScreen extends StatelessWidget {
                     child: Image.network(
                       report.imageUrl!,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Center(child: Icon(Icons.broken_image_outlined, size: 64, color: Colors.grey)),
+                      errorBuilder: (_, error, stackTrace) => const Center(child: Icon(Icons.broken_image_outlined, size: 64, color: Colors.grey)),
                       loadingBuilder: (_, child, progress) => progress == null ? child : const Center(child: CircularProgressIndicator(color: Color(0xFF10B981))),
                     ),
                   ),

@@ -24,25 +24,25 @@ class AdminStats {
   });
 
   factory AdminStats.fromJson(Map<String, dynamic> json) {
-    int _toInt(dynamic val) {
+    int toInt(dynamic val) {
       if (val == null) return 0;
       if (val is int) return val;
       return int.tryParse(val.toString()) ?? 0;
     }
 
-    Map<String, int> _toMap(dynamic val) {
+    Map<String, int> toMap(dynamic val) {
       if (val == null || val is! Map) return {};
       final rawMap = Map<String, dynamic>.from(val);
-      return rawMap.map((key, value) => MapEntry(key, _toInt(value)));
+      return rawMap.map((key, value) => MapEntry(key, toInt(value)));
     }
 
     return AdminStats(
-      totalUsers: _toInt(json['totalUsers']),
-      totalReports: _toInt(json['totalReports']),
-      totalCollections: _toInt(json['totalCollections']),
-      totalFeedbacks: _toInt(json['totalFeedbacks']),
-      pendingReports: _toInt(json['pendingReports']),
-      pendingFeedbacks: _toInt(json['pendingFeedbacks']),
+      totalUsers: toInt(json['totalUsers']),
+      totalReports: toInt(json['totalReports']),
+      totalCollections: toInt(json['totalCollections']),
+      totalFeedbacks: toInt(json['totalFeedbacks']),
+      pendingReports: toInt(json['pendingReports']),
+      pendingFeedbacks: toInt(json['pendingFeedbacks']),
       monthlyReports: (json['monthlyReports'] as List<dynamic>?)
               ?.map((e) => MonthlyData.fromJson(e))
               .toList() ??
@@ -51,8 +51,8 @@ class AdminStats {
               ?.map((e) => MonthlyData.fromJson(e))
               .toList() ??
           [],
-      reportStatusBreakdown: _toMap(json['reportStatusBreakdown']),
-      userRoleBreakdown: _toMap(json['userRoleBreakdown']),
+      reportStatusBreakdown: toMap(json['reportStatusBreakdown']),
+      userRoleBreakdown: toMap(json['userRoleBreakdown']),
     );
   }
 }

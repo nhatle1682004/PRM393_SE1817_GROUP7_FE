@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cherry_toast/cherry_toast.dart';
+import 'package:cherry_toast/resources/arrays.dart';
 import 'package:waste_collection_management_system/data/models/enterprise_models.dart';
 import 'package:waste_collection_management_system/services/enterprise_api_service.dart';
 
@@ -67,12 +69,12 @@ class _NotificationsViewState extends State<NotificationsView> {
       // Nếu lỗi thì rollback lại trạng thái cũ
       _loadNotifications();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Không thể đánh dấu: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        CherryToast.error(
+          title: const Text('Lỗi', style: TextStyle(fontWeight: FontWeight.bold)),
+          description: Text('Không thể đánh dấu: ${e.toString()}'),
+          animationType: AnimationType.fromRight,
+          autoDismiss: true,
+        ).show(context);
       }
     }
   }
@@ -89,23 +91,22 @@ class _NotificationsViewState extends State<NotificationsView> {
       await EnterpriseApiService.markAllNotificationsRead();
       widget.onRefreshParent?.call();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Đã đánh dấu tất cả là đã đọc'),
-            backgroundColor: Color(0xFF10B981),
-            duration: Duration(seconds: 1),
-          ),
-        );
+        CherryToast.success(
+          title: const Text('Thành công', style: TextStyle(fontWeight: FontWeight.bold)),
+          description: const Text('Đã đánh dấu tất cả là đã đọc'),
+          animationType: AnimationType.fromRight,
+          autoDismiss: true,
+        ).show(context);
       }
     } catch (e) {
       _loadNotifications();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Lỗi: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        CherryToast.error(
+          title: const Text('Lỗi', style: TextStyle(fontWeight: FontWeight.bold)),
+          description: Text('Lỗi: ${e.toString()}'),
+          animationType: AnimationType.fromRight,
+          autoDismiss: true,
+        ).show(context);
       }
     }
   }

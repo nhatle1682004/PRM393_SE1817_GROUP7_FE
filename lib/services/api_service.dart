@@ -38,7 +38,6 @@ class ApiService {
             onError: (DioException e, handler) {
               // Xử lý lỗi tập trung khi token hết hạn (mã lỗi 401 Unauthorized từ .NET)
               if (e.response?.statusCode == 401) {
-                print("🚨 Token hết hạn hoặc không hợp lệ!");
                 // Bạn có thể xử lý xóa token cũ và đá người dùng ra màn Login ở đây
               }
               return handler.next(e);
@@ -174,7 +173,9 @@ class ApiService {
         );
       }
 
-      if (multipartFile == null) throw "HÃ¬nh áº£nh khÃ´ng há»£p lá»‡";
+      if (multipartFile == null) {
+        throw "Hình ảnh không hợp lệ";
+      }
 
       final formData = FormData.fromMap({'Image': multipartFile});
       return await _dio.post(
@@ -269,8 +270,9 @@ class ApiService {
       if (statusCode == 401) return 'Phiên đăng nhập hết hạn (401)';
       if (statusCode == 403) return 'Bạn không có quyền thực hiện (403)';
       if (statusCode == 404) return 'Không tìm thấy endpoint (404)';
-      if (statusCode == 405)
+      if (statusCode == 405) {
         return 'Phương thức POST không được hỗ trợ (405). BE chưa cài đặt API tạo.';
+      }
       if (statusCode == 409) return 'Dữ liệu đã tồn tại (409)';
       if (statusCode == 500) return 'Lỗi hệ thống máy chủ (500)';
 

@@ -15,7 +15,6 @@ class VerifyEmailForm extends StatefulWidget {
 class _VerifyEmailFormState extends State<VerifyEmailForm> {
   Timer? _timer;
   int _startSeconds = 300;
-  bool _canResend = false;
   bool _isLoading = false;
   String? _errorMessage;
   final AuthService _authService = AuthService();
@@ -32,24 +31,16 @@ class _VerifyEmailFormState extends State<VerifyEmailForm> {
   void _startCountdown() {
     setState(() {
       _startSeconds = 300;
-      _canResend = false;
     });
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_startSeconds == 0) {
         setState(() {
           _timer?.cancel();
-          _canResend = true;
         });
       } else {
         setState(() => _startSeconds--);
       }
     });
-  }
-
-  String _formatTime(int seconds) {
-    final minutes = (seconds / 60).floor().toString().padLeft(2, '0');
-    final remainingSeconds = (seconds % 60).toString().padLeft(2, '0');
-    return '$minutes:$remainingSeconds';
   }
 
   @override
@@ -102,24 +93,6 @@ class _VerifyEmailFormState extends State<VerifyEmailForm> {
         _errorMessage = e.toString().replaceFirst('Exception: ', '');
       });
       _clearOtpFields();
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  Future<void> _resendOtp() async {
-    _clearError();
-    setState(() => _isLoading = true);
-
-    try {
-      await _authService.resendOtp();
-      _startCountdown();
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString().replaceFirst('Exception: ', '');
-      });
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);

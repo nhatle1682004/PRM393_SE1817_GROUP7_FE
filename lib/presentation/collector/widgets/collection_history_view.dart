@@ -284,7 +284,7 @@ class _ProofImage extends StatelessWidget {
             child: Image.network(
               fullUrl,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (_, error, stackTrace) => Container(
                 color: const Color(0xFFF1F5F9),
                 child: const Icon(Icons.image_not_supported_outlined),
               ),

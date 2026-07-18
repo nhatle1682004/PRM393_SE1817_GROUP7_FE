@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cherry_toast/cherry_toast.dart';
+import 'package:cherry_toast/resources/arrays.dart';
 import 'package:waste_collection_management_system/presentation/login/widgets/left_panel_banner.dart';
 import 'package:waste_collection_management_system/services/auth_service.dart';
 
@@ -118,9 +120,12 @@ class _ForgotPasswordFormState extends State<_ForgotPasswordForm> {
       );
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Đổi mật khẩu thành công.')));
+      CherryToast.success(
+        title: const Text('Thành công', style: TextStyle(fontWeight: FontWeight.bold)),
+        description: const Text('Đổi mật khẩu thành công.'),
+        animationType: AnimationType.fromRight,
+        autoDismiss: true,
+      ).show(context);
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;

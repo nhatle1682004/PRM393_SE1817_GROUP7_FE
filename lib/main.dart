@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:waste_collection_management_system/presentation/login/login_screen.dart';
-import 'package:waste_collection_management_system/presentation/home/home_screen.dart';
+import 'package:waste_collection_management_system/presentation/home/widgets/home_screen.dart';
 import 'package:waste_collection_management_system/presentation/admin/admin_screen.dart';
 import 'package:waste_collection_management_system/presentation/enterprise/enterprise_screen.dart';
 import 'package:waste_collection_management_system/presentation/collector/collector_screen.dart';

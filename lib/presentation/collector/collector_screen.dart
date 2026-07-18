@@ -106,7 +106,7 @@ class _CollectorScreenState extends State<CollectorScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -188,7 +188,7 @@ class _CollectorScreenState extends State<CollectorScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 20,
             offset: const Offset(4, 0),
           ),
@@ -270,7 +270,7 @@ class _CollectorScreenState extends State<CollectorScreen> {
               boxShadow: isActive
                   ? [
                       BoxShadow(
-                        color: const Color(0xFF10B981).withOpacity(0.3),
+                        color: const Color(0xFF10B981).withValues(alpha: 0.3),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -364,7 +364,7 @@ class _CollectorScreenState extends State<CollectorScreen> {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundColor: Colors.white.withOpacity(0.2),
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
                   child: Text(
                     initials,
                     style: const TextStyle(
@@ -392,7 +392,7 @@ class _CollectorScreenState extends State<CollectorScreen> {
                       Text(
                         userEmail,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 13,
                         ),
                         maxLines: 1,

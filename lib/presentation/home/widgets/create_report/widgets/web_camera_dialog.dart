@@ -68,7 +68,8 @@ class _WebCameraDialogState extends State<WebCameraDialog> {
                       try {
                         await _initializeControllerFuture;
                         final image = await _controller.takePicture();
-                        if (mounted) Navigator.pop(context, image);
+                        if (!context.mounted) return;
+                        Navigator.pop(context, image);
                       } catch (e) {
                         debugPrint(e.toString());
                       }

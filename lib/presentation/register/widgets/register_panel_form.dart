@@ -113,10 +113,12 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                 onFieldSubmitted: (_) => _emailFocus.requestFocus(),
                 textCapitalization: TextCapitalization.words,
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty)
+                  if (value == null || value.trim().isEmpty) {
                     return 'Vui lòng nhập họ và tên';
-                  if (value.trim().length > 100)
+                  }
+                  if (value.trim().length > 100) {
                     return 'Họ và tên tối đa 100 ký tự';
+                  }
                   return null;
                 },
                 decoration: InputDecoration(
@@ -155,13 +157,15 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                 keyboardType: TextInputType.emailAddress,
                 textCapitalization: TextCapitalization.none,
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty)
+                  if (value == null || value.trim().isEmpty) {
                     return 'Vui lòng nhập email';
+                  }
                   final emailRegex = RegExp(
                     r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                   );
-                  if (!emailRegex.hasMatch(value))
+                  if (!emailRegex.hasMatch(value)) {
                     return 'Vui lòng nhập địa chỉ email hợp lệ';
+                  }
                   return null;
                 },
                 decoration: InputDecoration(
@@ -199,18 +203,24 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                 onFieldSubmitted: (_) => _confirmFocus.requestFocus(),
                 obscureText: _obscurePassword,
                 validator: (value) {
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return 'Vui lòng nhập mật khẩu';
-                  if (value.length < 8)
+                  }
+                  if (value.length < 8) {
                     return 'Mật khẩu phải có ít nhất 8 ký tự';
-                  if (!RegExp(r'[A-Z]').hasMatch(value))
+                  }
+                  if (!RegExp(r'[A-Z]').hasMatch(value)) {
                     return 'Mật khẩu phải có ít nhất một chữ hoa';
-                  if (!RegExp(r'[a-z]').hasMatch(value))
+                  }
+                  if (!RegExp(r'[a-z]').hasMatch(value)) {
                     return 'Mật khẩu phải có ít nhất một chữ thường';
-                  if (!RegExp(r'[0-9]').hasMatch(value))
+                  }
+                  if (!RegExp(r'[0-9]').hasMatch(value)) {
                     return 'Mật khẩu phải có ít nhất một chữ số';
-                  if (!RegExp(r'[^a-zA-Z0-9]').hasMatch(value))
+                  }
+                  if (!RegExp(r'[^a-zA-Z0-9]').hasMatch(value)) {
                     return 'Mật khẩu phải có ít nhất một ký tự đặc biệt';
+                  }
                   return null;
                 },
                 decoration: InputDecoration(
@@ -255,10 +265,12 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                 textInputAction: TextInputAction.done,
                 obscureText: _obscureConfirmPassword,
                 validator: (value) {
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return 'Vui lòng xác nhận mật khẩu';
-                  if (value != _passwordController.text)
+                  }
+                  if (value != _passwordController.text) {
                     return 'Mật khẩu không khớp';
+                  }
                   return null;
                 },
                 decoration: InputDecoration(
@@ -310,16 +322,15 @@ class _RegisterPanelFormState extends State<RegisterPanelForm> {
                                 _passwordController.text,
                                 _confirmController.text,
                               );
-                              if (mounted) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => VerifyEmailScreen(
-                                      email: _emailController.text.trim(),
-                                    ),
+                              if (!context.mounted) return;
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => VerifyEmailScreen(
+                                    email: _emailController.text.trim(),
                                   ),
-                                );
-                              }
+                                ),
+                              );
                             } catch (e) {
                               setState(() {
                                 _errorMessage = e.toString().replaceFirst(
