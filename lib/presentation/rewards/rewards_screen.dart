@@ -402,7 +402,7 @@ class _RewardsScreenState extends State<RewardsScreen> implements RewardsView {
                           crossAxisCount: isMobile ? 1 : (constraints.maxWidth > 1000 ? 3 : 2),
                           mainAxisSpacing: 16,
                           crossAxisSpacing: 16,
-                          childAspectRatio: isMobile ? 2.2 : 1.3,
+                          childAspectRatio: isMobile ? 1.7 : 1.3,
                         ),
                         delegate: SliverChildBuilderDelegate(
                           (context, index) => _buildRewardCard(_rewards[index], isMobile),
@@ -493,92 +493,116 @@ class _RewardsScreenState extends State<RewardsScreen> implements RewardsView {
                 ),
               ],
             ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF10B981), Color(0xFF059669)],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.eco,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Số dư điểm của bạn',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF64748B),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Text(
-                            '$_balance',
-                            style: const TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF10B981),
+            child: isMobile 
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Color(0xFF10B981), Color(0xFF059669)],
                             ),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          const SizedBox(width: 4),
-                          const Text(
-                            'điểm',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFF10B981),
-                              fontWeight: FontWeight.w500,
-                            ),
+                          child: const Icon(Icons.eco, color: Colors.white, size: 28),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Số dư điểm của bạn', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                              const SizedBox(height: 4),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Text('$_balance', style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF10B981))),
+                                  const SizedBox(width: 4),
+                                  const Text('điểm', style: TextStyle(fontSize: 16, color: Color(0xFF10B981), fontWeight: FontWeight.w500)),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFDCFCE7),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFBBF7D0)),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.info_outline, color: Color(0xFF10B981), size: 16),
+                          SizedBox(width: 6),
+                          Text('Báo cáo để tích thêm điểm thưởng', style: TextStyle(fontSize: 12, color: Color(0xFF10B981), fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF10B981), Color(0xFF059669)],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.eco, color: Colors.white, size: 28),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Số dư điểm của bạn', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                          const SizedBox(height: 4),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              Text('$_balance', style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF10B981))),
+                              const SizedBox(width: 4),
+                              const Text('điểm', style: TextStyle(fontSize: 16, color: Color(0xFF10B981), fontWeight: FontWeight.w500)),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFDCFCE7),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFBBF7D0)),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Color(0xFF10B981),
-                        size: 16,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFDCFCE7),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFBBF7D0)),
                       ),
-                      SizedBox(width: 6),
-                      Text(
-                        'Báo cáo để tích điểm',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF10B981),
-                          fontWeight: FontWeight.w600,
-                        ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.info_outline, color: Color(0xFF10B981), size: 16),
+                          SizedBox(width: 6),
+                          Text('Báo cáo để tích điểm', style: TextStyle(fontSize: 12, color: Color(0xFF10B981), fontWeight: FontWeight.w600)),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
           ),
         ],
       ),
