@@ -235,12 +235,43 @@ class _HomeScreenState extends State<HomeScreen> implements HomeView {
         title: const Text('Waste Collection', style: TextStyle(color: Color(0xff0f172a), fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Color(0xff475569)),
         actions: [
+          _buildMobilePointsBadge(),
           _buildMobileNotificationBell(),
           const SizedBox(width: 4),
         ],
       ),
       drawer: _buildDrawer(),
       body: _buildContent(isMobile),
+    );
+  }
+
+  Widget _buildMobilePointsBadge() {
+    final int points = int.tryParse(_stats.totalPoints.replaceAll(',', '')) ?? 0;
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF0FDF4),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFBBF7D0)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.stars, color: Color(0xFF10B981), size: 14),
+            const SizedBox(width: 4),
+            Text(
+              '$points',
+              style: const TextStyle(
+                color: Color(0xFF10B981),
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
